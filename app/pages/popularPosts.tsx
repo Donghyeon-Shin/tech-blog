@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router';
 import PopularPostCard from '~/components/ui/popularPostCard';
 
 interface Post {
@@ -85,6 +86,15 @@ export default function PopularPosts() {
             rank={post.rank}
           />
         ))}
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <NavLink
+          to='/posts/all'
+          className='text-sm text-muted-foreground hover:text-foreground border rounded-full p-4'
+        >
+          Load More Articles
+        </NavLink>
       </div>
     </div>
   );
