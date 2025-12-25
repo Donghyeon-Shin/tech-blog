@@ -16,30 +16,33 @@ import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/cjs/languages/prism/json';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Link } from 'react-router';
+import TechBadge from '~/components/ui/techBadge';
 
 SyntaxHighlighter.registerLanguage('json', json.default || json);
 
 export default function About() {
   return (
-    <div className='flex flex-col gap-12 max-w-[1400px] md:ml-20'>
-      <div className='flex flex-row items-center justify-between'>
-        <div className='flex flex-row gap-4'>
-          <Avatar className='size-40 border-3 border-muted-foreground'>
+    <div className='flex flex-col gap-12 max-w-[1400px] px-4 md:ml-20 md:px-0'>
+      <div className='flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
+        <div className='flex flex-col sm:flex-row gap-4 w-full md:w-auto'>
+          <Avatar className='size-40 border-3 border-muted-foreground shrink-0'>
             <AvatarImage src='https://github.com/Donghyeon-Shin.png' />
             <AvatarFallback>DH</AvatarFallback>
           </Avatar>
-          <div className='flex flex-col gap-4'>
-            <h1 className='text-4xl font-bold'>
+          <div className='flex flex-col gap-4 min-w-0'>
+            <h1 className='text-2xl sm:text-4xl font-bold'>
               Hello, I&apos;m <span className='text-primary'>Dongle</span>
             </h1>
-            <p className='text-muted-foreground text-xl font-semibold'>Undergraduate Researcher</p>
-            <p className='text-muted-foreground'>
+            <p className='text-muted-foreground text-lg sm:text-xl font-semibold'>
+              Undergraduate Researcher
+            </p>
+            <p className='text-muted-foreground text-sm sm:text-base'>
               &quot;I choose to grow at the tail of a dragon rather than lead as the head of a
               snake.&quot;
             </p>
           </div>
         </div>
-        <div className='flex flex-col gap-4 mx-4'>
+        <div className='flex-col gap-4 mx-4 hidden lg:flex'>
           <Button variant='outline' size='lg' className='px-6 py-4 text-lg'>
             <DownloadIcon className='size-4' />
             Resume
@@ -50,14 +53,14 @@ export default function About() {
           </div>
         </div>
       </div>
-      <div className='rounded-lg overflow-hidden border'>
-        <div className='bg-[#282c34] px-4 py-2 border-b flex items-center gap-2'>
-          <div className='flex gap-2'>
+      <div className='rounded-lg overflow-hidden border overflow-x-auto'>
+        <div className='bg-[#282c34] px-4 py-2 border-b flex items-center gap-2 min-w-fit'>
+          <div className='flex gap-2 shrink-0'>
             <div className='size-3 rounded-full bg-[#ff5f56]'></div>
             <div className='size-3 rounded-full bg-[#ffbd2e]'></div>
             <div className='size-3 rounded-full bg-[#27c93f]'></div>
           </div>
-          <span className='text-sm text-gray-400 ml-2'>about_me.json</span>
+          <span className='text-sm text-gray-400 ml-2 whitespace-nowrap'>about_me.json</span>
         </div>
         <SyntaxHighlighter
           language='json'
@@ -68,6 +71,7 @@ export default function About() {
             background: '#282c34',
             fontSize: '0.875rem',
             lineHeight: '1.5',
+            minWidth: 'fit-content',
           }}
         >
           {JSON.stringify(
@@ -89,53 +93,29 @@ export default function About() {
         </div>
         <div className='flex flex-col gap-3'>
           <h2 className='text-md font-semibold uppercase text-muted-foreground'>Frontend</h2>
-          <div className='flex flex-row gap-4'>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              React
-            </h4>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              React Router
-            </h4>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              TypeScript
-            </h4>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              Vue.js
-            </h4>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              Tailwind CSS
-            </h4>
+          <div className='flex flex-row flex-wrap gap-4'>
+            <TechBadge title='React' />
+            <TechBadge title='React Router' />
+            <TechBadge title='TypeScript' />
+            <TechBadge title='Vue.js' />
+            <TechBadge title='Tailwind CSS' />
           </div>
         </div>
         <div className='flex flex-col gap-3'>
           <h2 className='text-md font-semibold uppercase text-muted-foreground'>Database</h2>
-          <div className='flex flex-row gap-4'>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              MySQL
-            </h4>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              PostgreSQL
-            </h4>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              Supabase
-            </h4>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              Drizzle ORM
-            </h4>
+          <div className='flex flex-row flex-wrap gap-4'>
+            <TechBadge title='MySQL' />
+            <TechBadge title='PostgreSQL' />
+            <TechBadge title='Supabase' />
+            <TechBadge title='Drizzle ORM' />
           </div>
         </div>
         <div className='flex flex-col gap-3'>
           <h2 className='text-md font-semibold uppercase text-muted-foreground'>AI</h2>
-          <div className='flex flex-row gap-4'>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              Python
-            </h4>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              PyTorch
-            </h4>
-            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
-              LangChain
-            </h4>
+          <div className='flex flex-row flex-wrap gap-4'>
+            <TechBadge title='Python' />
+            <TechBadge title='PyTorch' />
+            <TechBadge title='LangChain' />
           </div>
         </div>
       </div>
@@ -152,12 +132,12 @@ export default function About() {
             <div className='relative'>
               <div className='absolute -left-4 top-1 size-4 rounded-full bg-primary border-2 border-background -translate-x-1/2'></div>
               <div className='flex flex-col gap-3'>
-                <div className='flex flex-row items-start justify-between gap-4'>
-                  <div className='flex flex-col gap-1'>
+                <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4'>
+                  <div className='flex flex-col gap-1 min-w-0'>
                     <h3 className='text-xl font-bold'>Undergraduate Researcher</h3>
                     <p className='text-muted-foreground'>Professional Knowledge</p>
                   </div>
-                  <span className='text-primary border border-primary rounded-md px-3 py-1 text-sm whitespace-nowrap'>
+                  <span className='text-primary border border-primary rounded-md px-3 py-1 text-sm whitespace-nowrap shrink-0'>
                     2025 - Present
                   </span>
                 </div>
@@ -183,12 +163,12 @@ export default function About() {
             <div className='relative'>
               <div className='absolute -left-4 top-1 size-4 rounded-full bg-primary border-2 border-background -translate-x-1/2'></div>
               <div className='flex flex-col gap-3'>
-                <div className='flex flex-row items-start justify-between gap-4'>
-                  <div className='flex flex-col gap-1'>
+                <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4'>
+                  <div className='flex flex-col gap-1 min-w-0'>
                     <h3 className='text-xl font-bold'>College student & Soldier</h3>
                     <p className='text-muted-foreground'>A variety of experiences</p>
                   </div>
-                  <span className='bg-muted/50 text-muted-foreground border border-muted rounded-md px-3 py-1 text-sm whitespace-nowrap'>
+                  <span className='bg-muted/50 text-muted-foreground border border-muted rounded-md px-3 py-1 text-sm whitespace-nowrap shrink-0'>
                     2022 - 2025
                   </span>
                 </div>
@@ -208,7 +188,7 @@ export default function About() {
           <Earth className='size-6 text-primary' />
           <h2 className='text-2xl font-bold'>Dive Deeper</h2>
         </div>
-        <div className='grid grid-cols-3 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
           <Link
             to='https://github.com/Donghyeon-Shin'
             target='_blank'
