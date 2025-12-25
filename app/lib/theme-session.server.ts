@@ -29,8 +29,11 @@ const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: 'theme',
     path: '/',
-    httpOnly: false,
+    httpOnly: true,
     sameSite: 'lax',
+    secrets: process.env.SESSION_SECRET
+      ? [process.env.SESSION_SECRET]
+      : ['default-secret-change-in-production'],
   },
 });
 
