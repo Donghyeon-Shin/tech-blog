@@ -1,7 +1,9 @@
+import { Calendar, Clock } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import HierarchyBar from '~/components/layout/hierarchyBar';
-
+import { Separator } from '~/components/ui/separator';
+import { format } from 'date-fns';
 const markdownContent = `
 # Algorithm?
 	알고리즘은 특정 문제를 해결하기 위한 절차나 방법을 공식화한 형태를 말한다.
@@ -63,18 +65,37 @@ const markdownContent = `
 `;
 
 export default function Post() {
+  const dbData = new Date('2025-10-23T10:00:00');
+  const formattedDate = format(dbData, 'MMM dd, yyyy');
+  const minutesToRead = 10;
+
   return (
-    <div>
-      <HierarchyBar
-        hierarchy={[
-          { category: 'Algorithm' },
-          { category: 'Array' },
-          { category: 'Binary Search' },
-        ]}
-      />
-      <Markdown remarkPlugins={[remarkGfm]} components={{}}>
-        {markdownContent}
-      </Markdown>
+    <div className='grid grid-cols-1 md:grid-cols-[1fr_280px] xl:grid-cols-[1fr_280px]'>
+      <div className='flex flex-col gap-4 mr-3'>
+        <HierarchyBar
+          hierarchy={[
+            { category: 'Algorithm' },
+            { category: 'Array' },
+            { category: 'Binary Search' },
+          ]}
+        />
+        <h1 className='text-6xl font-bold'>Algorithm Introduction</h1>
+        <div className='flex items-center justify-end gap-5'>
+          <div className='flex items-center gap-2 text-muted-foreground'>
+            <Calendar className='size-4' />
+            <span className='text-sm font-medium'>{formattedDate}</span>
+          </div>
+          <div className='flex items-center gap-2 text-muted-foreground'>
+            <Clock className='size-4' />
+            <span className='text-sm font-medium'>{minutesToRead} min read</span>
+          </div>
+        </div>
+        <Separator />
+        <Markdown remarkPlugins={[remarkGfm]} components={{}}>
+          {markdownContent}
+        </Markdown>
+      </div>
+      <div className='hidden md:block'>오른쪽</div>
     </div>
   );
 }
