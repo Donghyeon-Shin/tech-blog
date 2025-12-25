@@ -13,6 +13,7 @@ import './app.css';
 import Header from './components/layout/header';
 import { themeSessionResolver } from './lib/theme-session.server';
 import { ThemeProvider, useTheme } from 'remix-themes';
+import LeftSidebar from './components/layout/leftSideBar';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -73,7 +74,12 @@ export default function App() {
   return (
     <div>
       <Header />
-      <Outlet />
+      <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
+        <LeftSidebar />
+        <div className='bg-red-500'>
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 }
