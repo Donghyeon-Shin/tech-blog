@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import { Button } from '../ui/button';
 import { CopyIcon } from 'lucide-react';
 import React from 'react';
+import { toast } from 'sonner';
 
 const components: Components = {
   h1: ({ node: _node, ...props }) => {
@@ -42,6 +43,7 @@ const components: Components = {
                 ?.querySelector('pre');
               const text = preElement?.textContent || '';
               navigator.clipboard.writeText(text);
+              toast.success('코드가 복사되었습니다.');
             }}
           >
             <CopyIcon className='size-4' />

@@ -14,6 +14,7 @@ import Header from './components/layout/header';
 import { themeSessionResolver } from './lib/theme-session.server';
 import { ThemeProvider, useTheme } from 'remix-themes';
 import LeftSidebar from './components/layout/leftSideBar';
+import { Toaster } from 'sonner';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -65,6 +66,7 @@ export function InnerLayout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <Toaster position='top-center' />
       </body>
     </html>
   );
