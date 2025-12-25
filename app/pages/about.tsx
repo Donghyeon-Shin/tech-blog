@@ -1,4 +1,15 @@
-import { Code, DownloadIcon, FilePenIcon, Layers2, MapPin } from 'lucide-react';
+import {
+  BookOpen,
+  Code,
+  DownloadIcon,
+  Earth,
+  FilePenIcon,
+  Layers2,
+  MapPin,
+  Microscope,
+  TerminalSquareIcon,
+  Waypoints,
+} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -190,6 +201,66 @@ export default function About() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div className='flex flex-col gap-6'>
+        <div className='flex flex-row gap-4 items-center'>
+          <Earth className='size-6 text-primary' />
+          <h2 className='text-2xl font-bold'>Dive Deeper</h2>
+        </div>
+        <div className='grid grid-cols-3 gap-4'>
+          <Link
+            to='https://github.com/Donghyeon-Shin'
+            target='_blank'
+            className='border rounded-lg p-4 flex flex-col gap-2 bg-primary/10 px-6 py-8 hover:bg-primary/20 transition-all duration-300'
+          >
+            <div className='flex flex-row gap-2 items-center'>
+              <TerminalSquareIcon className='size-6 text-primary' />
+              <h3 className='text-xl font-bold'>GitHub Profile</h3>
+            </div>
+            <p className='text-muted-foreground'>
+              Explore my GitHub repositories, and code activities.
+            </p>
+          </Link>
+          <Link
+            to='https://gcu-vomlab.github.io/VOM/index.html'
+            target='_blank'
+            className='border rounded-lg p-4 flex flex-col gap-2 bg-primary/10 px-6 py-8 hover:bg-primary/20 transition-all duration-300'
+          >
+            <div className='flex flex-row gap-2 items-center'>
+              <Microscope className='size-6 text-primary' />
+              <h3 className='text-xl font-bold'>VOM Lab</h3>
+            </div>
+            <p className='text-muted-foreground'>
+              Introducing the major projects and achievements of the VOM Lab that challenge
+              technical limitations.
+            </p>
+          </Link>
+          <Link
+            to='https://solved.ac/profile/sdh0321'
+            target='_blank'
+            className='border rounded-lg p-4 flex flex-col gap-2 bg-primary/10 px-6 py-8 hover:bg-primary/20 transition-all duration-300'
+          >
+            <div className='flex flex-row gap-2 items-center'>
+              <Waypoints className='size-6 text-primary' />
+              <h3 className='text-xl font-bold'>Algorithm Practice</h3>
+            </div>
+            <p className='text-muted-foreground'>
+              View my competitive programming and algorithm problem-solving progress.
+            </p>
+          </Link>
+          <Link
+            to='/posts/all'
+            className='border rounded-lg p-4 flex flex-col gap-2 bg-primary/10 px-6 py-8 hover:bg-primary/20 transition-all duration-300'
+          >
+            <div className='flex flex-row gap-2 items-center'>
+              <BookOpen className='size-6 text-primary' />
+              <h3 className='text-xl font-bold'>Tech Blog</h3>
+            </div>
+            <p className='text-muted-foreground'>
+              A space where I document and share my technical knowledge and growth.
+            </p>
+          </Link>
         </div>
       </div>
     </div>
