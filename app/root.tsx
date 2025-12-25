@@ -24,6 +24,12 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !process.env.DATABASE_URL) {
+    throw new Error('Missing environment variables');
+  }
+};
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en' className='dark'>
