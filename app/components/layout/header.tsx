@@ -1,4 +1,4 @@
-import { CodeXmlIcon, Command, Search, SunIcon } from 'lucide-react';
+import { CodeXmlIcon, Command, MoonIcon, Search, SunIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { GithubIcon } from '~/assets';
 import {
@@ -14,6 +14,7 @@ import { cn } from '~/lib/utils';
 import { Button } from '../ui/button';
 import { useEffect, useState } from 'react';
 import Searchbar from './searchbar';
+import { Theme, useTheme } from 'remix-themes';
 
 const menus: {
   title: string;
@@ -69,6 +70,7 @@ const menus: {
 
 export default function Header() {
   const [searchBarOpen, setSearchBarOpen] = useState(false);
+  const [theme, setTheme] = useTheme();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -149,8 +151,12 @@ export default function Header() {
               <p className='text-xs font-medium'>k</p>
             </div>
           </Button>
-          <Button variant='ghost' size='icon'>
-            <SunIcon className='size-4' />
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={() => setTheme((theme === 'dark' ? 'light' : 'dark') as Theme)}
+          >
+            {theme === 'dark' ? <SunIcon className='size-4' /> : <MoonIcon className='size-4' />}
           </Button>
           <Link to='https://github.com/Donghyeon-Shin'>
             <GithubIcon width={24} height={24} />

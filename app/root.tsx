@@ -5,11 +5,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteLoaderData,
 } from 'react-router';
 
 import type { Route } from './+types/root';
 import './app.css';
 import Header from './components/layout/header';
+import { themeSessionResolver } from './lib/theme-session.server';
+import { ThemeProvider, useTheme } from 'remix-themes';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -28,11 +31,29 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !process.env.DATABASE_URL) {
     throw new Error('Missing environment variables');
   }
+
+  const { getTheme } = await themeSessionResolver(request);
+  const theme = getTheme();
+
+  return { theme };
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useRouteLoaderData('root');
   return (
-    <html lang='en' className='dark'>
+    <ThemeProvider
+      specifiedTheme={data?.theme ?? 'dark'} // Default to dark theme if none is specified
+      themeAction='/api/settings/theme' // API endpoint for changing theme
+    >
+      <InnerLayout>{children}</InnerLayout>
+    </ThemeProvider>
+  );
+}
+
+export function InnerLayout({ children }: { children: React.ReactNode }) {
+  const [theme] = useTheme();
+  return (
+    <html lang='en' className={theme ?? 'dark'}>
       <head>
         <meta charSet='utf-8' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
