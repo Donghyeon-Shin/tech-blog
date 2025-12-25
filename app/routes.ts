@@ -4,7 +4,7 @@ export default [
   index('pages/index.tsx'),
   ...prefix('posts', [route('/:category/:page?', 'pages/posts.tsx')]),
   route('/popular', 'pages/popularPosts.tsx'),
-  route('post', 'pages/post.tsx'),
+  route('/post/:id', 'pages/post.tsx'),
   route('/about', 'pages/about.tsx'),
   route('/dashboard', 'pages/dashboard.tsx'),
   // prettier-ignore

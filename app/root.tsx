@@ -15,6 +15,10 @@ import { themeSessionResolver } from './lib/theme-session.server';
 import { ThemeProvider, useTheme } from 'remix-themes';
 import LeftSidebar from './components/layout/leftSideBar';
 import { Toaster } from 'sonner';
+import client from './supa-client';
+import { getCategories } from './api/categories/categories-api';
+import { getPosts } from './api/posts/posts-api';
+import { buildCategoriesTree } from './lib/buildCategoriesTree';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -39,11 +43,14 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !process.env.DATABASE_URL) {
     throw new Error('Missing environment variables');
   }
-
   const { getTheme } = await themeSessionResolver(request);
   const theme = getTheme();
 
-  return { theme };
+  const categories = await getCategories(client);
+  const posts = await getPosts(client);
+  const categoriesTree = buildCategoriesTree(categories, posts, null);
+
+  return { theme, categoriesTree };
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -78,12 +85,12 @@ export function InnerLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <div>
       <Header />
       <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
-        <LeftSidebar />
+        <LeftSidebar categoriesTree={loaderData?.categoriesTree} />
         <Outlet />
       </div>
     </div>
