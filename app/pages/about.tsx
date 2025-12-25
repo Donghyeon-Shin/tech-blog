@@ -1,9 +1,10 @@
-import { DownloadIcon, Layers2, MapPin } from 'lucide-react';
+import { Code, DownloadIcon, FilePenIcon, Layers2, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/cjs/languages/prism/json';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { Link } from 'react-router';
 
 SyntaxHighlighter.registerLanguage('json', json.default || json);
 
@@ -124,6 +125,70 @@ export default function About() {
             <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
               LangChain
             </h4>
+          </div>
+        </div>
+      </div>
+      <div className='flex flex-col gap-6'>
+        <div className='flex flex-row gap-4 items-center'>
+          <FilePenIcon className='size-6 text-primary' />
+          <h2 className='text-2xl font-bold'>Experience</h2>
+        </div>
+        <div className='relative pl-8'>
+          <div className='absolute left-4 top-3 bottom-0 w-0.5 bg-primary/30 -translate-x-1/2'></div>
+          {/* 경력 항목들 */}
+          <div className='flex flex-col gap-8'>
+            {/* 첫 번째 경력 */}
+            <div className='relative'>
+              <div className='absolute -left-4 top-1 size-4 rounded-full bg-primary border-2 border-background -translate-x-1/2'></div>
+              <div className='flex flex-col gap-3'>
+                <div className='flex flex-row items-start justify-between gap-4'>
+                  <div className='flex flex-col gap-1'>
+                    <h3 className='text-xl font-bold'>Undergraduate Researcher</h3>
+                    <p className='text-muted-foreground'>Professional Knowledge</p>
+                  </div>
+                  <span className='text-primary border border-primary rounded-md px-3 py-1 text-sm whitespace-nowrap'>
+                    2025 - Present
+                  </span>
+                </div>
+                <ul className='flex flex-col gap-2 text-muted-foreground list-disc list-inside'>
+                  <li>VOM Lab Researcher</li>
+                  <li>Learn Langchain and LLM</li>
+                  <li>Developing a custom AI agent for document analysis</li>
+                </ul>
+                <div className='flex flex-row gap-2 flex-wrap'>
+                  <Link
+                    to='https://github.com/Donghyeon-Shin/DocumentSecretary'
+                    target='_blank'
+                    className='border-primary text-primary hover:bg-primary/10 border rounded-md px-3 py-1 text-sm whitespace-nowrap flex flex-row items-center gap-2'
+                  >
+                    <Code className='size-4' />
+                    View GitHub (Project)
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* 두 번째 경력 */}
+            <div className='relative'>
+              <div className='absolute -left-4 top-1 size-4 rounded-full bg-primary border-2 border-background -translate-x-1/2'></div>
+              <div className='flex flex-col gap-3'>
+                <div className='flex flex-row items-start justify-between gap-4'>
+                  <div className='flex flex-col gap-1'>
+                    <h3 className='text-xl font-bold'>College student & Soldier</h3>
+                    <p className='text-muted-foreground'>A variety of experiences</p>
+                  </div>
+                  <span className='bg-muted/50 text-muted-foreground border border-muted rounded-md px-3 py-1 text-sm whitespace-nowrap'>
+                    2022 - 2025
+                  </span>
+                </div>
+                <ul className='flex flex-col gap-2 text-muted-foreground list-disc list-inside'>
+                  <li>Entering Gachon University</li>
+                  <li>Acquisition of 1 unmanned multi-copter</li>
+                  <li>Acquisition of TESAT Grade 1</li>
+                  <li>Study React</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
