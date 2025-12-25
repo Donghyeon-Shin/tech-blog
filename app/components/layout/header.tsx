@@ -98,7 +98,9 @@ export default function Header() {
         <div className='flex items-center gap-4'>
           <div className='flex items-center gap-2'>
             <CodeXmlIcon className='size-6' />
-            <p className='text-2xl font-bold'>Dongle</p>
+            <Link to='/' className='text-2xl font-bold'>
+              Dongle
+            </Link>
           </div>
           <NavigationMenu className='hidden md:block'>
             <NavigationMenuList>
