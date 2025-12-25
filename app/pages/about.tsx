@@ -1,6 +1,11 @@
 import { DownloadIcon, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import json from 'react-syntax-highlighter/dist/cjs/languages/prism/json';
+import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+
+SyntaxHighlighter.registerLanguage('json', json.default || json);
 
 export default function About() {
   return (
@@ -32,6 +37,38 @@ export default function About() {
             <p className='text-muted-foreground text-sm'>Seongnam, South Korea</p>
           </div>
         </div>
+      </div>
+      <div className='rounded-lg overflow-hidden border'>
+        <div className='bg-[#282c34] px-4 py-2 border-b flex items-center gap-2'>
+          <div className='flex gap-2'>
+            <div className='size-3 rounded-full bg-[#ff5f56]'></div>
+            <div className='size-3 rounded-full bg-[#ffbd2e]'></div>
+            <div className='size-3 rounded-full bg-[#27c93f]'></div>
+          </div>
+          <span className='text-sm text-gray-400 ml-2'>about_me.json</span>
+        </div>
+        <SyntaxHighlighter
+          language='json'
+          style={oneDark}
+          customStyle={{
+            margin: 0,
+            padding: '1.5rem',
+            background: '#282c34',
+            fontSize: '0.875rem',
+            lineHeight: '1.5',
+          }}
+        >
+          {JSON.stringify(
+            {
+              name: 'Donghyeon Shin',
+              current_role: 'Undergraduate Researcher',
+              years_of_exp: 3,
+              hobbies: ['Study Tech', 'Exercise at the gym', 'Game'],
+            },
+            null,
+            2,
+          )}
+        </SyntaxHighlighter>
       </div>
     </div>
   );
