@@ -44,7 +44,7 @@ const chartConfig = {
 
 export default function Dashboard() {
   return (
-    <div className='flex flex-col gap-12 max-w-[1400px] md:ml-20'>
+    <div className='flex flex-col gap-6 max-w-[1400px] md:ml-20'>
       <h1 className='text-4xl font-bold'>Overview</h1>
       <div className='grid grid-cols-4 gap-4'>
         <DashboardCard
@@ -209,6 +209,71 @@ export default function Dashboard() {
           </CardContent>
         </CardHeader>
       </Card>
+      <div className='grid grid-cols-2 gap-4'>
+        <Card className='w-full bg-primary/10 border-primary/20'>
+          <CardHeader>
+            <CardTitle>Views by Category</CardTitle>
+            <CardDescription>Top 4 categories by percentage of views</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className='flex flex-col gap-4'>
+              {[
+                { name: 'Algorithm', percentage: 45, color: 'oklch(73.57% 0.158 251.78)' },
+                { name: 'React', percentage: 28, color: 'oklch(76.22% 0.15 237.05)' },
+                { name: 'Book', percentage: 15, color: 'oklch(73.91% 0.198 71.04)' },
+                { name: 'LangChain', percentage: 12, color: 'oklch(77.56% 0.169 189.69)' },
+              ].map((category) => (
+                <div key={category.name} className='flex flex-col gap-2'>
+                  <div className='flex flex-row items-center justify-between'>
+                    <span className='text-sm font-medium'>{category.name}</span>
+                    <span className='text-sm text-muted-foreground'>{category.percentage}%</span>
+                  </div>
+                  <div className='h-2 w-full rounded-full bg-muted overflow-hidden'>
+                    <div
+                      className='h-full rounded-full transition-all'
+                      style={{
+                        width: `${category.percentage}%`,
+                        backgroundColor: category.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className='w-full bg-primary/10 border-primary/20'>
+          <CardHeader>
+            <CardTitle>Top Performing Posts</CardTitle>
+            <CardDescription>Top 4 posts by views</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className='flex flex-col gap-4'>
+              {/* 테이블 헤더 */}
+              <div className='grid grid-cols-[1fr_auto] gap-4 px-4 py-2 bg-primary/10 rounded-lg'>
+                <span className='text-sm font-semibold text-muted-foreground uppercase'>
+                  Post Title
+                </span>
+                <span className='text-sm font-semibold text-muted-foreground uppercase'>Views</span>
+              </div>
+              {/* 테이블 데이터 */}
+              {[
+                { title: 'Understanding React Server Components', views: 24512 },
+                { title: '10 Tips for Clean CSS Architecture', views: 18205 },
+                { title: 'The Future of AI in Web Development', views: 12980 },
+                { title: 'Designing for Accessibility', views: 9432 },
+              ].map((post, index) => (
+                <div key={index} className='grid grid-cols-[1fr_auto] gap-4 items-center px-4 py-2'>
+                  <span className='text-sm font-medium'>{post.title}</span>
+                  <span className='text-sm font-bold text-muted-foreground'>
+                    {post.views.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
