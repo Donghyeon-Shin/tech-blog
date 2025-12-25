@@ -3,64 +3,179 @@ import HierarchyBar from '~/components/layout/hierarchyBar';
 import { Separator } from '~/components/ui/separator';
 import { format } from 'date-fns';
 import MarkdownrRender from '~/components/layout/markdownrRender';
-const markdownContent = `
-# Algorithm?
-	알고리즘은 특정 문제를 해결하기 위한 절차나 방법을 공식화한 형태를 말한다.
-	알고리즘을 많이 안다는 것은 도구를 많이 가지고 있다는 것과 같다. 
-	로직을 구현할 때 다양한 도구를 사용할 수 있으면 효과적이고 강력한 코드를 짤 수 있다.
-![[BAEKJOON.png]]
-- 🌐[BeakJoon](https://www.acmicpc.net/) 한국에 유명한 알고리즘 트레이닝 사이트이다.  ICPC, 한국정보올림피아드 같은 대회 문제나 Open Cup 같은 사설 대회 문제가 주를 이루고 있다.
-- 문제들이 알고리즘 별로 구분이 잘 되어있기 때문에 다양한 알고리즘을 공부하기에 적합한 사이트이다.
-- 🌐[solved.ac](https://solved.ac/)라는 커뮤니티 사이트가 있어 백준에서 자신의 티어(수준)을 구분 할 수 있으나, 단순히 문제를 풀기만 해도 점수가 오르기 때문에 실력을 구분하는 명확한 지표는 아니다.
-# Algorithm 종류
-- 밑에 있는 알고리즘/자료구조들은 필자가 백준에서 공부한 알고리즘을 정리한 것이다. 
-- 기본적인 알고리즘/자료구조들은 배제하였다. 
-- 모든 코드들은 C++로 구현하였다.
-## Array
-##### 🔗[[Binary Search]] : 이분 탐색
-##### 🔗[[MITM(Meet in the middle)]] : 중간에서 만나기
-##### 🔗[[PBS(Parallel Binary Search)]] : 병렬 이분 탐색(작성중)
-## Graph Theory
-##### 🔗[[BFS(Breadth-First Search)]]  : 너비 우선 탐색
-##### 🔗[[DFS(Depth-First Search)]] : 깊이 우선 탐색
-##### 🔗[[Dijkstra's Algorithm]]  : 다익스트라
-##### 🔗[[CCW(Counter Clock Wise)]] : CCW
-##### 🔗[[Graham's Scan Convex Hull]] : 그라함 스캔 알고리즘을 이용한 컨벡스 헐
+const markdownContent = `# Concept
+- Bruteforce 알고리즘에서 배열의 크기가 적당히 클 때 배열을 반으로 나누어 계산하는 알고리즘이다.
+- 분할정복의 아이디어와 유사하지만, MITM의 경우 작은 부분으로 나누고 이를 다시 합치는 과정에서 추가 연산이 들어가게 된다.
+- 단순 Bruteforce에서 시간 복잡도가 O(2^n)이라고 했을 때 MITM 알고리즘을 사용하면 O(2^(n/2) + 2^(n/2))로 계산할 수 있게 되는데, 이는 충분히 큰 배열에서 큰 차이를 보인다.
+# Meet in the middle 원리 (📑[1208 - 부분수열의 합 2](https://www.acmicpc.net/problem/1208))
+- MITM을 동작 과정을 살피기 위해 배열의 크기가 10인 수열을 준비하고 이에 모든 부분 집합에서 집합 원소의 합이 특정 값 K인 부분 집합의 개수를 찾는다고 해보자. 
+- 단순 Bruteforce를 사용한다면 모든 부분 집합의 합을 구한 후 그 값이 K인지 탐색해야 하기 때문에 O(2^10)만큼의 시간이 걸릴 것이다. 하지만 MITM을 이용하면 O(2^5 + 2^5)이 걸리게 된다.
+- 한 개의 배열을 절반씩 두 개의 배열로 나눈 뒤 나눈 배열들의 모든 부분집합의 합을 구한 뒤, 이 합들을 조합하여 K인지 아닌지를 판단한다.
+#### 🖼️그림으로 이해하기
+![[MITM Recursion.svg]]
+# Meet in the middle CODE
+- MITM은 보통 재귀를 통해 구현한다.
+#### ⌨️ Code
+\`\`\`cpp
+#include <bits/stdc++.h>
 
-##### 🔗[[Maximum Flow (Edmonds-Karp Argorithm)]] : 최대 유량
-##### 🔗[[MCMF(Minimum Cost Maximum Flow)]] : 최소 비용 최대 유량
-##### 🔗[[SCC(Strongly Connected Component)]] : 강한 연결 요소
+using namespace std;
 
-##### 🔗[[Articulation Points And Bridges]] : 단절점과 단절선
-## Math
-##### 🔗[[DP(Dynamic Programming)]] : 다이나믹 프로그래밍
-##### 🔗[[Knapsack problem]] : 배낭 문제
-##### 🔗[[Sieve Of Eratosthenes]] : 에라토스테네스의 체
+int n, k, arr[100001], cnt = 0;
+map<int,int> combin_left;
 
-##### 🔗[[2-SAT(2-Satisfiability)]] : 2-SAT
-##### 🔗[[CHT(Convex Hull Trick)]] : 볼록 껍질을 이용한 최적화
-##### 🔗[[FFT(Fast Fourier Transform)]] : 고속 푸리에 변환 (공부중)
-## Query
-##### 🔗[[Offline Query]] : 오프라인 쿼리
-##### 🔗[[Mo's]] : 모스
-## String
-##### 🔗[[KMP(Knuth-Morris-Pratt)]] : KMP
-##### 🔗[[Tire]] : 트라이 
-## Tree
-##### 🔗[[Union Find]] : 유니온 파인드
-##### 🔗[[LCA(Lowest Common Ancestor)]] : 최소 공통 조상
-##### 🔗[[Segment Tree]] : 세그먼트 트리
-##### 🔗[[Lazy Segment Tree]] : 느리게 갱신되는 세그먼트 트리
-##### 🔗[[Merge Sort Tree]] : 머지 소트 트리 
-##### 🔗[[ETT(Euler Tour Technique)]] : 오일러 경로 테크닉
-##### 🔗[[MST(Minimum Spanning Tree)]] : 최소 스패닝 트리
-##### 🔗[[Fenwick Tree]] : 펜윅 트리
-##### 🔗[[HLD(Heavy Light Decomposition)]] : heavy-light 분할
-## Unclassfied
-##### 🔗[[BT(BackTracking)]] : 벡트레킹
-##### 🔗[[Bitmask]] : 비트마스킹
-##### 🔗[[Square Root Decomposition]] : 제곱근 분할법
-##### 🔗[[Great Problem To Think About]] : 생각해보면 좋을 문제들
+void combination(int start, int end, int sum) {
+    if ( start == end ) {
+        combin_left[sum]++;
+        return;   
+    }
+    combination(start+1, end, sum);
+    combination(start+1, end, sum + arr[start]);
+}
+
+void MITM(int start, int end, int sum) {
+    if ( start == end ) {
+        cnt += combin_left[k-sum];
+        return;
+    }
+    
+    MITM(start+1, end, sum);
+    MITM(start+1, end, sum + arr[start]);
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL); cout.tie(NULL);
+    
+    cin >> n;
+    for ( int i = 0; i < n; i++ ) cin >> arr[i];
+    cin >> k;
+    
+    combination(0, n/2, 0);
+    MITM(n/2, n, 0);
+    
+    cout << cnt;
+    return 0;
+}
+\`\`\`
+##### ❓ 예제 Input
+	10
+	1 3 6 11 17 5 22 8 9 13
+	20
+##### ⭐ 예제 Output
+	9
+# Meet in the middle 응용문제
+### 📑[1450 - 냅색문제](https://www.acmicpc.net/problem/1450)
+#### 🔓 KeyPoint
+- '부분수열의 합 2' 문제랑 다른 점은 부분 수열에서 특정 값 K를 찾는게 아니라 K값 이하의 부분 수열의 개수를 찾는 문제라는 것이다.
+- 조합을 Map으로 구현하는 것이 아니라 Vector로 구현해 이분 탐색을 통해 K값 이하의 부분 수열의 개수를 찾아야 한다.
+#### ⌨️ Code
+\`\`\`cpp
+#include <bits/stdc++.h>
+
+using namespace std;
+
+long long n, c, obj[30], result = 0;
+vector<long long> combin;
+
+void combination(int start, int end, long long sum) {
+    
+    if ( start == end ) {
+        combin.push_back(sum);
+        return;
+    }
+    combination(start+1, end, sum);
+    combination(start+1, end, sum+obj[start]);
+}
+
+void meetInTheMiddle(int start, int end, long long sum) {
+    
+    if ( start == end ) {
+        if ( sum > c ) return;
+        
+        int index = (upper_bound(combin.begin(), combin.end(), c - sum ) - combin.begin());
+        result += index;
+        return;
+    }
+    
+    meetInTheMiddle(start+1, end, sum);
+    meetInTheMiddle(start+1, end, sum+obj[start]);
+}
+
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL); cout.tie(NULL);
+    
+    cin >> n >> c;
+    for ( int i = 0; i < n; i++ ) cin >> obj[i];
+    combination(0, n/2, 0);
+    sort(combin.begin(), combin.end());
+    meetInTheMiddle(n/2, n, 0);
+    cout << result;
+    return 0;
+}
+\`\`\`
+### 📑[2087 - 암호문](https://www.acmicpc.net/problem/2087)
+#### 🔓 KeyPoint
+- 부분 수열을 구성할 때 Parameter에 sum뿐만 아니라 bits식도 추가로 넘겨준다.
+- 조합을 찾았으면 해당 조합의 Bits 값들을 String으로 변환하여 출력한다.
+#### ⌨️ Code
+\`\`\`cpp
+#include <bits/stdc++.h>
+
+using namespace std;
+
+long long n, k, arr[40];
+bool done = false;
+map<long long, long long> combin;
+
+string to_binary(long long num) {
+    string s = "";
+    while ( num >= 2 ) {
+        if ( num % 2 == 1 ) s = "1"+ s;
+        else s = "0" + s;
+        num >>= 1;
+    }
+    return s;
+}
+
+void combination(int start, int end, long long sum, long long bits) {
+    
+    if ( start == end ) {
+        combin[sum] = bits;
+        return;
+    }
+    combination(start+1, end, sum, bits << 1 );
+    combination(start+1, end, sum + arr[start], (bits << 1) + 1);
+}
+
+void meetInTheMiddle(int start, int end, long long sum, long long bits) {
+    
+    if ( done || start > end ) return;
+    if ( start == end ) {
+        if ( (combin[k-sum] != 0 || sum == k ) && !done ) {
+            done = true;
+            cout << to_binary(combin[k-sum]) << to_binary(bits);
+            return;
+        }
+    }
+    meetInTheMiddle(start+1, end, sum, bits << 1 );
+    meetInTheMiddle(start+1, end, sum + arr[start], (bits << 1) + 1);
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL); cout.tie(NULL);
+    
+    cin >> n;
+    for ( int i = 0; i < n; i++ ) cin >> arr[i];
+    cin >> k;
+    combination(0, n/2, 0, 1);
+    meetInTheMiddle(n/2, n, 0, 1);
+    return 0;
+}
+\`\`\`
 `;
 
 export default function Post() {
