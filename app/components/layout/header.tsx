@@ -1,4 +1,4 @@
-import { CodeXmlIcon, Command, Search } from 'lucide-react';
+import { CodeXmlIcon, Command, Search, SunIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { GithubIcon } from '~/assets';
 import {
@@ -92,13 +92,13 @@ export default function Header() {
 
   return (
     <div className='sticky top-0 z-50 w-full border-b border-border-dark bg-background backdrop-blur'>
-      <div className='h-16 flex justify-between items-center px-20'>
+      <div className='h-16 flex justify-between items-center pl-10 md:pl-20'>
         <div className='flex items-center gap-4'>
           <div className='flex items-center gap-2'>
             <CodeXmlIcon className='size-6' />
             <p className='text-2xl font-bold'>Dongle</p>
           </div>
-          <NavigationMenu>
+          <NavigationMenu className='hidden md:block'>
             <NavigationMenuList>
               {menus.map((menu) => (
                 <NavigationMenuItem key={menu.title}>
@@ -136,10 +136,10 @@ export default function Header() {
             </NavigationMenuList>
           </NavigationMenu>
         </div>
-        <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-2 mr-5'>
           <Button
             variant='outline'
-            className='text-muted-foreground w-[200px] justify-start relative cursor-text'
+            className='hidden md:flex text-muted-foreground w-[200px] justify-start relative cursor-text'
             onClick={() => setSearchBarOpen(true)}
           >
             <Search className='size-4 ' />
@@ -148,6 +148,9 @@ export default function Header() {
               <Command className='size-3' />
               <p className='text-xs font-medium'>k</p>
             </div>
+          </Button>
+          <Button variant='ghost' size='icon'>
+            <SunIcon className='size-4' />
           </Button>
           <Link to='https://github.com/Donghyeon-Shin'>
             <GithubIcon width={24} height={24} />
