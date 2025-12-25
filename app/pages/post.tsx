@@ -3,6 +3,7 @@ import HierarchyBar from '~/components/layout/hierarchyBar';
 import { Separator } from '~/components/ui/separator';
 import { format } from 'date-fns';
 import MarkdownrRender from '~/components/layout/markdownrRender';
+
 const markdownContent = `
 # Introduction
 - **Volume visualization** : 대화형 그래픽(interactive graph)과 이미징 기술을 이용해서 **볼륨 데이터(volumetric data)** 로부터 의미 있는 정보를 추출하는 방법이다.
@@ -13,9 +14,9 @@ const markdownContent = `
 # Volumetric Data
 - 볼룸 데이터 Set은 3차원 공간 $(x, y, z)$ 상의 위치에 있는 샘플을 **복셀**(Voxel)이라고 한다.
 - 복셀이 가지는 값 $v$는 데이터의 속성을 나타낸다.
-	- **Binary** : 0(배경) 또는 정수(객체 존재)로만 구성된 경우
-	- **Multi-valued** : 밀도, 열, 압력 등 측정 가능한 물리적 속성을 나타내는 스칼라 값
-	- **Vector** : 속도나 색상처럼 여러 개의 값으로 구성된 값
+  - **Binary** : 0(배경) 또는 정수(객체 존재)로만 구성된 경우
+  - **Multi-valued** : 밀도, 열, 압력 등 측정 가능한 물리적 속성을 나타내는 스칼라 값
+  - **Vector** : 속도나 색상처럼 여러 개의 값으로 구성된 값
 - 데이터 샘플이 공간에 어떻게 배치되는지에 따라 **Grid 유형**이 나뉜다.
 ## Regular Grid
 - **등방성 (Isotropic)** : 샘플 간의 간격이 3개 축 모두에서 일정하게 배치된 경우
@@ -126,10 +127,16 @@ $$h(v,u,w) = b \\cdot e^{-a(u^2+v^2+w^2)}$$
 - **법선 벡터:** 빛을 계산하려면 "이 표면이 어디를 바라보고 있는지"를 알아야 하는데, 볼륨 데이터에는 딱딱한 껍데기(표면)가 없다.
 - 대신 **밀도가 가장 급격하게 변하는 방향(그라디언트)을** 표면이 바라보는 방향이라고 가정
 - 해당 논문에서는 그라이언트를 구하는 방법으로 **중앙 차분법(Central Differencing)식**을 사용한다.
-$$\\begin{align*} g_x &= \\frac{V(x+1, y, z) - V(x-1, y,z)}{2}\\\\g_y &=  \\frac{V(x,y+1,z) - V(x,y-1,z)}{2} \\\\ g_z &= \\frac{V(x,y,z+1)-V(x,y,z-1)}{2}\\end{align*}$$
-	- $g_x, g_y, g_z$ = X축, Y축, Z축 방향의 기울기(변화율)
-	- $V(x+1, ...)$ : 기준 값 바로 오른쪽 옆 칸의 값 ($y,z$도 동일)
-	- $V(x-1, ...)$ : 기준 값 바로 왼쪽 옆 칸의 값 ($y,z$도 동일)
+  $$
+  \\begin{align*} 
+  g_x &= \\frac{V(x+1, y, z) - V(x-1, y,z)}{2}\\\\
+  g_y &=  \\frac{V(x,y+1,z) - V(x,y-1,z)}{2} \\\\
+  g_z &= \\frac{V(x,y,z+1)-V(x,y,z-1)}{2}
+  \\end{align*}
+  $$
+  - $g_x, g_y, g_z$ = X축, Y축, Z축 방향의 기울기(변화율)
+  - $V(x+1, ...)$ : 기준 값 바로 오른쪽 옆 칸의 값 ($y,z$도 동일)
+  - $V(x-1, ...)$ : 기준 값 바로 왼쪽 옆 칸의 값 ($y,z$도 동일)
 - 해당 그라이언트 백터($g_x, g_y, g_z$ )는 법선 벡터 역할을 한다.
 - 값이 확 변한다는 것은 그곳에 **'물질의 경계(Boundary)'가** 있다는 뜻이고 값이 변하는 그 방향(화살표)이 바로 경계면이 바라보는 방향(법선 벡터)이 된다.
 `;

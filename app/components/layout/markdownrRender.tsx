@@ -1,6 +1,8 @@
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkWikiLink from 'remark-wiki-link';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import type { Components } from 'react-markdown';
 import { cn } from '~/lib/utils';
 import { Link } from 'react-router';
@@ -10,6 +12,7 @@ import React from 'react';
 import { toast } from 'sonner';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { Separator } from '../ui/separator';
 
 const components: Components = {
   h1: ({ node: _node, ...props }) => {
@@ -17,6 +20,54 @@ const components: Components = {
       <div>
         <h1 className='text-3xl font-bold' {...props} />
       </div>
+    );
+  },
+
+  h2: ({ node: _node, ...props }) => {
+    return (
+      <div>
+        <h2 className='text-2xl font-bold' {...props} />
+        <Separator />
+      </div>
+    );
+  },
+
+  h3: ({ node: _node, ...props }) => {
+    return (
+      <div>
+        <h3 className='text-xl font-bold' {...props} />
+      </div>
+    );
+  },
+
+  p: ({ children, ...props }) => {
+    return (
+      <p {...props} className='whitespace-pre-wrap'>
+        {children}
+      </p>
+    );
+  },
+
+  ul: ({ node: _node, ...props }) => {
+    return <ul className='list-disc ml-6 mb-2' {...props} />;
+  },
+
+  li: ({ node: _node, ...props }) => {
+    return <li className='mb-1' {...props} />;
+  },
+
+  a: ({ node: _node, href, children }) => {
+    let to = href;
+    if (href && !href.startsWith('http')) {
+      to = href.replace('#/page/', '/post/');
+    }
+    return (
+      <Link
+        className='text-secondary-foreground hover:text-muted-foreground transition-colors'
+        to={to as string}
+      >
+        {children}
+      </Link>
     );
   },
 
@@ -71,6 +122,15 @@ const components: Components = {
   code: ({ node: _node, className, ...props }: any) => {
     const match = /language-(\w+)/.exec(className || '');
     const _language = match ? match[1] : 'plaintext';
+    // remark-math가 생성하는 code 요소의 className 확인 (rehype-katex가 처리하도록 그대로 둠)
+    const isInlineMath = className === 'math math-inline' || className?.includes('math-inline');
+    const isBlockMath = className === 'math math-display' || className?.includes('math-display');
+
+    // 수식인 경우 rehype-katex가 처리하도록 그대로 반환
+    if (isInlineMath || isBlockMath) {
+      return <code className={className} {...props} />;
+    }
+
     const isFenced = !!className; // className이 있으면 ``` 방식 (Fenced)
     const isInline = !isFenced; // className이 없으면 인라인 코드 (``)
 
@@ -101,30 +161,15 @@ const components: Components = {
       );
     }
   },
-
-  li: ({ node: _node, ...props }) => {
-    return <li className='list-disc mb-1' {...props} />;
-  },
-
-  a: ({ node: _node, href, children }) => {
-    let to = href;
-    if (href && !href.startsWith('http')) {
-      to = href.replace('#/page/', '/post/');
-    }
-    return (
-      <Link
-        className='text-secondary-foreground hover:text-muted-foreground transition-colors'
-        to={to as string}
-      >
-        {children}
-      </Link>
-    );
-  },
 };
 
 export default function MarkdownrRender({ content }: { content: string }) {
   return (
-    <Markdown remarkPlugins={[remarkGfm, remarkWikiLink]} components={components}>
+    <Markdown
+      remarkPlugins={[remarkGfm, remarkWikiLink, remarkMath]}
+      rehypePlugins={[rehypeKatex]}
+      components={components}
+    >
       {content}
     </Markdown>
   );
