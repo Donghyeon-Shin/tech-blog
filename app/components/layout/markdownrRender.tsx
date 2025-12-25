@@ -184,28 +184,13 @@ const MemoizedMarkdown = memo(Markdown);
 export default function MarkdownrRender({
   content,
   setActiveId,
-  setToc,
 }: {
   content: string;
   setActiveId: (id: string) => void;
-  setToc: (toc: { level: number; text: string; id: string }[]) => void;
 }) {
   useEffect(() => {
-    // 렌더링이 완료된 후 DOM에서 직접 제목 정보를 가져옵니다.
+    // 옵저버 설정
     const timeoutId = setTimeout(() => {
-      const headerElements = document.querySelectorAll(
-        '.markdown-content h1, .markdown-content h2, .markdown-content h3',
-      );
-
-      const tocData = Array.from(headerElements).map((el) => ({
-        id: el.id, // rehype-slug가 만든 진짜 ID
-        text: el.textContent || '',
-        level: parseInt(el.tagName.replace('H', ''), 10),
-      }));
-
-      setToc(tocData);
-
-      // 옵저버 설정
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -217,12 +202,16 @@ export default function MarkdownrRender({
         { rootMargin: '-10% 0px -100% 0px' },
       );
 
+      const headerElements = document.querySelectorAll(
+        '.markdown-content h1[id], .markdown-content h2[id], .markdown-content h3[id]',
+      );
       headerElements.forEach((el) => observer.observe(el));
+
       return () => observer.disconnect();
-    }, 150); // 렌더링 동기화를 위해 짧은 지연시간 부여
+    }, 150);
 
     return () => clearTimeout(timeoutId);
-  }, [content, setActiveId, setToc]);
+  }, [content, setActiveId]);
 
   return (
     <div className='markdown-content flex flex-col gap-4'>
