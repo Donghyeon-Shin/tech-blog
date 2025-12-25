@@ -1,6 +1,6 @@
-import { BarChart3Icon, BellIcon, CodeXmlIcon, MessageCircleIcon } from 'lucide-react';
+import { CodeXmlIcon, Command, Search } from 'lucide-react';
 import { Link } from 'react-router';
-import { Button } from '~/components/ui/button';
+import { GithubIcon } from '~/assets';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,6 +11,9 @@ import {
   navigationMenuTriggerStyle,
 } from '~/components/ui/navigation-menu';
 import { cn } from '~/lib/utils';
+import { Button } from '../ui/button';
+import { useEffect, useState } from 'react';
+import Searchbar from './searchbar';
 
 const menus: {
   title: string;
@@ -65,6 +68,28 @@ const menus: {
 ];
 
 export default function Header() {
+  const [searchBarOpen, setSearchBarOpen] = useState(false);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        // 입력 필드에 포커스가 있을 때는 브라우저 기본 동작 허용
+        const target = e.target as HTMLElement;
+        if (
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable
+        ) {
+          return;
+        }
+        e.preventDefault();
+        setSearchBarOpen(true);
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, []);
+
   return (
     <div className='sticky top-0 z-50 w-full border-b border-border-dark bg-background backdrop-blur'>
       <div className='h-16 flex justify-between items-center px-20'>
@@ -111,12 +136,29 @@ export default function Header() {
             </NavigationMenuList>
           </NavigationMenu>
         </div>
-        <div>오른쪽</div>
+        <div className='flex items-center gap-4'>
+          <Button
+            variant='outline'
+            className='text-muted-foreground w-[200px] justify-start relative cursor-text'
+            onClick={() => setSearchBarOpen(true)}
+          >
+            <Search className='size-4 ' />
+            <span className='text-sm font-medium'>Search</span>
+            <div className='flex items-center bg-accent rounded-md m-2 p-1 gap-1 absolute right-1'>
+              <Command className='size-3' />
+              <p className='text-xs font-medium'>k</p>
+            </div>
+          </Button>
+          <Link to='https://github.com/Donghyeon-Shin'>
+            <GithubIcon width={24} height={24} />
+          </Link>
+        </div>
       </div>
+      <Searchbar open={searchBarOpen} setOpen={setSearchBarOpen} />
       <div
         aria-hidden='true'
         className='absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 w-[35%]'
-      ></div>
+      />
     </div>
   );
 }
