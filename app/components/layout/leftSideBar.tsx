@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority';
 import { BookIcon, LayoutGrid, StarIcon } from 'lucide-react';
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink, useLocation } from 'react-router';
 import FolderItems from './folderItems';
 import type { FolderItemProps } from '~/types/folderItemProps';
 
@@ -142,6 +142,9 @@ const nowList: NowList[] = [
 ];
 
 export default function LeftSidebar() {
+  const location = useLocation();
+  const isPostsActive = location.pathname.startsWith('/posts');
+
   return (
     <div className='hidden md:block'>
       <div className='flex flex-col gap-10 justify-center'>
@@ -151,13 +154,13 @@ export default function LeftSidebar() {
             <NavLink
               to='/posts/all'
               prefetch='intent'
-              className={({ isActive }) => navLinkVariants({ isActive })}
+              className={() => navLinkVariants({ isActive: isPostsActive })}
             >
               <LayoutGrid className='size-4' />
               <span>All Posts</span>
             </NavLink>
             <NavLink
-              to='/posts/popular'
+              to='/popular'
               prefetch='intent'
               className={({ isActive }) => navLinkVariants({ isActive })}
             >

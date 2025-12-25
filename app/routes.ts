@@ -1,11 +1,9 @@
 import { type RouteConfig, index, prefix, route } from '@react-router/dev/routes';
 
 export default [
-  index('pages/allPosts.tsx'),
-  ...prefix('posts', [
-    route('/all', 'pages/allPosts.tsx', { id: 'posts-all' }),
-    route('/popular', 'pages/popularPosts.tsx'),
-  ]),
+  index('pages/index.tsx'),
+  ...prefix('posts', [route('/:category', 'pages/posts.tsx')]),
+  route('/popular', 'pages/popularPosts.tsx'),
   route('post', 'pages/post.tsx'),
   // prettier-ignore
   ...prefix('api', [
