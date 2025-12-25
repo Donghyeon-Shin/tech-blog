@@ -8,6 +8,8 @@ import { Button } from '../ui/button';
 import { CopyIcon } from 'lucide-react';
 import React from 'react';
 import { toast } from 'sonner';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 const components: Components = {
   h1: ({ node: _node, ...props }) => {
@@ -82,7 +84,21 @@ const components: Components = {
       );
     } else {
       // Fenced 코드 블록 (```) - pre 컴포넌트에서 스타일링 처리
-      return <code className='text-sm font-mono text-code-content-color' {...props} />;
+      return (
+        <SyntaxHighlighter
+          style={oneDark}
+          language={match?.[1]}
+          PreTag='div'
+          customStyle={{ margin: 0, padding: 0, background: 'transparent' }}
+          {...props}
+          codeTagProps={{
+            className:
+              'text-sm font-mono text-code-content-color bg-code-background p-1 rounded-md inline-block',
+          }}
+        >
+          {String(props.children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
+      );
     }
   },
 
