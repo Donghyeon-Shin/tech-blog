@@ -1,9 +1,8 @@
 import { Calendar, Clock } from 'lucide-react';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import HierarchyBar from '~/components/layout/hierarchyBar';
 import { Separator } from '~/components/ui/separator';
 import { format } from 'date-fns';
+import MarkdownrRender from '~/components/layout/markdownrRender';
 const markdownContent = `
 # Algorithm?
 	알고리즘은 특정 문제를 해결하기 위한 절차나 방법을 공식화한 형태를 말한다.
@@ -91,9 +90,8 @@ export default function Post() {
           </div>
         </div>
         <Separator />
-        <Markdown remarkPlugins={[remarkGfm]} components={{}}>
-          {markdownContent}
-        </Markdown>
+        {/* 본문 내용 렌더링 */}
+        <MarkdownrRender content={markdownContent} />
       </div>
       <div className='hidden md:block'>오른쪽</div>
     </div>
