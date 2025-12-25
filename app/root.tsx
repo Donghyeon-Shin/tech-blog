@@ -14,6 +14,7 @@ import Header from './components/layout/header';
 import { themeSessionResolver } from './lib/theme-session.server';
 import { ThemeProvider, useTheme } from 'remix-themes';
 import LeftSidebar from './components/layout/leftSideBar';
+import { Toaster } from 'sonner';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -25,6 +26,12 @@ export const links: Route.LinksFunction = () => [
   {
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+  },
+  {
+    rel: 'stylesheet',
+    href: 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+    integrity: 'sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV',
+    crossOrigin: 'anonymous',
   },
 ];
 
@@ -65,6 +72,7 @@ export function InnerLayout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <Toaster position='top-center' />
       </body>
     </html>
   );
@@ -76,9 +84,7 @@ export default function App() {
       <Header />
       <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
         <LeftSidebar />
-        <div className='bg-red-500'>
-          <Outlet />
-        </div>
+        <Outlet />
       </div>
     </div>
   );
