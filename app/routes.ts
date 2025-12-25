@@ -6,6 +6,7 @@ export default [
   route('/popular', 'pages/popularPosts.tsx'),
   route('post', 'pages/post.tsx'),
   route('/about', 'pages/about.tsx'),
+  route('/dashboard', 'pages/dashboard.tsx'),
   // prettier-ignore
   ...prefix('api', [
     ...prefix('settings', [
