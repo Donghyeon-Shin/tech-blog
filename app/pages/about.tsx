@@ -1,4 +1,4 @@
-import { DownloadIcon, MapPin } from 'lucide-react';
+import { DownloadIcon, Layers2, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -9,7 +9,7 @@ SyntaxHighlighter.registerLanguage('json', json.default || json);
 
 export default function About() {
   return (
-    <div className='flex flex-col gap-8 max-w-[1400px] md:ml-20'>
+    <div className='flex flex-col gap-12 max-w-[1400px] md:ml-20'>
       <div className='flex flex-row items-center justify-between'>
         <div className='flex flex-row gap-4'>
           <Avatar className='size-40 border-3 border-muted-foreground'>
@@ -69,6 +69,63 @@ export default function About() {
             2,
           )}
         </SyntaxHighlighter>
+      </div>
+      <div className='flex flex-col gap-6'>
+        <div className='flex flex-row gap-4 items-center'>
+          <Layers2 className='size-6 text-primary' />
+          <h2 className='text-2xl font-bold'>Tech Stack</h2>
+        </div>
+        <div className='flex flex-col gap-3'>
+          <h2 className='text-md font-semibold uppercase text-muted-foreground'>Frontend</h2>
+          <div className='flex flex-row gap-4'>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              React
+            </h4>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              React Router
+            </h4>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              TypeScript
+            </h4>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              Vue.js
+            </h4>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              Tailwind CSS
+            </h4>
+          </div>
+        </div>
+        <div className='flex flex-col gap-3'>
+          <h2 className='text-md font-semibold uppercase text-muted-foreground'>Database</h2>
+          <div className='flex flex-row gap-4'>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              MySQL
+            </h4>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              PostgreSQL
+            </h4>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              Supabase
+            </h4>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              Drizzle ORM
+            </h4>
+          </div>
+        </div>
+        <div className='flex flex-col gap-3'>
+          <h2 className='text-md font-semibold uppercase text-muted-foreground'>AI</h2>
+          <div className='flex flex-row gap-4'>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              Python
+            </h4>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              PyTorch
+            </h4>
+            <h4 className='text-sm bg-primary/50 text-primary-foreground border rounded-md px-4 py-2'>
+              LangChain
+            </h4>
+          </div>
+        </div>
       </div>
     </div>
   );
