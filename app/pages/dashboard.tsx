@@ -46,7 +46,7 @@ export default function Dashboard() {
   return (
     <div className='flex flex-col gap-6 max-w-[1400px] md:ml-20'>
       <h1 className='text-4xl font-bold'>Overview</h1>
-      <div className='grid grid-cols-4 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
         <DashboardCard
           title='Total Views'
           value={'124,592'}
@@ -154,7 +154,7 @@ export default function Dashboard() {
                   padding={{ left: 12, right: 12 }}
                 />
                 <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
+                <ChartLegend content={<ChartLegendContent className='flex-wrap' />} />
                 <Line
                   dataKey='algorithm'
                   type='monotone'
@@ -209,7 +209,7 @@ export default function Dashboard() {
           </CardContent>
         </CardHeader>
       </Card>
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
         <Card className='w-full bg-primary/10 border-primary/20'>
           <CardHeader>
             <CardTitle>Views by Category</CardTitle>
