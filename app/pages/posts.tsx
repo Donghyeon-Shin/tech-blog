@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router';
 import type { Route } from './+types/posts';
 import { cva } from 'class-variance-authority';
-import PostCard from '~/components/layout/postCard';
+import PostCard from '~/components/ui/postCard';
 import PostPagination from '~/components/layout/postPagination';
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
