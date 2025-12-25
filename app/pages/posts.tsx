@@ -2,11 +2,14 @@ import { NavLink } from 'react-router';
 import type { Route } from './+types/posts';
 import { cva } from 'class-variance-authority';
 import PostCard from '~/components/layout/postCard';
+import PostPagination from '~/components/layout/postPagination';
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const url = new URL(request.url);
   const category = url.pathname.split('/')[2];
-  return { category };
+  const page = url.searchParams.get('page') || 1;
+  console.log(category, page);
+  return { category, page };
 };
 
 const navLinkVariants = cva('rounded-full border px-4 py-1', {
@@ -64,6 +67,38 @@ const postList: Post[] = [
     link: '/post/post-3',
     readTime: 10,
   },
+  {
+    title: 'Post 4',
+    description: 'Post 4 description',
+    category: 'React',
+    date: new Date('2025-01-01'),
+    link: '/post/post-4',
+    readTime: 10,
+  },
+  {
+    title: 'Post 5',
+    description: 'Post 5 description',
+    category: 'Research',
+    date: new Date('2025-01-01'),
+    link: '/post/post-5',
+    readTime: 10,
+  },
+  {
+    title: 'Post 6',
+    description: 'Post 6 description',
+    category: 'SQL',
+    date: new Date('2025-01-01'),
+    link: '/post/post-6',
+    readTime: 10,
+  },
+  {
+    title: 'Post 7',
+    description: 'Post 7 description',
+    category: 'Project',
+    date: new Date('2025-01-01'),
+    link: '/post/post-7',
+    readTime: 10,
+  },
 ];
 
 export default function Posts() {
@@ -102,6 +137,7 @@ export default function Posts() {
           />
         ))}
       </div>
+      <PostPagination totalPages={10} />
     </div>
   );
 }
