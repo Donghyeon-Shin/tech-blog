@@ -3,22 +3,35 @@ import remarkGfm from 'remark-gfm';
 import remarkWikiLink from 'remark-wiki-link';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeSlug from 'rehype-slug';
 import type { Components } from 'react-markdown';
 import { cn } from '~/lib/utils';
 import { Link } from 'react-router';
 import { Button } from '../ui/button';
 import { CopyIcon } from 'lucide-react';
-import React from 'react';
+import React, { memo, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import tsx from 'react-syntax-highlighter/dist/cjs/languages/prism/tsx';
+import python from 'react-syntax-highlighter/dist/cjs/languages/prism/python';
+import cpp from 'react-syntax-highlighter/dist/cjs/languages/prism/cpp';
+import javascript from 'react-syntax-highlighter/dist/cjs/languages/prism/javascript';
+import sql from 'react-syntax-highlighter/dist/cjs/languages/prism/sql';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Separator } from '../ui/separator';
+
+// 필요한 언어 등록 (CJS 모듈은 .default로 접근)
+SyntaxHighlighter.registerLanguage('tsx', tsx.default || tsx);
+SyntaxHighlighter.registerLanguage('python', python.default || python);
+SyntaxHighlighter.registerLanguage('cpp', cpp.default || cpp);
+SyntaxHighlighter.registerLanguage('javascript', javascript.default || javascript);
+SyntaxHighlighter.registerLanguage('sql', sql.default || sql);
 
 const components: Components = {
   h1: ({ node: _node, ...props }) => {
     return (
       <div>
-        <h1 className='text-3xl font-bold' {...props} />
+        <h1 className='text-3xl scroll-mt-24 font-extrabold tracking-tight mb-10 mt-6' {...props} />
       </div>
     );
   },
@@ -26,8 +39,8 @@ const components: Components = {
   h2: ({ node: _node, ...props }) => {
     return (
       <div>
-        <h2 className='text-2xl font-bold' {...props} />
-        <Separator />
+        <h2 className='text-2xl scroll-mt-20 font-bold mb-6 mt-12' {...props} />
+        <Separator className='bg-slate-200/60' />
       </div>
     );
   },
@@ -35,7 +48,7 @@ const components: Components = {
   h3: ({ node: _node, ...props }) => {
     return (
       <div>
-        <h3 className='text-xl font-bold' {...props} />
+        <h3 className='text-xl scroll-mt-20 font-semibold mb-4 mt-8' {...props} />
       </div>
     );
   },
@@ -53,7 +66,7 @@ const components: Components = {
   },
 
   li: ({ node: _node, ...props }) => {
-    return <li className='mb-1' {...props} />;
+    return <li className='mb-3 last:mb-0 leading-relaxed' {...props} />;
   },
 
   a: ({ node: _node, href, children }) => {
@@ -85,7 +98,11 @@ const components: Components = {
     if (isFenced) {
       // Fenced 코드 블록 (```)
       return (
-        <div className={cn('rounded-md bg-code-background p-4 border border-code-border relative')}>
+        <div
+          className={cn(
+            'rounded-md bg-code-background p-4 border border-code-border relative block',
+          )}
+        >
           <Button
             variant='ghost'
             size='icon'
@@ -162,15 +179,49 @@ const components: Components = {
     }
   },
 };
+const MemoizedMarkdown = memo(Markdown);
 
-export default function MarkdownrRender({ content }: { content: string }) {
+export default function MarkdownrRender({
+  content,
+  setActiveId,
+}: {
+  content: string;
+  setActiveId: (id: string) => void;
+}) {
+  useEffect(() => {
+    // 옵저버 설정
+    const timeoutId = setTimeout(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setActiveId(entry.target.id);
+            }
+          });
+        },
+        { rootMargin: '-10% 0px -100% 0px' },
+      );
+
+      const headerElements = document.querySelectorAll(
+        '.markdown-content h1[id], .markdown-content h2[id], .markdown-content h3[id]',
+      );
+      headerElements.forEach((el) => observer.observe(el));
+
+      return () => observer.disconnect();
+    }, 150);
+
+    return () => clearTimeout(timeoutId);
+  }, [content, setActiveId]);
+
   return (
-    <Markdown
-      remarkPlugins={[remarkGfm, remarkWikiLink, remarkMath]}
-      rehypePlugins={[rehypeKatex]}
-      components={components}
-    >
-      {content}
-    </Markdown>
+    <div className='markdown-content flex flex-col gap-4'>
+      <MemoizedMarkdown
+        remarkPlugins={[remarkGfm, remarkWikiLink, remarkMath]}
+        rehypePlugins={[rehypeKatex, rehypeSlug]}
+        components={components}
+      >
+        {content}
+      </MemoizedMarkdown>
+    </div>
   );
 }

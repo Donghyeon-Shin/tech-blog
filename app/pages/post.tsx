@@ -3,6 +3,10 @@ import HierarchyBar from '~/components/layout/hierarchyBar';
 import { Separator } from '~/components/ui/separator';
 import { format } from 'date-fns';
 import MarkdownrRender from '~/components/layout/markdownrRender';
+import { useRef, useState } from 'react';
+import PostSidebar from '~/components/layout/postSideBar';
+import type { Route } from './+types/post';
+import GitHubSlugger from 'github-slugger';
 
 const markdownContent = `
 # Introduction
@@ -141,10 +145,38 @@ $$h(v,u,w) = b \\cdot e^{-a(u^2+v^2+w^2)}$$
 - 값이 확 변한다는 것은 그곳에 **'물질의 경계(Boundary)'가** 있다는 뜻이고 값이 변하는 그 방향(화살표)이 바로 경계면이 바라보는 방향(법선 벡터)이 된다.
 `;
 
-export default function Post() {
+export const loader = async ({ request: _request }: Route.LoaderArgs) => {
+  // 마크다운 텍스트에서 TOC 생성
+  const slugger = new GitHubSlugger();
+  const lines = markdownContent.split('\n');
+  const toc = lines
+    .filter((line) => line.trim().startsWith('#'))
+    .map((line) => {
+      const level = line.split('#').length - 1;
+      const text = line.replace(/#/g, '').trim();
+      const id = slugger.slug(text);
+      return { level, text, id };
+    });
+
+  return { toc };
+};
+
+export default function Post({ loaderData }: Route.ComponentProps) {
   const dbData = new Date('2025-10-23T10:00:00');
   const formattedDate = format(dbData, 'MMM dd, yyyy');
   const minutesToRead = 10;
+
+  const [activeId, setActiveId] = useState<string>('');
+  const toc = loaderData.toc;
+
+  const isScrollingRef = useRef(false);
+
+  // 옵저버용 함수 (플래그가 false일 때만 상태 변경)
+  const handleObserverActiveId = (id: string) => {
+    if (!isScrollingRef.current) {
+      setActiveId(id);
+    }
+  };
 
   return (
     <div className='grid grid-cols-1 md:grid-cols-[1fr_280px] xl:grid-cols-[1fr_280px]'>
@@ -169,9 +201,16 @@ export default function Post() {
         </div>
         <Separator />
         {/* 본문 내용 렌더링 */}
-        <MarkdownrRender content={markdownContent} />
+        <MarkdownrRender content={markdownContent} setActiveId={handleObserverActiveId} />
       </div>
-      <div className='hidden md:block'>오른쪽</div>
+      <div className='sticky top-20 hidden md:block self-start'>
+        <PostSidebar
+          activeId={activeId}
+          setActiveId={setActiveId}
+          isScrollingRef={isScrollingRef}
+          toc={toc}
+        />
+      </div>
     </div>
   );
 }
