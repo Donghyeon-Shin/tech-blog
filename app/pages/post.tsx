@@ -2,7 +2,7 @@ import { Calendar, Clock } from 'lucide-react';
 import HierarchyBar from '~/components/layout/hierarchyBar';
 import { Separator } from '~/components/ui/separator';
 import { format } from 'date-fns';
-import MarkdownrRender from '~/components/layout/markdownrRender';
+import MarkdownHtmlRender from '~/components/layout/markdownHtmlRender';
 import { useMemo, useRef, useState } from 'react';
 import PostSidebar from '~/components/layout/postSideBar';
 import type { Route } from './+types/post';
@@ -12,6 +12,7 @@ import client from '~/supa-client';
 import { getPostById } from '~/api/posts/posts-api';
 import { useOutletContext } from 'react-router';
 import type { Database } from '~/types/database';
+import { markdownToHtml } from '~/lib/markdown-to-html';
 
 export const loader = async ({ request: _request }: Route.LoaderArgs) => {
   const url = new URL(_request.url);
@@ -20,12 +21,15 @@ export const loader = async ({ request: _request }: Route.LoaderArgs) => {
 
   const markdownContent = post.content;
 
+  // 서버 사이드에서 마크다운을 HTML로 변환
+  const htmlContent = await markdownToHtml(markdownContent);
+
   // 마크다운 텍스트에서 TOC 생성
   const slugger = new GitHubSlugger();
   const lines = markdownContent.split('\n');
   let inCodeBlock = false;
   const toc = lines
-    .filter((line) => {
+    .filter((line: string) => {
       const trimmed = line.trim();
       // 코드 블록 시작/끝 감지
       if (trimmed.startsWith('```')) {
@@ -39,14 +43,14 @@ export const loader = async ({ request: _request }: Route.LoaderArgs) => {
       // 헤더만 포함
       return trimmed.startsWith('#');
     })
-    .map((line) => {
+    .map((line: string) => {
       const level = line.split('#').length - 1;
       const text = line.replace(/#/g, '').trim();
       const id = slugger.slug(text);
       return { level, text, id };
     });
 
-  return { toc, post, markdownContent };
+  return { toc, post, htmlContent };
 };
 
 export const shouldRevalidate = ({ currentUrl, nextUrl }: ShouldRevalidateFunctionArgs) => {
@@ -64,7 +68,7 @@ export const shouldRevalidate = ({ currentUrl, nextUrl }: ShouldRevalidateFuncti
 };
 
 export default function Post({ loaderData }: Route.ComponentProps) {
-  const { toc, post, markdownContent } = loaderData;
+  const { toc, post, htmlContent } = loaderData;
   const dbData = new Date(post.created_at);
   const formattedDate = format(dbData, 'MMM dd, yyyy');
   const minutesToRead = post.read_time; // TODO: 실제 읽는 시간 계산 분초로
@@ -125,7 +129,11 @@ export default function Post({ loaderData }: Route.ComponentProps) {
         </div>
         <Separator />
         {/* 본문 내용 렌더링 */}
-        <MarkdownrRender content={markdownContent} setActiveId={handleObserverActiveId} />
+        <MarkdownHtmlRender
+          htmlContent={htmlContent}
+          setActiveId={handleObserverActiveId}
+          isScrollingRef={isScrollingRef}
+        />
       </div>
       <div className='sticky top-20 hidden md:block self-start'>
         <PostSidebar
