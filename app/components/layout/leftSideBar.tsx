@@ -3,8 +3,8 @@ import { LayoutGrid, StarIcon } from 'lucide-react';
 import { Link, NavLink, useLocation } from 'react-router';
 import FolderItems from './folderItems';
 import type { FolderItemProps } from '~/types/folderItemProps';
-import type { Database } from 'database.types';
 import { markdownToText } from '~/lib/markdown-to-text';
+import type { getEvents } from '~/api/events/events-api';
 
 const navLinkVariants = cva(
   'hover:bg-primary/10 hover:text-primary px-2 py-2 rounded-md transition-colors flex items-center gap-2',
@@ -23,7 +23,7 @@ export default function LeftSidebar({
   events,
 }: {
   categoriesTree: FolderItemProps[];
-  events: Database['public']['Functions']['get_latest_unique_events']['Returns'];
+  events: Awaited<ReturnType<typeof getEvents>>;
 }) {
   const location = useLocation();
   const isPostsActive = location.pathname.startsWith('/posts');

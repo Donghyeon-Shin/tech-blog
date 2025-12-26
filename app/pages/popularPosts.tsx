@@ -1,13 +1,14 @@
 import { NavLink, useOutletContext } from 'react-router';
 import PopularPostCard from '~/components/ui/popularPostCard';
-import { type Database } from '~/types/database';
 import { useMemo } from 'react';
 import { markdownToText } from '~/lib/markdown-to-text';
+import type { getAllPostsForFiltering } from '~/api/posts/posts-api';
+import type { getCategories } from '~/api/categories/categories-api';
 
 export default function PopularPosts() {
   const { posts, categories } = useOutletContext<{
-    posts: Database['public']['Views']['posts_with_excerpt']['Row'][];
-    categories: Database['public']['Tables']['categories']['Row'][];
+    posts: Awaited<ReturnType<typeof getAllPostsForFiltering>>;
+    categories: Awaited<ReturnType<typeof getCategories>>;
   }>();
   const { popularPosts } = useMemo(() => {
     const sortedPosts = [...posts].sort((a, b) => (b.view_count || 0) - (a.view_count || 0));

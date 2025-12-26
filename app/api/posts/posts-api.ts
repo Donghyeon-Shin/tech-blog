@@ -23,6 +23,18 @@ export const getPostById = async (client: SupabaseClient<Database>, id: number) 
   return data;
 };
 
+export const getAllPostsForOverview = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client
+    .from('posts')
+    .select('post_id, title, read_time, view_count')
+    .order('view_count', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};
+
 export const getOverviewStats = async (client: SupabaseClient<Database>) => {
   const { data, error } = await client.rpc('get_overview_stats');
 

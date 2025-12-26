@@ -11,8 +11,8 @@ import GitHubSlugger from 'github-slugger';
 import client from '~/supa-client';
 import { getPostById } from '~/api/posts/posts-api';
 import { useOutletContext } from 'react-router';
-import type { Database } from '~/types/database';
 import { markdownToHtml } from '~/lib/markdown-to-html';
+import type { getCategories } from '~/api/categories/categories-api';
 
 export const loader = async ({ request: _request }: Route.LoaderArgs) => {
   const url = new URL(_request.url);
@@ -74,7 +74,7 @@ export default function Post({ loaderData }: Route.ComponentProps) {
   const minutesToRead = post.read_time; // TODO: 실제 읽는 시간 계산 분초로
 
   const { allCategories } = useOutletContext<{
-    allCategories: Database['public']['Tables']['categories']['Row'][];
+    allCategories: Awaited<ReturnType<typeof getCategories>>;
   }>();
 
   // 현재 post의 카테고리 경로 구성 (최상위부터 현재까지)

@@ -12,7 +12,6 @@ import {
 import DashboardCard from '~/components/ui/dashboardCard';
 import client from '~/supa-client';
 import { getOverviewStats, getViewCountByTag } from '~/api/posts/posts-api';
-import type { Database } from 'database.types';
 import type { Route } from './+types/dashboard';
 
 const chartConfig = {
@@ -47,7 +46,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 function transformViewCountByTagToChartData(
-  viewCountByTag: Database['public']['Functions']['get_view_count_by_tag']['Returns'],
+  viewCountByTag: Awaited<ReturnType<typeof getViewCountByTag>>,
 ) {
   // 모든 카테고리 키 목록
   const allCategoryKeys = Object.keys(chartConfig);
@@ -55,7 +54,7 @@ function transformViewCountByTagToChartData(
   // month별로 그룹화
   const groupedByMonth = viewCountByTag.reduce(
     (acc, tag) => {
-      const month = tag.year_month;
+      const month = tag.year_month as string;
       const categoryKey = tag.category_name.toLowerCase();
       if (!acc[month]) {
         acc[month] = { month };
@@ -78,15 +77,17 @@ function transformViewCountByTagToChartData(
 }
 
 export const loader = async () => {
-  const overviewStats: Database['public']['Functions']['get_overview_stats']['Returns'][0] =
-    await getOverviewStats(client);
-  const viewCountByTag: Database['public']['Functions']['get_view_count_by_tag']['Returns'] =
-    await getViewCountByTag(client);
+  const overviewStats = await getOverviewStats(client);
+  const viewCountByTag = await getViewCountByTag(client);
   return { overviewStats, viewCountByTag };
 };
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const { overviewStats, viewCountByTag } = loaderData;
+
+  const averageReadTime = Math.floor(overviewStats.total_read_time / overviewStats.total_posts);
+  const averageReadTimeHours = Math.floor(averageReadTime / 60);
+  const averageReadTimeMinutes = averageReadTime % 60;
   return (
     <div className='flex flex-col gap-6 max-w-[1400px] md:ml-20'>
       <h1 className='text-4xl font-bold'>Overview</h1>
@@ -98,7 +99,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         />
         <DashboardCard
           title='Avg. Read Time'
-          value={`${Math.floor(overviewStats.total_read_time / 60)}h ${overviewStats.total_read_time % 60}m`}
+          value={`${averageReadTimeHours}h ${averageReadTimeMinutes}m`}
           icon={<ClockIcon className='size-9 text-[#f95e27] bg-[#f95e27]/10 rounded-md p-2' />}
         />
         <DashboardCard
