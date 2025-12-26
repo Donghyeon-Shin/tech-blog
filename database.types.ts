@@ -248,6 +248,15 @@ export type Database = {
           total_views: number
         }[]
       }
+      get_view_count_by_tag: {
+        Args: never
+        Returns: {
+          category_name: string
+          tag_id: number
+          view_count: number
+          year_month: string
+        }[]
+      }
       increment_post_view: {
         Args: { target_post_id: number }
         Returns: undefined

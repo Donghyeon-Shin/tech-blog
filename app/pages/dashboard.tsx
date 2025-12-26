@@ -11,7 +11,7 @@ import {
 } from '~/components/ui/chart';
 import DashboardCard from '~/components/ui/dashboardCard';
 import client from '~/supa-client';
-import { getOverviewStats } from '~/api/posts/posts-api';
+import { getOverviewStats, getViewCountByTag } from '~/api/posts/posts-api';
 import type { Database } from 'database.types';
 import type { Route } from './+types/dashboard';
 
@@ -46,15 +46,47 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+function transformViewCountByTagToChartData(
+  viewCountByTag: Database['public']['Functions']['get_view_count_by_tag']['Returns'],
+) {
+  // 모든 카테고리 키 목록
+  const allCategoryKeys = Object.keys(chartConfig);
+
+  // month별로 그룹화
+  const groupedByMonth = viewCountByTag.reduce(
+    (acc, tag) => {
+      const month = tag.year_month;
+      const categoryKey = tag.category_name.toLowerCase();
+      if (!acc[month]) {
+        acc[month] = { month };
+        // 모든 카테고리를 0으로 초기화
+        allCategoryKeys.forEach((key) => {
+          acc[month][key] = 0;
+        });
+      }
+      if (allCategoryKeys.includes(categoryKey)) {
+        acc[month][categoryKey] = (acc[month][categoryKey] as number) + Number(tag.view_count);
+      }
+      return acc;
+    },
+    {} as Record<string, Record<string, number | string>>,
+  );
+
+  return Object.values(groupedByMonth).sort((a, b) =>
+    (a.month as string).localeCompare(b.month as string),
+  );
+}
+
 export const loader = async () => {
   const overviewStats: Database['public']['Functions']['get_overview_stats']['Returns'][0] =
     await getOverviewStats(client);
-
-  return { overviewStats };
+  const viewCountByTag: Database['public']['Functions']['get_view_count_by_tag']['Returns'] =
+    await getViewCountByTag(client);
+  return { overviewStats, viewCountByTag };
 };
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { overviewStats } = loaderData;
+  const { overviewStats, viewCountByTag } = loaderData;
   return (
     <div className='flex flex-col gap-6 max-w-[1400px] md:ml-20'>
       <h1 className='text-4xl font-bold'>Overview</h1>
@@ -90,71 +122,11 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             <ChartContainer config={chartConfig}>
               <LineChart
                 accessibilityLayer
-                data={[
-                  {
-                    month: 'Jan',
-                    algorithm: 100,
-                    react: 80,
-                    book: 60,
-                    langchain: 40,
-                    research: 20,
-                    sql: 10,
-                    project: 5,
-                  },
-                  {
-                    month: 'Feb',
-                    algorithm: 200,
-                    react: 150,
-                    book: 120,
-                    langchain: 80,
-                    research: 40,
-                    sql: 20,
-                    project: 10,
-                  },
-                  {
-                    month: 'Mar',
-                    algorithm: 300,
-                    react: 220,
-                    book: 180,
-                    langchain: 120,
-                    research: 30,
-                    sql: 15,
-                    project: 7,
-                  },
-                  {
-                    month: 'Apr',
-                    algorithm: 400,
-                    react: 290,
-                    book: 240,
-                    langchain: 160,
-                    research: 60,
-                    sql: 30,
-                    project: 15,
-                  },
-                  {
-                    month: 'May',
-                    algorithm: 500,
-                    react: 360,
-                    book: 300,
-                    langchain: 200,
-                    research: 80,
-                    sql: 40,
-                    project: 20,
-                  },
-                  {
-                    month: 'Jun',
-                    algorithm: 600,
-                    react: 430,
-                    book: 360,
-                    langchain: 240,
-                    research: 100,
-                    sql: 50,
-                    project: 25,
-                  },
-                ]}
+                data={transformViewCountByTagToChartData(viewCountByTag)}
                 margin={{
                   left: 12,
                   right: 12,
+                  top: 30,
                 }}
               >
                 <CartesianGrid vertical={false} />

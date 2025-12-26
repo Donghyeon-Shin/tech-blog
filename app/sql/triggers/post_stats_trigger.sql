@@ -9,7 +9,7 @@ BEGIN
         INSERT INTO public.post_stats AS ps (post_id, category_id, daily_view_count, record_date) 
         VALUES (
             NEW.post_id, 
-            NEW.category_id, 
+            NEW.tag, 
             1, 
             NOW()
         )

@@ -12,3 +12,4 @@ AS $$
   FROM public.posts;
 $$;
 
+DROP FUNCTION public.get_overview_stats();
