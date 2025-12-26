@@ -7,7 +7,6 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-  type ChartConfig,
 } from '~/components/ui/chart';
 import DashboardCard from '~/components/ui/dashboardCard';
 import client from '~/supa-client';
@@ -15,35 +14,37 @@ import { getAllPostsForOverview, getViewCountByTag } from '~/api/posts/posts-api
 import type { Route } from './+types/dashboard';
 import { Link } from 'react-router';
 import { getCategoriesGroupedByViewCount } from '~/api/categories/categories-api';
+import { categoryColors } from '~/lib/category-config';
+import type { ChartConfig } from '~/components/ui/chart';
 
-const chartConfig = {
+const chartConfig: ChartConfig = {
   algorithm: {
-    label: 'Algorithm',
-    color: 'oklch(73.57% 0.158 251.78)',
+    label: categoryColors.Algorithm.label,
+    color: categoryColors.Algorithm.chartColor,
   },
   react: {
-    label: 'React',
-    color: 'oklch(76.22% 0.15 237.05)',
+    label: categoryColors.React.label,
+    color: categoryColors.React.chartColor,
   },
   book: {
-    label: 'Book',
-    color: 'oklch(73.91% 0.198 71.04)',
+    label: categoryColors.Book.label,
+    color: categoryColors.Book.chartColor,
   },
   langchain: {
-    label: 'LangChain',
-    color: 'oklch(77.56% 0.169 189.69)',
+    label: categoryColors.LangChain.label,
+    color: categoryColors.LangChain.chartColor,
   },
   research: {
-    label: 'Research',
-    color: 'oklch(67.54% 0.183 279.77)',
+    label: categoryColors.Research.label,
+    color: categoryColors.Research.chartColor,
   },
   sql: {
-    label: 'SQL',
-    color: 'oklch(77.2% 0.182 161.46)',
+    label: categoryColors.SQL.label,
+    color: categoryColors.SQL.chartColor,
   },
   project: {
-    label: 'Project',
-    color: 'oklch(68.17% 0.208 4.74)',
+    label: categoryColors.Project.label,
+    color: categoryColors.Project.chartColor,
   },
 } satisfies ChartConfig;
 

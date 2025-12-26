@@ -1,25 +1,26 @@
-import { cva } from 'class-variance-authority';
 import { format } from 'date-fns';
 import { DotIcon, EyeIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { Separator } from '~/components/ui/separator';
+import { categoryColors } from '~/lib/category-config';
+import type { CategoryName } from '~/lib/category-config';
 
-const categoryVariants = cva(
-  'rounded-md border px-2 md:px-4 text-xs md:text-sm font-medium shrink-0',
-  {
-    variants: {
-      category: {
-        Algorithm: 'bg-[#1E293B] text-[#60A5FA]',
-        Book: 'bg-[#2A1F1D] text-[#F59E0B]',
-        LangChain: 'bg-[#052E2B] text-[#2DD4BF]',
-        React: 'bg-[#0F172A] text-[#38BDF8]',
-        Research: 'bg-[#1C1917] text-[#A78BFA]',
-        SQL: 'bg-[#1F2937] text-[#34D399]',
-        Project: 'bg-[#18181B] text-[#F472B6]',
-      },
+function getPopularPostCategoryStyle(category: CategoryName) {
+  if (category === 'null') {
+    return {
+      className:
+        'rounded-md border px-2 md:px-4 text-xs md:text-sm font-medium shrink-0 bg-transparent text-primary',
+    };
+  }
+  const colors = categoryColors[category];
+  return {
+    style: {
+      backgroundColor: colors.bgColor,
+      color: colors.textColor,
     },
-  },
-);
+    className: 'rounded-md border px-2 md:px-4 text-xs md:text-sm font-medium shrink-0',
+  };
+}
 
 export default function PopularPostCard({
   title,
@@ -56,7 +57,7 @@ export default function PopularPostCard({
         </div>
       </div>
       <div className='flex flex-row gap-1 items-center text-muted-foreground w-full flex-nowrap'>
-        <div className={categoryVariants({ category })}>{category}</div>
+        <div {...getPopularPostCategoryStyle(category)}>{category}</div>
         <DotIcon className='size-4 shrink-0' />
         <div className='text-muted-foreground text-xs whitespace-nowrap shrink-0'>
           {readTime} min read

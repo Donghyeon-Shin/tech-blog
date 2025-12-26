@@ -1,22 +1,22 @@
-import { cva } from 'class-variance-authority';
 import { format } from 'date-fns';
 import { ClockIcon, DotIcon } from 'lucide-react';
 import { Link } from 'react-router';
+import { categoryColors } from '~/lib/category-config';
+import type { CategoryName } from '~/lib/category-config';
 
-const categoryVariants = cva('rounded-md border px-4 text-sm font-medium', {
-  variants: {
-    category: {
-      Algorithm: 'bg-[#1E293B] text-[#60A5FA]',
-      Book: 'bg-[#2A1F1D] text-[#F59E0B]',
-      LangChain: 'bg-[#052E2B] text-[#2DD4BF]',
-      React: 'bg-[#0F172A] text-[#38BDF8]',
-      Research: 'bg-[#1C1917] text-[#A78BFA]',
-      SQL: 'bg-[#1F2937] text-[#34D399]',
-      Project: 'bg-[#18181B] text-[#F472B6]',
-      null: 'bg-transparent text-primary',
+function getCategoryStyle(categoryName: CategoryName) {
+  if (categoryName === 'null') {
+    return { className: 'bg-transparent text-primary' };
+  }
+  const colors = categoryColors[categoryName];
+  return {
+    style: {
+      backgroundColor: colors.bgColor,
+      color: colors.textColor,
     },
-  },
-});
+    className: 'rounded-md border px-4 text-sm font-medium',
+  };
+}
 
 export default function PostCard({
   title,
@@ -38,21 +38,7 @@ export default function PostCard({
   return (
     <Link to={link} className='border rounded-lg p-8 flex flex-col gap-4 hover:bg-primary/10'>
       <div className='flex flex-row gap-2 items-center text-muted-foreground'>
-        <div
-          className={categoryVariants({
-            category: categoryName as
-              | 'Algorithm'
-              | 'Book'
-              | 'LangChain'
-              | 'React'
-              | 'Research'
-              | 'SQL'
-              | 'Project'
-              | 'null',
-          })}
-        >
-          {categoryName}
-        </div>
+        <div {...getCategoryStyle(categoryName as CategoryName)}>{categoryName}</div>
         <DotIcon className='size-5' />
         <div className='text-muted-foreground text-sm'>{formattedDate}</div>
       </div>
