@@ -64,3 +64,15 @@ export const getPostTotalPagesByCategoryAndPage = async (
 
   return Math.ceil((count || 0) / PAGE_SIZE);
 };
+
+export const getPopularPosts = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client
+    .from('posts')
+    .select('*')
+    .order('view_count', { ascending: false })
+    .limit(5);
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};

@@ -47,10 +47,10 @@ export default function PopularPostCard({
       to={link}
       className='border rounded-lg p-8 flex flex-col gap-4 hover:bg-primary/10 relative'
     >
-      <div className='absolute bottom-5 right-5 lg:top-5'>
-        <div className='flex flex-row gap-5 items-center h-16'>
-          <Separator orientation='vertical' className='h-16' />
-          <div className='text-muted text-4xl font-extrabold tracking-wider'>
+      <div className='absolute bottom-3 right-5 lg:top-5'>
+        <div className='flex flex-row gap-5 items-center h-12 lg:h-16'>
+          <Separator orientation='vertical' className='h-12 lg:h-16' />
+          <div className='text-muted text-3xl lg:text-4xl font-extrabold tracking-wider'>
             {rank.toString().padStart(2, '0')}
           </div>
         </div>

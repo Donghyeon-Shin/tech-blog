@@ -1,71 +1,18 @@
 import { NavLink } from 'react-router';
+import { getTopLevelCategories } from '~/api/categories/categories-api';
+import { getPopularPosts } from '~/api/posts/posts-api';
 import PopularPostCard from '~/components/ui/popularPostCard';
+import client from '~/supa-client';
+import type { Route } from './+types/popularPosts';
 
-interface Post {
-  title: string;
-  description: string;
-  category: 'Algorithm' | 'Book' | 'LangChain' | 'React' | 'Research' | 'SQL' | 'Project';
-  date: Date;
-  link: string;
-  views: number;
-  readTime: number;
-  rank: number;
-}
+export const loader = async () => {
+  const posts = await getPopularPosts(client);
+  const categories = await getTopLevelCategories(client);
+  return { posts, categories };
+};
 
-const postList: Post[] = [
-  {
-    title: 'Post 1',
-    description: 'Post 1 description',
-    category: 'Algorithm',
-    date: new Date('2025-01-01'),
-    link: '/post/post-1',
-    views: 10,
-    readTime: 10,
-    rank: 1,
-  },
-  {
-    title: 'Post 2',
-    description: 'Post 2 description',
-    category: 'Book',
-    date: new Date('2025-01-01'),
-    link: '/post/post-2',
-    views: 10,
-    readTime: 10,
-    rank: 2,
-  },
-  {
-    title: 'Post 3',
-    description: 'Post 3 description',
-    category: 'LangChain',
-    date: new Date('2025-01-01'),
-    link: '/post/post-3',
-    views: 10,
-    readTime: 10,
-    rank: 3,
-  },
-  {
-    title: 'Post 4',
-    description: 'Post 4 description',
-    category: 'React',
-    date: new Date('2025-01-01'),
-    link: '/post/post-4',
-    views: 10,
-    readTime: 10,
-    rank: 4,
-  },
-  {
-    title: 'Post 5',
-    description: 'Post 5 description',
-    category: 'Research',
-    date: new Date('2025-01-01'),
-    link: '/post/post-5',
-    views: 10,
-    readTime: 10,
-    rank: 5,
-  },
-];
-
-export default function PopularPosts() {
+export default function PopularPosts({ loaderData }: Route.ComponentProps) {
+  const { posts, categories } = loaderData;
   return (
     <div className='flex flex-col gap-8 max-w-[1400px] md:ml-20'>
       <div className='flex flex-col gap-4'>
@@ -73,17 +20,26 @@ export default function PopularPosts() {
         <p className='text-muted-foreground'>Most read articles on my blog</p>
       </div>
       <div className='flex flex-col gap-4'>
-        {postList.map((post) => (
+        {posts.map((post, index) => (
           <PopularPostCard
             key={post.title}
             title={post.title}
-            description={post.description}
-            category={post.category}
-            date={post.date}
-            link={post.link}
-            views={post.views}
-            readTime={post.readTime}
-            rank={post.rank}
+            description={post.content.slice(0, 100)}
+            category={
+              categories?.find((c) => c.category_id === post.tag)?.name as
+                | 'Algorithm'
+                | 'Book'
+                | 'LangChain'
+                | 'React'
+                | 'Research'
+                | 'SQL'
+                | 'Project'
+            }
+            date={new Date(post.created_at)}
+            link={`/post/${post.post_id}`}
+            views={post.view_count}
+            readTime={post.read_time}
+            rank={index + 1}
           />
         ))}
       </div>
