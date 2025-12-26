@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router';
 import type { Route } from './+types/posts';
+import type { ShouldRevalidateFunctionArgs } from 'react-router';
 import { cva } from 'class-variance-authority';
 import PostCard from '~/components/ui/postCard';
 import PostPagination from '~/components/layout/postPagination';
@@ -30,6 +31,22 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   return { posts, totalPages, categories };
 };
 
+export const shouldRevalidate = ({ currentUrl, nextUrl }: ShouldRevalidateFunctionArgs) => {
+  // 동일한 카테고리와 페이지인지 확인
+  const currentPath = currentUrl.pathname;
+  const nextPath = nextUrl.pathname;
+  const currentPage = currentUrl.searchParams.get('page') || '1';
+  const nextPage = nextUrl.searchParams.get('page') || '1';
+
+  // 같은 경로와 페이지면 캐시 재사용 (false 반환)
+  if (currentPath === nextPath && currentPage === nextPage) {
+    return false;
+  }
+
+  // 다른 카테고리나 페이지면 재검증 (true 반환)
+  return true;
+};
+
 const navLinkVariants = cva('rounded-full border px-4 py-1', {
   variants: {
     isActive: {
@@ -51,13 +68,18 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
         </p>
       </div>
       <div className='flex flex-row flex-wrap gap-2'>
-        <NavLink to='/posts/all' className={({ isActive }) => navLinkVariants({ isActive })}>
+        <NavLink
+          to='/posts/all'
+          prefetch='intent'
+          className={({ isActive }) => navLinkVariants({ isActive })}
+        >
           View All
         </NavLink>
         {categories?.map((category) => (
           <NavLink
             key={category.category_id}
             to={`/posts/${category.category_id}`}
+            prefetch='intent'
             className={({ isActive }) => navLinkVariants({ isActive })}
           >
             {category.name}

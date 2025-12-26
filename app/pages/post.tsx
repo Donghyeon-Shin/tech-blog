@@ -6,6 +6,7 @@ import MarkdownrRender from '~/components/layout/markdownrRender';
 import { useRef, useState } from 'react';
 import PostSidebar from '~/components/layout/postSideBar';
 import type { Route } from './+types/post';
+import type { ShouldRevalidateFunctionArgs } from 'react-router';
 import GitHubSlugger from 'github-slugger';
 import client from '~/supa-client';
 import { getPostById } from '~/api/posts/posts-api';
@@ -44,6 +45,20 @@ export const loader = async ({ request: _request }: Route.LoaderArgs) => {
     });
 
   return { toc, post, markdownContent };
+};
+
+export const shouldRevalidate = ({ currentUrl, nextUrl }: ShouldRevalidateFunctionArgs) => {
+  // 동일한 post_id에 대한 요청인지 확인
+  const currentPostId = currentUrl.pathname.split('/')[2];
+  const nextPostId = nextUrl.pathname.split('/')[2];
+
+  // 같은 게시글이면 캐시 재사용 (false 반환)
+  if (currentPostId === nextPostId) {
+    return false;
+  }
+
+  // 다른 게시글이면 재검증 (true 반환)
+  return true;
 };
 
 export default function Post({ loaderData }: Route.ComponentProps) {

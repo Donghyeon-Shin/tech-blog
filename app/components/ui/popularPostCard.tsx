@@ -45,6 +45,7 @@ export default function PopularPostCard({
   return (
     <Link
       to={link}
+      prefetch='intent'
       className='border rounded-lg p-8 flex flex-col gap-4 hover:bg-primary/10 relative'
     >
       <div className='absolute bottom-3 right-5 lg:top-5'>
