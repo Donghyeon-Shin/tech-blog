@@ -19,6 +19,7 @@ import client from './supa-client';
 import { getCategories } from './api/categories/categories-api';
 import { getPosts } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
+import type { FolderItemProps } from './types/folderItemProps';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -90,7 +91,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
     <div>
       <Header />
       <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
-        <LeftSidebar categoriesTree={loaderData?.categoriesTree} />
+        <LeftSidebar categoriesTree={loaderData?.categoriesTree as FolderItemProps[]} />
         <Outlet />
       </div>
     </div>

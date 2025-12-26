@@ -8,3 +8,11 @@ export const getPosts = async (client: SupabaseClient<Database>) => {
   }
   return data;
 };
+
+export const getPostById = async (client: SupabaseClient<Database>, id: number) => {
+  const { data, error } = await client.from('posts').select('*').eq('post_id', id).single();
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};
