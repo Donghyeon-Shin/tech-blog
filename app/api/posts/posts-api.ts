@@ -76,3 +76,15 @@ export const getPopularPosts = async (client: SupabaseClient<Database>) => {
   }
   return data;
 };
+
+// 클라이언트 사이드 필터링용: VIEW를 사용하여 excerpt만 가져옴 (content 전체 대신)
+export const getAllPostsForFiltering = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client
+    .from('posts_with_excerpt')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};

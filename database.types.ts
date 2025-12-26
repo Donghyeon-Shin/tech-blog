@@ -96,7 +96,44 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      posts_with_excerpt: {
+        Row: {
+          created_at: string | null
+          excerpt: string | null
+          post_id: number | null
+          read_time: number | null
+          tag: number | null
+          title: string | null
+          view_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          excerpt?: never
+          post_id?: number | null
+          read_time?: number | null
+          tag?: number | null
+          title?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          excerpt?: never
+          post_id?: number | null
+          read_time?: number | null
+          tag?: number | null
+          title?: string | null
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_tag_categories_category_id_fk"
+            columns: ["tag"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["category_id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
