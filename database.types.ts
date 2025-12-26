@@ -239,7 +239,19 @@ export type Database = {
           post_title: string
         }[]
       }
-      increment_post_view: { Args: { post_id: number }; Returns: undefined }
+      get_overview_stats: {
+        Args: never
+        Returns: {
+          total_posts: number
+          total_read_time: number
+          total_tags: number
+          total_views: number
+        }[]
+      }
+      increment_post_view: {
+        Args: { target_post_id: number }
+        Returns: undefined
+      }
     }
     Enums: {
       event_types: "create" | "update"

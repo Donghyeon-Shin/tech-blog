@@ -10,6 +10,10 @@ import {
   type ChartConfig,
 } from '~/components/ui/chart';
 import DashboardCard from '~/components/ui/dashboardCard';
+import client from '~/supa-client';
+import { getOverviewStats } from '~/api/posts/posts-api';
+import type { Database } from 'database.types';
+import type { Route } from './+types/dashboard';
 
 const chartConfig = {
   algorithm: {
@@ -42,29 +46,37 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function Dashboard() {
+export const loader = async () => {
+  const overviewStats: Database['public']['Functions']['get_overview_stats']['Returns'][0] =
+    await getOverviewStats(client);
+
+  return { overviewStats };
+};
+
+export default function Dashboard({ loaderData }: Route.ComponentProps) {
+  const { overviewStats } = loaderData;
   return (
     <div className='flex flex-col gap-6 max-w-[1400px] md:ml-20'>
       <h1 className='text-4xl font-bold'>Overview</h1>
       <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
         <DashboardCard
           title='Total Views'
-          value={'124,592'}
+          value={overviewStats.total_views.toLocaleString()}
           icon={<EyeIcon className='size-9 text-primary bg-primary/10 rounded-md p-2' />}
         />
         <DashboardCard
           title='Avg. Read Time'
-          value={'4m 12s'}
+          value={`${Math.floor(overviewStats.total_read_time / 60)}h ${overviewStats.total_read_time % 60}m`}
           icon={<ClockIcon className='size-9 text-[#f95e27] bg-[#f95e27]/10 rounded-md p-2' />}
         />
         <DashboardCard
           title='Total Categories'
-          value={'18'}
+          value={overviewStats.total_tags}
           icon={<ShapesIcon className='size-9 text-[#14b8a6] bg-[#14b8a6]/10 rounded-md p-2' />}
         />
         <DashboardCard
           title='Total Posts'
-          value={'256'}
+          value={overviewStats.total_posts}
           icon={
             <ReceiptTextIcon className='size-9 text-[#8b45da] bg-[#8b45da]/10 rounded-md p-2' />
           }

@@ -17,10 +17,20 @@ export const getPostById = async (client: SupabaseClient<Database>, id: number) 
   const { error: rpcError } = await client.rpc('increment_post_view', { target_post_id: id });
 
   if (rpcError) {
-    console.error('Failed to increment post view:', rpcError);
+    throw new Error(rpcError.message);
   }
 
   return data;
+};
+
+export const getOverviewStats = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client.rpc('get_overview_stats');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data[0];
 };
 
 const PAGE_SIZE = 5; // 한 페이지에 보여줄 글 개수
