@@ -3,13 +3,31 @@ import type { Route } from './+types/posts';
 import { cva } from 'class-variance-authority';
 import PostCard from '~/components/ui/postCard';
 import PostPagination from '~/components/layout/postPagination';
+import {
+  getPostsByCategoryAndPage,
+  getPostTotalPagesByCategoryAndPage,
+} from '~/api/posts/posts-api';
+import client from '~/supa-client';
+import { getTopLevelCategories } from '~/api/categories/categories-api';
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const url = new URL(request.url);
-  const category = url.pathname.split('/')[2];
-  const page = url.searchParams.get('page') || 1;
-  console.log(category, page);
-  return { category, page };
+  const categoryIdParam = url.pathname.split('/')[2];
+  const pageParam = url.searchParams.get('page') || '1';
+
+  // "all"인 경우 -1로 변환, 그 외에는 숫자로 변환
+  const categoryId = categoryIdParam === 'all' ? -1 : parseInt(categoryIdParam, 10);
+  const page = parseInt(pageParam, 10) || 1;
+
+  // categoryId가 유효한 숫자가 아니면 -1로 설정
+  const validCategoryId = isNaN(categoryId) ? -1 : categoryId;
+
+  const categories = await getTopLevelCategories(client);
+  const posts = await getPostsByCategoryAndPage(client, validCategoryId, page);
+
+  const totalPages = await getPostTotalPagesByCategoryAndPage(client, validCategoryId);
+
+  return { posts, totalPages, categories };
 };
 
 const navLinkVariants = cva('rounded-full border px-4 py-1', {
@@ -21,87 +39,9 @@ const navLinkVariants = cva('rounded-full border px-4 py-1', {
   },
 });
 
-type PostCategory = 'Algorithm' | 'Book' | 'LangChain' | 'React' | 'Research' | 'SQL' | 'Project';
+export default function Posts({ loaderData }: Route.ComponentProps) {
+  const { totalPages, posts, categories } = loaderData;
 
-const categoryList: PostCategory[] = [
-  'Algorithm',
-  'Book',
-  'LangChain',
-  'React',
-  'Research',
-  'SQL',
-  'Project',
-];
-
-interface Post {
-  title: string;
-  description: string;
-  category: PostCategory;
-  date: Date;
-  link: string;
-  readTime: number;
-}
-
-const postList: Post[] = [
-  {
-    title: 'Post 1',
-    description: 'Post 1 description',
-    category: 'Algorithm',
-    date: new Date('2025-01-01'),
-    link: '/post/post-1',
-    readTime: 10,
-  },
-  {
-    title: 'Post 2',
-    description: 'Post 2 description',
-    category: 'Book',
-    date: new Date('2025-01-01'),
-    link: '/post/post-2',
-    readTime: 10,
-  },
-  {
-    title: 'Post 3',
-    description: 'Post 3 description',
-    category: 'LangChain',
-    date: new Date('2025-01-01'),
-    link: '/post/post-3',
-    readTime: 10,
-  },
-  {
-    title: 'Post 4',
-    description: 'Post 4 description',
-    category: 'React',
-    date: new Date('2025-01-01'),
-    link: '/post/post-4',
-    readTime: 10,
-  },
-  {
-    title: 'Post 5',
-    description: 'Post 5 description',
-    category: 'Research',
-    date: new Date('2025-01-01'),
-    link: '/post/post-5',
-    readTime: 10,
-  },
-  {
-    title: 'Post 6',
-    description: 'Post 6 description',
-    category: 'SQL',
-    date: new Date('2025-01-01'),
-    link: '/post/post-6',
-    readTime: 10,
-  },
-  {
-    title: 'Post 7',
-    description: 'Post 7 description',
-    category: 'Project',
-    date: new Date('2025-01-01'),
-    link: '/post/post-7',
-    readTime: 10,
-  },
-];
-
-export default function Posts() {
   return (
     <div className='flex flex-col gap-8 max-w-[1400px] md:ml-20'>
       <div className='flex flex-col gap-4'>
@@ -114,30 +54,30 @@ export default function Posts() {
         <NavLink to='/posts/all' className={({ isActive }) => navLinkVariants({ isActive })}>
           View All
         </NavLink>
-        {categoryList.map((category) => (
+        {categories?.map((category) => (
           <NavLink
-            key={category}
-            to={`/posts/${category}`}
+            key={category.category_id}
+            to={`/posts/${category.category_id}`}
             className={({ isActive }) => navLinkVariants({ isActive })}
           >
-            {category}
+            {category.name}
           </NavLink>
         ))}
       </div>
       <div className='flex flex-col gap-4'>
-        {postList.map((post) => (
+        {posts.map((post) => (
           <PostCard
             key={post.title}
             title={post.title}
-            description={post.description}
-            category={post.category}
-            date={post.date}
-            link={post.link}
-            readTime={post.readTime}
+            description={post.content.slice(0, 100)}
+            categoryName={categories?.find((c) => c.category_id === post.tag)?.name as string}
+            date={new Date(post.created_at)}
+            link={`/post/${post.post_id}`}
+            readTime={post.read_time}
           />
         ))}
       </div>
-      <PostPagination totalPages={10} />
+      <PostPagination totalPages={totalPages} />
     </div>
   );
 }

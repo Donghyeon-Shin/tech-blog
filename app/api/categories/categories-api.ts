@@ -8,3 +8,11 @@ export const getCategories = async (client: SupabaseClient<Database>) => {
   }
   return data;
 };
+
+export const getTopLevelCategories = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client.from('categories').select('*').is('parent_id', null);
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};
