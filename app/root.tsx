@@ -15,6 +15,11 @@ import { themeSessionResolver } from './lib/theme-session.server';
 import { ThemeProvider, useTheme } from 'remix-themes';
 import LeftSidebar from './components/layout/leftSideBar';
 import { Toaster } from 'sonner';
+import client from './supa-client';
+import { getCategories } from './api/categories/categories-api';
+import { getAllPostsForFiltering } from './api/posts/posts-api';
+import { buildCategoriesTree } from './lib/buildCategoriesTree';
+import type { FolderItemProps } from './types/folderItemProps';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -39,11 +44,15 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !process.env.DATABASE_URL) {
     throw new Error('Missing environment variables');
   }
-
   const { getTheme } = await themeSessionResolver(request);
   const theme = getTheme();
 
-  return { theme };
+  const categories = await getCategories(client);
+  const topLevelCategories = categories.filter((c) => c.parent_id === null);
+  const posts = await getAllPostsForFiltering(client);
+  const categoriesTree = buildCategoriesTree(categories, posts, null);
+
+  return { theme, categoriesTree, topLevelCategories, posts };
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -78,13 +87,18 @@ export function InnerLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <div>
-      <Header />
+      <Header categories={loaderData?.topLevelCategories} />
       <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
-        <LeftSidebar />
-        <Outlet />
+        <LeftSidebar categoriesTree={loaderData?.categoriesTree as FolderItemProps[]} />
+        <Outlet
+          context={{
+            categories: loaderData?.topLevelCategories,
+            posts: loaderData?.posts,
+          }}
+        />
       </div>
     </div>
   );

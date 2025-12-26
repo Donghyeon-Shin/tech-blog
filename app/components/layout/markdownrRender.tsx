@@ -53,6 +53,22 @@ const components: Components = {
     );
   },
 
+  h4: ({ node: _node, ...props }) => {
+    return (
+      <div>
+        <h4 className='text-lg scroll-mt-20 font-semibold mb-4 mt-8' {...props} />
+      </div>
+    );
+  },
+
+  h5: ({ node: _node, ...props }) => {
+    return (
+      <div>
+        <h5 className='text-base scroll-mt-20 font-semibold mb-4 mt-8' {...props} />
+      </div>
+    );
+  },
+
   p: ({ children, ...props }) => {
     return (
       <p {...props} className='whitespace-pre-wrap'>
@@ -190,8 +206,9 @@ export default function MarkdownrRender({
 }) {
   useEffect(() => {
     // 옵저버 설정
+    let observer: IntersectionObserver | null = null;
     const timeoutId = setTimeout(() => {
-      const observer = new IntersectionObserver(
+      observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -199,18 +216,21 @@ export default function MarkdownrRender({
             }
           });
         },
-        { rootMargin: '-10% 0px -100% 0px' },
+        { rootMargin: '-10% 0px -80% 0px', threshold: 0 },
       );
 
       const headerElements = document.querySelectorAll(
-        '.markdown-content h1[id], .markdown-content h2[id], .markdown-content h3[id]',
+        '.markdown-content h1[id], .markdown-content h2[id], .markdown-content h3[id], .markdown-content h4[id], .markdown-content h5[id], .markdown-content h6[id]',
       );
-      headerElements.forEach((el) => observer.observe(el));
-
-      return () => observer.disconnect();
+      headerElements.forEach((el) => observer?.observe(el));
     }, 150);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      if (observer) {
+        observer.disconnect();
+      }
+    };
   }, [content, setActiveId]);
 
   return (

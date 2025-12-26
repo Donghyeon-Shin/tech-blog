@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { BookIcon, LayoutGrid, StarIcon } from 'lucide-react';
+import { LayoutGrid, StarIcon } from 'lucide-react';
 import { Link, NavLink, useLocation } from 'react-router';
 import FolderItems from './folderItems';
 import type { FolderItemProps } from '~/types/folderItemProps';
@@ -15,94 +15,6 @@ const navLinkVariants = cva(
     },
   },
 );
-
-const foloderList: FolderItemProps[] = [
-  {
-    name: 'Algorithm',
-    isFolder: true,
-    children: [
-      {
-        name: 'Algorithm Content',
-        isFolder: true,
-        children: [
-          {
-            name: 'Array',
-            isFolder: true,
-            children: [
-              {
-                name: 'Binary Search',
-                isFolder: false,
-              },
-              {
-                name: 'MITM(Meet in the Middle)',
-                isFolder: false,
-              },
-              {
-                name: 'PBS(Parallel Binary Search)',
-                isFolder: false,
-              },
-            ],
-          },
-          {
-            name: 'Graph Theory',
-            isFolder: true,
-            children: [
-              {
-                name: 'BFS(Breadth-First Search)',
-                isFolder: false,
-              },
-              {
-                name: 'DFS(Depth-First Search)',
-                isFolder: false,
-              },
-              {
-                name: 'Topological Sorting',
-                isFolder: false,
-              },
-              {
-                name: 'Shortest Path',
-                isFolder: false,
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'Books',
-    isFolder: true,
-    children: [
-      {
-        name: 'Books Content',
-        isFolder: false,
-        icon: <BookIcon className='size-4' />,
-      },
-      {
-        name: 'Books Content',
-        isFolder: true,
-        children: [
-          {
-            name: 'Book 1',
-            isFolder: false,
-          },
-          {
-            name: 'Book 2',
-            isFolder: false,
-          },
-          {
-            name: 'Book 3',
-            isFolder: false,
-          },
-          {
-            name: 'Book 4',
-            isFolder: false,
-          },
-        ],
-      },
-    ],
-  },
-];
 
 interface NowList {
   type: 'update' | 'create';
@@ -141,7 +53,7 @@ const nowList: NowList[] = [
   },
 ];
 
-export default function LeftSidebar() {
+export default function LeftSidebar({ categoriesTree }: { categoriesTree: FolderItemProps[] }) {
   const location = useLocation();
   const isPostsActive = location.pathname.startsWith('/posts');
 
@@ -211,7 +123,7 @@ export default function LeftSidebar() {
         <div className='flex flex-col gap-4'>
           <h1 className='text-sm font-medium text-muted-foreground/50'>CATEGORIES</h1>
           <div className='flex flex-col gap-1'>
-            {foloderList.map((item) => (
+            {categoriesTree.map((item) => (
               <FolderItems key={item.name} item={item as FolderItemProps} />
             ))}
           </div>

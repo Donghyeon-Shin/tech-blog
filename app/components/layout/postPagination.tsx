@@ -109,6 +109,7 @@ export default function PostPagination({ totalPages }: { totalPages: number }) {
                 to={createPageUrl(pageNum)}
                 isActive={pageNum === page}
                 onClick={(e) => handlePageClick(pageNum, e)}
+                prefetch='intent'
               >
                 {pageNum}
               </PaginationLink>

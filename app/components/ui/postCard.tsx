@@ -13,6 +13,7 @@ const categoryVariants = cva('rounded-md border px-4 text-sm font-medium', {
       Research: 'bg-[#1C1917] text-[#A78BFA]',
       SQL: 'bg-[#1F2937] text-[#34D399]',
       Project: 'bg-[#18181B] text-[#F472B6]',
+      null: 'bg-transparent text-primary',
     },
   },
 });
@@ -20,14 +21,14 @@ const categoryVariants = cva('rounded-md border px-4 text-sm font-medium', {
 export default function PostCard({
   title,
   description,
-  category,
+  categoryName,
   date,
   link,
   readTime,
 }: {
   title: string;
   description: string;
-  category: 'Algorithm' | 'Book' | 'LangChain' | 'React' | 'Research' | 'SQL' | 'Project';
+  categoryName: string;
   date: Date;
   link: string;
   readTime: number;
@@ -35,9 +36,27 @@ export default function PostCard({
   const formattedDate = format(date, 'MMM dd, yyyy');
 
   return (
-    <Link to={link} className='border rounded-lg p-8 flex flex-col gap-4 hover:bg-primary/10'>
+    <Link
+      to={link}
+      prefetch='intent'
+      className='border rounded-lg p-8 flex flex-col gap-4 hover:bg-primary/10'
+    >
       <div className='flex flex-row gap-2 items-center text-muted-foreground'>
-        <div className={categoryVariants({ category })}>{category}</div>
+        <div
+          className={categoryVariants({
+            category: categoryName as
+              | 'Algorithm'
+              | 'Book'
+              | 'LangChain'
+              | 'React'
+              | 'Research'
+              | 'SQL'
+              | 'Project'
+              | 'null',
+          })}
+        >
+          {categoryName}
+        </div>
         <DotIcon className='size-5' />
         <div className='text-muted-foreground text-sm'>{formattedDate}</div>
       </div>
