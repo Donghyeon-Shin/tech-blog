@@ -182,7 +182,17 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_latest_unique_events: {
+        Args: never
+        Returns: {
+          created_at: string
+          event_id: number
+          event_type: Database["public"]["Enums"]["event_types"]
+          post_excerpt: string
+          post_id: number
+          post_title: string
+        }[]
+      }
     }
     Enums: {
       event_types: "create" | "update"

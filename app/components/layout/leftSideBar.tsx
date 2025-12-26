@@ -3,6 +3,8 @@ import { LayoutGrid, StarIcon } from 'lucide-react';
 import { Link, NavLink, useLocation } from 'react-router';
 import FolderItems from './folderItems';
 import type { FolderItemProps } from '~/types/folderItemProps';
+import type { Database } from 'database.types';
+import { markdownToText } from '~/lib/markdown-to-text';
 
 const navLinkVariants = cva(
   'hover:bg-primary/10 hover:text-primary px-2 py-2 rounded-md transition-colors flex items-center gap-2',
@@ -16,44 +18,13 @@ const navLinkVariants = cva(
   },
 );
 
-interface NowList {
-  type: 'update' | 'create';
-  posts: {
-    title: string;
-    link: string;
-    description: string;
-  }[];
-}
-
-const nowList: NowList[] = [
-  {
-    type: 'update',
-    posts: [
-      {
-        title: 'Update 1',
-        link: '/posts/update-1',
-        description: 'Update 1 description',
-      },
-      {
-        title: 'Update 2',
-        link: '/posts/update-2',
-        description: 'Update 2 description',
-      },
-    ],
-  },
-  {
-    type: 'create',
-    posts: [
-      {
-        title: 'Create 1',
-        link: '/posts/create-1',
-        description: 'Create 1 description',
-      },
-    ],
-  },
-];
-
-export default function LeftSidebar({ categoriesTree }: { categoriesTree: FolderItemProps[] }) {
+export default function LeftSidebar({
+  categoriesTree,
+  events,
+}: {
+  categoriesTree: FolderItemProps[];
+  events: Database['public']['Functions']['get_latest_unique_events']['Returns'];
+}) {
   const location = useLocation();
   const isPostsActive = location.pathname.startsWith('/posts');
 
@@ -81,42 +52,74 @@ export default function LeftSidebar({ categoriesTree }: { categoriesTree: Folder
             </NavLink>
           </div>
         </div>
-        {nowList && nowList.length > 0 && (
+        {events && events.length > 0 && (
           <div className='flex flex-col gap-4'>
             <h1 className='text-sm font-medium text-muted-foreground/50'>NOW</h1>
             <div className='border rounded-md p-2 bg-muted-foreground/5 flex flex-col gap-5'>
-              {nowList.map((item) => (
-                <div key={item.type} className='flex flex-col gap-2 ml-2'>
-                  <div className='flex items-center gap-2'>
-                    <span className='relative flex h-3 w-3'>
-                      {item.type === 'update' ? (
-                        <>
-                          <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75'></span>
-                          <span className='relative inline-flex rounded-full h-3 w-3 bg-green-500'></span>
-                        </>
-                      ) : (
-                        <>
-                          <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75'></span>
-                          <span className='relative inline-flex rounded-full h-3 w-3 bg-purple-500'></span>
-                        </>
-                      )}
-                    </span>
-                    <span className='text-muted-foreground font-medium text-sm capitalize'>
-                      {item.type}
-                    </span>
-                  </div>
+              <div className='flex flex-col gap-4 ml-2'>
+                {events.filter((e) => e.event_type === 'create').length > 0 && (
                   <div className='flex flex-col gap-2'>
-                    {item.posts.map((post) => (
-                      <Link to={post.link} key={post.title} className='flex flex-col gap-1'>
-                        <span className='font-medium text-xs'>{post.title}</span>
-                        <span className='text-muted-foreground font-medium text-xs line-clamp-2'>
-                          {post.description}
-                        </span>
-                      </Link>
-                    ))}
+                    <div className='flex items-center gap-2'>
+                      <div className='relative flex h-3 w-3'>
+                        <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75'></span>
+                        <span className='relative inline-flex rounded-full h-3 w-3 bg-purple-500'></span>
+                      </div>
+                      <span className='text-muted-foreground font-medium text-sm capitalize'>
+                        Created
+                      </span>
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      {events
+                        .filter((e) => e.event_type === 'create')
+                        .map((event) => (
+                          <div className='flex flex-col gap-2' key={event.event_id}>
+                            <Link
+                              to={`/post/${event.post_id}`}
+                              key={event.event_id}
+                              className='flex flex-col gap-1'
+                            >
+                              <span className='font-medium text-xs'>{event.post_title}</span>
+                              <span className='text-muted-foreground font-medium text-xs line-clamp-1'>
+                                {markdownToText(event.post_excerpt || '', 100)}
+                              </span>
+                            </Link>
+                          </div>
+                        ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )}
+                {events.filter((e) => e.event_type === 'update').length > 0 && (
+                  <div className='flex flex-col gap-2'>
+                    <div className='flex items-center gap-2'>
+                      <div className='relative flex h-3 w-3'>
+                        <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75' />
+                        <span className='relative inline-flex rounded-full h-3 w-3 bg-green-500' />
+                      </div>
+                      <span className='text-muted-foreground font-medium text-sm capitalize'>
+                        Updated
+                      </span>
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      {events
+                        .filter((e) => e.event_type === 'update')
+                        .map((event) => (
+                          <div className='flex flex-col gap-2' key={event.event_id}>
+                            <Link
+                              to={`/post/${event.post_id}`}
+                              key={event.event_id}
+                              className='flex flex-col gap-1'
+                            >
+                              <span className='font-medium text-xs'>{event.post_title}</span>
+                              <span className='text-muted-foreground font-medium text-xs line-clamp-1'>
+                                {markdownToText(event.post_excerpt || '', 100)}
+                              </span>
+                            </Link>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
