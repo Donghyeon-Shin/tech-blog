@@ -15,8 +15,13 @@ import {
 } from '~/components/ui/dropdown-menu';
 
 export default function HierarchyBar({ hierarchy }: { hierarchy: { category: string }[] }) {
+  // 빈 배열이면 아무것도 렌더링하지 않음
+  if (!hierarchy || hierarchy.length === 0) {
+    return null;
+  }
+
   // 4개 이상인 경우 -> 중간 메뉴 드롭다운
-  // 2개 이상인 경우 -> 마지막 제외 Link 처리
+  // 3개 이상인 경우 -> 마지막 제외 Link 처리
   // 1개 인 경우 -> Page 처리
 
   return hierarchy.length > 3 ? (
@@ -55,7 +60,7 @@ export default function HierarchyBar({ hierarchy }: { hierarchy: { category: str
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
-  ) : hierarchy.length > 1 ? (
+  ) : hierarchy.length === 3 ? (
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
@@ -73,6 +78,22 @@ export default function HierarchyBar({ hierarchy }: { hierarchy: { category: str
         <BreadcrumbItem>
           <BreadcrumbPage>
             <span>{hierarchy[2].category}</span>
+          </BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  ) : hierarchy.length === 2 ? (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink>
+            <span>{hierarchy[0].category}</span>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>
+            <span>{hierarchy[1].category}</span>
           </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>

@@ -7,6 +7,7 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from 'react-router';
+import { useEffect } from 'react';
 
 import type { Route } from './+types/root';
 import './app.css';
@@ -21,7 +22,6 @@ import { getAllPostsForFiltering } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
 import type { FolderItemProps } from './types/folderItemProps';
 import { getEvents } from './api/events/events-api';
-import { markdownToText } from './lib/markdown-to-text';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -40,6 +40,14 @@ export const links: Route.LinksFunction = () => [
     integrity: 'sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV',
     crossOrigin: 'anonymous',
   },
+  {
+    rel: 'stylesheet',
+    href: 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css',
+  },
+  {
+    rel: 'stylesheet',
+    href: 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css',
+  },
 ];
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -54,19 +62,14 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const posts = await getAllPostsForFiltering(client);
   const categoriesTree = buildCategoriesTree(categories, posts, null);
 
-  // 모든 posts의 excerpt를 markdownToText로 처리
-  const postsWithProcessedExcerpt = posts.map((post) => ({
-    ...post,
-    excerpt: markdownToText(post.excerpt || '', 300),
-  }));
-
   const events = await getEvents(client);
 
   return {
     theme,
     categoriesTree,
     topLevelCategories,
-    posts: postsWithProcessedExcerpt,
+    categories,
+    posts,
     events,
   };
 };
@@ -85,8 +88,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export function InnerLayout({ children }: { children: React.ReactNode }) {
   const [theme] = useTheme();
+  const currentTheme = theme ?? 'dark';
+
+  useEffect(() => {
+    // highlight.js 테마 CSS 동적 제어
+    const darkThemeLink = document.querySelector(
+      'link[href*="github-dark.min.css"]',
+    ) as HTMLLinkElement;
+    const lightThemeLink = document.querySelector(
+      'link[href*="github.min.css"]',
+    ) as HTMLLinkElement;
+
+    if (darkThemeLink && lightThemeLink) {
+      if (currentTheme === 'dark') {
+        darkThemeLink.disabled = false;
+        lightThemeLink.disabled = true;
+      } else {
+        darkThemeLink.disabled = true;
+        lightThemeLink.disabled = false;
+      }
+    }
+  }, [currentTheme]);
+
   return (
-    <html lang='en' className={theme ?? 'dark'}>
+    <html lang='en' className={currentTheme}>
       <head>
         <meta charSet='utf-8' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
@@ -115,7 +140,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
         <Outlet
           context={{
             categories: loaderData?.topLevelCategories,
+            allCategories: loaderData?.categories,
             posts: loaderData?.posts,
+            categoriesTree: loaderData?.categoriesTree,
           }}
         />
       </div>

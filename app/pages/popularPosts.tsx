@@ -2,6 +2,7 @@ import { NavLink, useOutletContext } from 'react-router';
 import PopularPostCard from '~/components/ui/popularPostCard';
 import { type Database } from '~/types/database';
 import { useMemo } from 'react';
+import { markdownToText } from '~/lib/markdown-to-text';
 
 export default function PopularPosts() {
   const { posts, categories } = useOutletContext<{
@@ -24,7 +25,7 @@ export default function PopularPosts() {
           <PopularPostCard
             key={post.title}
             title={post.title}
-            description={post.excerpt}
+            description={markdownToText(post.excerpt || '', 300)}
             category={
               categories.find((c) => c.category_id === post.tag)?.name as string as
                 | 'Algorithm'

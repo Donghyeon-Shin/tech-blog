@@ -5,6 +5,7 @@ import PostCard from '~/components/ui/postCard';
 import PostPagination from '~/components/layout/postPagination';
 import { useMemo } from 'react';
 import type { Database } from '~/types/database';
+import { markdownToText } from '~/lib/markdown-to-text';
 
 const PAGE_SIZE = 5; // 한 페이지에 보여줄 글 개수
 
@@ -40,8 +41,16 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
 
     const totalPages = Math.ceil(result.length / PAGE_SIZE);
 
+    const paginatedPosts = result.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+    // markdownToText를 한 번만 계산
+    const postsWithProcessedExcerpt = paginatedPosts.map((post) => ({
+      ...post,
+      processedExcerpt: markdownToText(post.excerpt || '', 300),
+    }));
+
     return {
-      posts: result.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+      posts: postsWithProcessedExcerpt,
       totalPages,
     };
   }, [posts, categoryId, page]);
@@ -75,17 +84,20 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
         <div className='flex flex-col gap-4'>
-          {filteredPosts.map((post) => (
-            <PostCard
-              key={post.title}
-              title={post.title}
-              description={post.excerpt}
-              categoryName={categories?.find((c) => c.category_id === post.tag)?.name as string}
-              date={new Date(post.created_at)}
-              link={`/post/${post.post_id}`}
-              readTime={post.read_time}
-            />
-          ))}
+          {filteredPosts.map((post) => {
+            const postWithExcerpt = post as typeof post & { processedExcerpt?: string };
+            return (
+              <PostCard
+                key={post.title}
+                title={post.title}
+                description={postWithExcerpt.processedExcerpt || post.excerpt || ''}
+                categoryName={categories?.find((c) => c.category_id === post.tag)?.name as string}
+                date={new Date(post.created_at)}
+                link={`/post/${post.post_id}`}
+                readTime={post.read_time}
+              />
+            );
+          })}
         </div>
       </div>
       <div className='mt-auto pt-8'>
