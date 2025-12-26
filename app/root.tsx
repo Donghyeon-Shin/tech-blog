@@ -48,10 +48,11 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const theme = getTheme();
 
   const categories = await getCategories(client);
+  const topLevelCategories = categories.filter((c) => c.parent_id === null);
   const posts = await getAllPostsForFiltering(client);
   const categoriesTree = buildCategoriesTree(categories, posts, null);
 
-  return { theme, categoriesTree, categories, posts };
+  return { theme, categoriesTree, topLevelCategories, posts };
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -94,7 +95,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
         <LeftSidebar categoriesTree={loaderData?.categoriesTree as FolderItemProps[]} />
         <Outlet
           context={{
-            categories: loaderData?.categories,
+            categories: loaderData?.topLevelCategories,
             posts: loaderData?.posts,
           }}
         />

@@ -33,11 +33,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
     categories: Database['public']['Tables']['categories']['Row'][];
   }>();
 
-  const {
-    posts: filteredPosts,
-    totalPages,
-    topLevelCategories,
-  } = useMemo(() => {
+  const { posts: filteredPosts, totalPages } = useMemo(() => {
     let result = posts;
     if (categoryId !== -1) {
       result = posts.filter((p) => p.tag === categoryId);
@@ -45,13 +41,11 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
 
     const totalPages = Math.ceil(result.length / PAGE_SIZE);
 
-    const topLevelCategories = categories.filter((c) => c.parent_id === null);
     return {
       posts: result.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
       totalPages,
-      topLevelCategories,
     };
-  }, [posts, categoryId, page, categories]);
+  }, [posts, categoryId, page]);
 
   return (
     <div className='flex flex-col min-h-[calc(100vh-4rem)] max-w-[1400px] md:ml-20'>
@@ -70,7 +64,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
           >
             View All
           </NavLink>
-          {topLevelCategories?.map((category) => (
+          {categories?.map((category) => (
             <NavLink
               key={category.category_id}
               to={`/posts/${category.category_id}`}

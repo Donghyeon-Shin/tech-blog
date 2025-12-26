@@ -9,12 +9,11 @@ export default function PopularPosts() {
     posts: Database['public']['Views']['posts_with_excerpt']['Row'][];
     categories: Database['public']['Tables']['categories']['Row'][];
   }>();
-  const { popularPosts, topLevelCategories } = useMemo(() => {
+  const { popularPosts } = useMemo(() => {
     const sortedPosts = [...posts].sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
     const popularPosts = sortedPosts.slice(0, 5);
-    const topLevelCategories = categories.filter((c) => c.parent_id === null);
-    return { popularPosts, topLevelCategories };
-  }, [posts, categories]);
+    return { popularPosts };
+  }, [posts]);
   return (
     <div className='flex flex-col gap-8 max-w-[1400px] md:ml-20'>
       <div className='flex flex-col gap-4'>
@@ -28,7 +27,7 @@ export default function PopularPosts() {
             title={post.title}
             description={markdownToText(post.excerpt || '', 300)}
             category={
-              topLevelCategories?.find((c) => c.category_id === post.tag)?.name as string as
+              categories.find((c) => c.category_id === post.tag)?.name as string as
                 | 'Algorithm'
                 | 'Book'
                 | 'LangChain'
