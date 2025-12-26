@@ -11,8 +11,9 @@ import {
 } from '~/components/ui/chart';
 import DashboardCard from '~/components/ui/dashboardCard';
 import client from '~/supa-client';
-import { getOverviewStats, getViewCountByTag } from '~/api/posts/posts-api';
+import { getAllPostsForOverview, getViewCountByTag } from '~/api/posts/posts-api';
 import type { Route } from './+types/dashboard';
+import { Link } from 'react-router';
 
 const chartConfig = {
   algorithm: {
@@ -77,24 +78,44 @@ function transformViewCountByTagToChartData(
 }
 
 export const loader = async () => {
-  const overviewStats = await getOverviewStats(client);
+  const posts = await getAllPostsForOverview(client);
   const viewCountByTag = await getViewCountByTag(client);
-  return { overviewStats, viewCountByTag };
+
+  const totalViews = posts.reduce((acc, post) => acc + post.view_count, 0);
+  const averageReadTime = posts.reduce((acc, post) => acc + post.read_time, 0) / posts.length;
+  const averageReadTimeHours = Math.floor(averageReadTime / 60);
+  const averageReadTimeMinutes = Math.floor(averageReadTime % 60);
+  const totalPosts = posts.length;
+
+  const mostViewedPosts = posts.sort((a, b) => b.view_count - a.view_count).slice(0, 4);
+
+  return {
+    totalViews,
+    averageReadTimeHours,
+    averageReadTimeMinutes,
+    totalPosts,
+    viewCountByTag,
+    mostViewedPosts,
+  };
 };
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { overviewStats, viewCountByTag } = loaderData;
+  const {
+    totalViews,
+    averageReadTimeHours,
+    averageReadTimeMinutes,
+    totalPosts,
+    viewCountByTag,
+    mostViewedPosts,
+  } = loaderData;
 
-  const averageReadTime = Math.floor(overviewStats.total_read_time / overviewStats.total_posts);
-  const averageReadTimeHours = Math.floor(averageReadTime / 60);
-  const averageReadTimeMinutes = averageReadTime % 60;
   return (
     <div className='flex flex-col gap-6 max-w-[1400px] md:ml-20'>
       <h1 className='text-4xl font-bold'>Overview</h1>
       <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
         <DashboardCard
           title='Total Views'
-          value={overviewStats.total_views.toLocaleString()}
+          value={totalViews.toLocaleString()}
           icon={<EyeIcon className='size-9 text-primary bg-primary/10 rounded-md p-2' />}
         />
         <DashboardCard
@@ -104,12 +125,12 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         />
         <DashboardCard
           title='Total Categories'
-          value={overviewStats.total_tags}
+          value={'13'}
           icon={<ShapesIcon className='size-9 text-[#14b8a6] bg-[#14b8a6]/10 rounded-md p-2' />}
         />
         <DashboardCard
           title='Total Posts'
-          value={overviewStats.total_posts}
+          value={totalPosts}
           icon={
             <ReceiptTextIcon className='size-9 text-[#8b45da] bg-[#8b45da]/10 rounded-md p-2' />
           }
@@ -233,7 +254,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             <CardDescription>Top 4 posts by views</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className='flex flex-col gap-4'>
+            <div className='flex flex-col gap-2'>
               {/* 테이블 헤더 */}
               <div className='grid grid-cols-[1fr_auto] gap-4 px-4 py-2 bg-primary/10 rounded-lg'>
                 <span className='text-sm font-semibold text-muted-foreground uppercase'>
@@ -242,18 +263,22 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
                 <span className='text-sm font-semibold text-muted-foreground uppercase'>Views</span>
               </div>
               {/* 테이블 데이터 */}
-              {[
-                { title: 'Understanding React Server Components', views: 24512 },
-                { title: '10 Tips for Clean CSS Architecture', views: 18205 },
-                { title: 'The Future of AI in Web Development', views: 12980 },
-                { title: 'Designing for Accessibility', views: 9432 },
-              ].map((post, index) => (
-                <div key={index} className='grid grid-cols-[1fr_auto] gap-4 items-center px-4 py-2'>
-                  <span className='text-sm font-medium'>{post.title}</span>
-                  <span className='text-sm font-bold text-muted-foreground'>
-                    {post.views.toLocaleString()}
-                  </span>
-                </div>
+              {mostViewedPosts.map((post, index) => (
+                <Link
+                  to={`/post/${post.post_id}`}
+                  key={index}
+                  className='hover:bg-primary/10 rounded-md'
+                >
+                  <div
+                    key={index}
+                    className='grid grid-cols-[1fr_auto] gap-4 items-center px-4 py-2'
+                  >
+                    <span className='text-sm font-medium'>{post.title}</span>
+                    <span className='text-sm font-bold text-muted-foreground'>
+                      {post.view_count.toLocaleString()}
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           </CardContent>
