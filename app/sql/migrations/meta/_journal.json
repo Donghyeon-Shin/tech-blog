@@ -15,6 +15,13 @@
       "when": 1766702739321,
       "tag": "0001_brief_hawkeye",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766741989325,
+      "tag": "0002_remarkable_sumo",
+      "breakpoints": true
     }
   ]
 }

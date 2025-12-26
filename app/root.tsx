@@ -20,6 +20,8 @@ import { getCategories } from './api/categories/categories-api';
 import { getAllPostsForFiltering } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
 import type { FolderItemProps } from './types/folderItemProps';
+import { getEvents } from './api/events/events-api';
+import { markdownToText } from './lib/markdown-to-text';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -52,7 +54,21 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const posts = await getAllPostsForFiltering(client);
   const categoriesTree = buildCategoriesTree(categories, posts, null);
 
-  return { theme, categoriesTree, topLevelCategories, posts };
+  // 모든 posts의 excerpt를 markdownToText로 처리
+  const postsWithProcessedExcerpt = posts.map((post) => ({
+    ...post,
+    excerpt: markdownToText(post.excerpt || '', 300),
+  }));
+
+  const events = await getEvents(client);
+
+  return {
+    theme,
+    categoriesTree,
+    topLevelCategories,
+    posts: postsWithProcessedExcerpt,
+    events,
+  };
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -92,7 +108,10 @@ export default function App({ loaderData }: Route.ComponentProps) {
     <div>
       <Header categories={loaderData?.topLevelCategories} />
       <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
-        <LeftSidebar categoriesTree={loaderData?.categoriesTree as FolderItemProps[]} />
+        <LeftSidebar
+          categoriesTree={loaderData?.categoriesTree as FolderItemProps[]}
+          events={loaderData?.events}
+        />
         <Outlet
           context={{
             categories: loaderData?.topLevelCategories,

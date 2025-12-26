@@ -4,7 +4,6 @@ import { cva } from 'class-variance-authority';
 import PostCard from '~/components/ui/postCard';
 import PostPagination from '~/components/layout/postPagination';
 import { useMemo } from 'react';
-import { markdownToText } from '~/lib/markdown-to-text';
 import type { Database } from '~/types/database';
 
 const PAGE_SIZE = 5; // 한 페이지에 보여줄 글 개수
@@ -80,7 +79,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
             <PostCard
               key={post.title}
               title={post.title}
-              description={markdownToText(post.excerpt || '', 300)}
+              description={post.excerpt}
               categoryName={categories?.find((c) => c.category_id === post.tag)?.name as string}
               date={new Date(post.created_at)}
               link={`/post/${post.post_id}`}
