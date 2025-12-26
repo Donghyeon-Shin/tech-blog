@@ -14,6 +14,7 @@ import client from '~/supa-client';
 import { getAllPostsForOverview, getViewCountByTag } from '~/api/posts/posts-api';
 import type { Route } from './+types/dashboard';
 import { Link } from 'react-router';
+import { getCategoriesGroupedByViewCount } from '~/api/categories/categories-api';
 
 const chartConfig = {
   algorithm: {
@@ -87,6 +88,16 @@ export const loader = async () => {
   const averageReadTimeMinutes = Math.floor(averageReadTime % 60);
   const totalPosts = posts.length;
 
+  const categoriesGroupedByViewCount = await getCategoriesGroupedByViewCount(client);
+  const totalCategories = categoriesGroupedByViewCount.length;
+  const mostViewedCategories = categoriesGroupedByViewCount
+    .sort((a, b) => b.total_view_count - a.total_view_count)
+    .map((category) => ({
+      name: category.category_name,
+      percentage: Math.round((category.total_view_count / totalViews) * 100),
+      color: 'oklch(73.57% 0.158 251.78)',
+    }));
+
   const mostViewedPosts = posts.sort((a, b) => b.view_count - a.view_count).slice(0, 4);
 
   return {
@@ -96,6 +107,8 @@ export const loader = async () => {
     totalPosts,
     viewCountByTag,
     mostViewedPosts,
+    totalCategories,
+    mostViewedCategories,
   };
 };
 
@@ -107,6 +120,8 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     totalPosts,
     viewCountByTag,
     mostViewedPosts,
+    totalCategories,
+    mostViewedCategories,
   } = loaderData;
 
   return (
@@ -125,7 +140,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         />
         <DashboardCard
           title='Total Categories'
-          value={'13'}
+          value={totalCategories}
           icon={<ShapesIcon className='size-9 text-[#14b8a6] bg-[#14b8a6]/10 rounded-md p-2' />}
         />
         <DashboardCard
@@ -223,12 +238,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
           </CardHeader>
           <CardContent>
             <div className='flex flex-col gap-4'>
-              {[
-                { name: 'Algorithm', percentage: 45, color: 'oklch(73.57% 0.158 251.78)' },
-                { name: 'React', percentage: 28, color: 'oklch(76.22% 0.15 237.05)' },
-                { name: 'Book', percentage: 15, color: 'oklch(73.91% 0.198 71.04)' },
-                { name: 'LangChain', percentage: 12, color: 'oklch(77.56% 0.169 189.69)' },
-              ].map((category) => (
+              {mostViewedCategories.map((category) => (
                 <div key={category.name} className='flex flex-col gap-2'>
                   <div className='flex flex-row items-center justify-between'>
                     <span className='text-sm font-medium'>{category.name}</span>

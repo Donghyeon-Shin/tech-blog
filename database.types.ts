@@ -228,6 +228,14 @@ export type Database = {
       }
     }
     Functions: {
+      get_categories_grouped_by_view_count: {
+        Args: never
+        Returns: {
+          category_name: string
+          tag_id: number
+          total_view_count: number
+        }[]
+      }
       get_latest_unique_events: {
         Args: never
         Returns: {
@@ -237,15 +245,6 @@ export type Database = {
           post_excerpt: string
           post_id: number
           post_title: string
-        }[]
-      }
-      get_overview_stats: {
-        Args: never
-        Returns: {
-          total_posts: number
-          total_read_time: number
-          total_tags: number
-          total_views: number
         }[]
       }
       get_view_count_by_tag: {
