@@ -82,6 +82,52 @@ export type Database = {
           },
         ]
       }
+      post_stats: {
+        Row: {
+          category_id: number | null
+          daily_view_count: number
+          post_id: number | null
+          record_date: string
+          stat_id: number
+        }
+        Insert: {
+          category_id?: number | null
+          daily_view_count?: number
+          post_id?: number | null
+          record_date: string
+          stat_id?: never
+        }
+        Update: {
+          category_id?: number | null
+          daily_view_count?: number
+          post_id?: number | null
+          record_date?: string
+          stat_id?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_stats_category_id_categories_category_id_fk"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "post_stats_post_id_posts_post_id_fk"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "post_stats_post_id_posts_post_id_fk"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_with_excerpt"
+            referencedColumns: ["post_id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           category_id: number | null
@@ -193,6 +239,7 @@ export type Database = {
           post_title: string
         }[]
       }
+      increment_post_view: { Args: { post_id: number }; Returns: undefined }
     }
     Enums: {
       event_types: "create" | "update"
