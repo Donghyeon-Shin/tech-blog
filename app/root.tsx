@@ -90,7 +90,7 @@ export function InnerLayout({ children }: { children: React.ReactNode }) {
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <div>
-      <Header />
+      <Header categories={loaderData?.topLevelCategories} />
       <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
         <LeftSidebar categoriesTree={loaderData?.categoriesTree as FolderItemProps[]} />
         <Outlet

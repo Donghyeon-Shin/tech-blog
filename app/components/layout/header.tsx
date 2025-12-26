@@ -12,63 +12,16 @@ import {
 } from '~/components/ui/navigation-menu';
 import { cn } from '~/lib/utils';
 import { Button } from '../ui/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Searchbar from './searchbar';
 import { Theme, useTheme } from 'remix-themes';
+import type { Database } from '~/types/database';
 
-const menus: {
-  title: string;
-  to?: string;
-  items?: {
-    title: string;
-    to: string;
-  }[];
-}[] = [
-  {
-    title: 'Project',
-    items: [
-      {
-        title: 'Document AI Secretary',
-        to: '/projects/document-ai-secretary',
-      },
-      {
-        title: 'Insight Box',
-        to: '/projects/insight-box',
-      },
-      {
-        title: 'Minecraft GPT',
-        to: '/projects/minecraft-gpt',
-      },
-    ],
-  },
-  {
-    title: 'Docs',
-    items: [
-      {
-        title: 'Algorithm',
-        to: '/docs/algorithm',
-      },
-      {
-        title: 'Books',
-        to: '/docs/books',
-      },
-      {
-        title: 'Langchain',
-        to: '/docs/langchain',
-      },
-    ],
-  },
-  {
-    title: 'About',
-    to: '/about',
-  },
-  {
-    title: 'Dashboard',
-    to: '/dashboard',
-  },
-];
-
-export default function Header() {
+export default function Header({
+  categories,
+}: {
+  categories: Database['public']['Tables']['categories']['Row'][];
+}) {
   const [searchBarOpen, setSearchBarOpen] = useState(false);
   const [theme, setTheme] = useTheme();
 
@@ -91,6 +44,35 @@ export default function Header() {
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
   }, []);
+
+  const menus = useMemo(() => {
+    const projectCategoryId = categories.find((c) => c.name === 'Project')?.category_id;
+    const DocsMenuItems = categories
+      .filter((c) => c.name !== 'Project')
+      .map((c) => ({
+        title: c.name,
+        to: `/posts/${c.category_id}`,
+      }));
+
+    return [
+      {
+        title: 'Project',
+        to: `/posts/${projectCategoryId}`,
+      },
+      {
+        title: 'Docs',
+        items: DocsMenuItems,
+      },
+      {
+        title: 'About',
+        to: '/about',
+      },
+      {
+        title: 'Dashboard',
+        to: '/dashboard',
+      },
+    ];
+  }, [categories]);
 
   return (
     <div className='sticky top-0 z-50 w-full border-b border-border-dark bg-background backdrop-blur'>
