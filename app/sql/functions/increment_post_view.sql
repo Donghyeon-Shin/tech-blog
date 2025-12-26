@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.increment_post_view(post_id bigint)
+CREATE OR REPLACE FUNCTION public.increment_post_view(target_post_id bigint)
 RETURNS void
 LANGUAGE plpgsql
 SECURITY definer

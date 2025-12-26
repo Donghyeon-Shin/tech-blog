@@ -1,0 +1,1 @@
+ALTER TABLE "post_stats" ADD CONSTRAINT "post_stats_post_id_record_date_unique" UNIQUE("post_id","record_date");

@@ -76,7 +76,6 @@ export default function LeftSidebar({
                             <Link
                               to={`/post/${event.post_id}`}
                               key={event.event_id}
-                              prefetch='intent'
                               className='flex flex-col gap-1 hover:bg-primary/10 rounded-md p-2'
                             >
                               <span className='font-medium text-xs'>{event.post_title}</span>
@@ -108,7 +107,6 @@ export default function LeftSidebar({
                             <Link
                               to={`/post/${event.post_id}`}
                               key={event.event_id}
-                              prefetch='intent'
                               className='flex flex-col gap-1 hover:bg-primary/10 rounded-md p-2'
                             >
                               <span className='font-medium text-xs'>{event.post_title}</span>

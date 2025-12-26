@@ -36,11 +36,7 @@ export default function PostCard({
   const formattedDate = format(date, 'MMM dd, yyyy');
 
   return (
-    <Link
-      to={link}
-      prefetch='intent'
-      className='border rounded-lg p-8 flex flex-col gap-4 hover:bg-primary/10'
-    >
+    <Link to={link} className='border rounded-lg p-8 flex flex-col gap-4 hover:bg-primary/10'>
       <div className='flex flex-row gap-2 items-center text-muted-foreground'>
         <div
           className={categoryVariants({

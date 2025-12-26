@@ -14,6 +14,12 @@ export const getPostById = async (client: SupabaseClient<Database>, id: number) 
   if (error) {
     throw new Error(error.message);
   }
+  const { error: rpcError } = await client.rpc('increment_post_view', { target_post_id: id });
+
+  if (rpcError) {
+    console.error('Failed to increment post view:', rpcError);
+  }
+
   return data;
 };
 
