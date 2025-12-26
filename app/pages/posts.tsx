@@ -4,9 +4,9 @@ import { cva } from 'class-variance-authority';
 import PostCard from '~/components/ui/postCard';
 import PostPagination from '~/components/layout/postPagination';
 import { useMemo } from 'react';
-import type { Database } from '~/types/database';
 import { markdownToText } from '~/lib/markdown-to-text';
-
+import type { getAllPostsForFiltering } from '~/api/posts/posts-api';
+import type { getCategories } from '~/api/categories/categories-api';
 const PAGE_SIZE = 5; // 한 페이지에 보여줄 글 개수
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -29,8 +29,8 @@ const navLinkVariants = cva('rounded-full border px-4 py-1', {
 export default function Posts({ loaderData }: Route.ComponentProps) {
   const { categoryId, page } = loaderData;
   const { posts, categories } = useOutletContext<{
-    posts: Database['public']['Views']['posts_with_excerpt']['Row'][];
-    categories: Database['public']['Tables']['categories']['Row'][];
+    posts: Awaited<ReturnType<typeof getAllPostsForFiltering>>;
+    categories: Awaited<ReturnType<typeof getCategories>>;
   }>();
 
   const { posts: filteredPosts, totalPages } = useMemo(() => {

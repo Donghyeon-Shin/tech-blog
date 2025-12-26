@@ -7,64 +7,146 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-  type ChartConfig,
 } from '~/components/ui/chart';
 import DashboardCard from '~/components/ui/dashboardCard';
+import client from '~/supa-client';
+import { getAllPostsForOverview, getViewCountByTag } from '~/api/posts/posts-api';
+import type { Route } from './+types/dashboard';
+import { Link } from 'react-router';
+import { getCategoriesGroupedByViewCount } from '~/api/categories/categories-api';
+import { categoryColors } from '~/lib/category-config';
+import type { ChartConfig } from '~/components/ui/chart';
 
-const chartConfig = {
+const chartConfig: ChartConfig = {
   algorithm: {
-    label: 'Algorithm',
-    color: 'oklch(73.57% 0.158 251.78)',
+    label: categoryColors.Algorithm.label,
+    color: categoryColors.Algorithm.chartColor,
   },
   react: {
-    label: 'React',
-    color: 'oklch(76.22% 0.15 237.05)',
+    label: categoryColors.React.label,
+    color: categoryColors.React.chartColor,
   },
   book: {
-    label: 'Book',
-    color: 'oklch(73.91% 0.198 71.04)',
+    label: categoryColors.Book.label,
+    color: categoryColors.Book.chartColor,
   },
   langchain: {
-    label: 'LangChain',
-    color: 'oklch(77.56% 0.169 189.69)',
+    label: categoryColors.LangChain.label,
+    color: categoryColors.LangChain.chartColor,
   },
   research: {
-    label: 'Research',
-    color: 'oklch(67.54% 0.183 279.77)',
+    label: categoryColors.Research.label,
+    color: categoryColors.Research.chartColor,
   },
   sql: {
-    label: 'SQL',
-    color: 'oklch(77.2% 0.182 161.46)',
+    label: categoryColors.SQL.label,
+    color: categoryColors.SQL.chartColor,
   },
   project: {
-    label: 'Project',
-    color: 'oklch(68.17% 0.208 4.74)',
+    label: categoryColors.Project.label,
+    color: categoryColors.Project.chartColor,
   },
 } satisfies ChartConfig;
 
-export default function Dashboard() {
+function transformViewCountByTagToChartData(
+  viewCountByTag: Awaited<ReturnType<typeof getViewCountByTag>>,
+) {
+  // 모든 카테고리 키 목록
+  const allCategoryKeys = Object.keys(chartConfig);
+
+  // month별로 그룹화
+  const groupedByMonth = viewCountByTag.reduce(
+    (acc, tag) => {
+      const month = tag.year_month as string;
+      const categoryKey = tag.category_name.toLowerCase();
+      if (!acc[month]) {
+        acc[month] = { month };
+        // 모든 카테고리를 0으로 초기화
+        allCategoryKeys.forEach((key) => {
+          acc[month][key] = 0;
+        });
+      }
+      if (allCategoryKeys.includes(categoryKey)) {
+        acc[month][categoryKey] = (acc[month][categoryKey] as number) + Number(tag.view_count);
+      }
+      return acc;
+    },
+    {} as Record<string, Record<string, number | string>>,
+  );
+
+  return Object.values(groupedByMonth).sort((a, b) =>
+    (a.month as string).localeCompare(b.month as string),
+  );
+}
+
+export const loader = async () => {
+  const posts = await getAllPostsForOverview(client);
+  const viewCountByTag = await getViewCountByTag(client);
+
+  const totalViews = posts.reduce((acc, post) => acc + post.view_count, 0);
+  const averageReadTime = posts.reduce((acc, post) => acc + post.read_time, 0) / posts.length;
+  const averageReadTimeHours = Math.floor(averageReadTime / 60);
+  const averageReadTimeMinutes = Math.floor(averageReadTime % 60);
+  const totalPosts = posts.length;
+
+  const categoriesGroupedByViewCount = await getCategoriesGroupedByViewCount(client);
+  const totalCategories = categoriesGroupedByViewCount.length;
+  const mostViewedCategories = categoriesGroupedByViewCount
+    .sort((a, b) => b.total_view_count - a.total_view_count)
+    .map((category) => ({
+      name: category.category_name,
+      percentage: Math.round((category.total_view_count / totalViews) * 100),
+      color: 'oklch(73.57% 0.158 251.78)',
+    }));
+
+  const mostViewedPosts = posts.sort((a, b) => b.view_count - a.view_count).slice(0, 4);
+
+  return {
+    totalViews,
+    averageReadTimeHours,
+    averageReadTimeMinutes,
+    totalPosts,
+    viewCountByTag,
+    mostViewedPosts,
+    totalCategories,
+    mostViewedCategories,
+  };
+};
+
+export default function Dashboard({ loaderData }: Route.ComponentProps) {
+  const {
+    totalViews,
+    averageReadTimeHours,
+    averageReadTimeMinutes,
+    totalPosts,
+    viewCountByTag,
+    mostViewedPosts,
+    totalCategories,
+    mostViewedCategories,
+  } = loaderData;
+
   return (
     <div className='flex flex-col gap-6 max-w-[1400px] md:ml-20'>
       <h1 className='text-4xl font-bold'>Overview</h1>
       <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
         <DashboardCard
           title='Total Views'
-          value={'124,592'}
+          value={totalViews.toLocaleString()}
           icon={<EyeIcon className='size-9 text-primary bg-primary/10 rounded-md p-2' />}
         />
         <DashboardCard
           title='Avg. Read Time'
-          value={'4m 12s'}
+          value={`${averageReadTimeHours}h ${averageReadTimeMinutes}m`}
           icon={<ClockIcon className='size-9 text-[#f95e27] bg-[#f95e27]/10 rounded-md p-2' />}
         />
         <DashboardCard
           title='Total Categories'
-          value={'18'}
+          value={totalCategories}
           icon={<ShapesIcon className='size-9 text-[#14b8a6] bg-[#14b8a6]/10 rounded-md p-2' />}
         />
         <DashboardCard
           title='Total Posts'
-          value={'256'}
+          value={totalPosts}
           icon={
             <ReceiptTextIcon className='size-9 text-[#8b45da] bg-[#8b45da]/10 rounded-md p-2' />
           }
@@ -78,71 +160,11 @@ export default function Dashboard() {
             <ChartContainer config={chartConfig}>
               <LineChart
                 accessibilityLayer
-                data={[
-                  {
-                    month: 'Jan',
-                    algorithm: 100,
-                    react: 80,
-                    book: 60,
-                    langchain: 40,
-                    research: 20,
-                    sql: 10,
-                    project: 5,
-                  },
-                  {
-                    month: 'Feb',
-                    algorithm: 200,
-                    react: 150,
-                    book: 120,
-                    langchain: 80,
-                    research: 40,
-                    sql: 20,
-                    project: 10,
-                  },
-                  {
-                    month: 'Mar',
-                    algorithm: 300,
-                    react: 220,
-                    book: 180,
-                    langchain: 120,
-                    research: 30,
-                    sql: 15,
-                    project: 7,
-                  },
-                  {
-                    month: 'Apr',
-                    algorithm: 400,
-                    react: 290,
-                    book: 240,
-                    langchain: 160,
-                    research: 60,
-                    sql: 30,
-                    project: 15,
-                  },
-                  {
-                    month: 'May',
-                    algorithm: 500,
-                    react: 360,
-                    book: 300,
-                    langchain: 200,
-                    research: 80,
-                    sql: 40,
-                    project: 20,
-                  },
-                  {
-                    month: 'Jun',
-                    algorithm: 600,
-                    react: 430,
-                    book: 360,
-                    langchain: 240,
-                    research: 100,
-                    sql: 50,
-                    project: 25,
-                  },
-                ]}
+                data={transformViewCountByTagToChartData(viewCountByTag)}
                 margin={{
                   left: 12,
                   right: 12,
+                  top: 30,
                 }}
               >
                 <CartesianGrid vertical={false} />
@@ -217,12 +239,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className='flex flex-col gap-4'>
-              {[
-                { name: 'Algorithm', percentage: 45, color: 'oklch(73.57% 0.158 251.78)' },
-                { name: 'React', percentage: 28, color: 'oklch(76.22% 0.15 237.05)' },
-                { name: 'Book', percentage: 15, color: 'oklch(73.91% 0.198 71.04)' },
-                { name: 'LangChain', percentage: 12, color: 'oklch(77.56% 0.169 189.69)' },
-              ].map((category) => (
+              {mostViewedCategories.map((category) => (
                 <div key={category.name} className='flex flex-col gap-2'>
                   <div className='flex flex-row items-center justify-between'>
                     <span className='text-sm font-medium'>{category.name}</span>
@@ -248,7 +265,7 @@ export default function Dashboard() {
             <CardDescription>Top 4 posts by views</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className='flex flex-col gap-4'>
+            <div className='flex flex-col gap-2'>
               {/* 테이블 헤더 */}
               <div className='grid grid-cols-[1fr_auto] gap-4 px-4 py-2 bg-primary/10 rounded-lg'>
                 <span className='text-sm font-semibold text-muted-foreground uppercase'>
@@ -257,18 +274,22 @@ export default function Dashboard() {
                 <span className='text-sm font-semibold text-muted-foreground uppercase'>Views</span>
               </div>
               {/* 테이블 데이터 */}
-              {[
-                { title: 'Understanding React Server Components', views: 24512 },
-                { title: '10 Tips for Clean CSS Architecture', views: 18205 },
-                { title: 'The Future of AI in Web Development', views: 12980 },
-                { title: 'Designing for Accessibility', views: 9432 },
-              ].map((post, index) => (
-                <div key={index} className='grid grid-cols-[1fr_auto] gap-4 items-center px-4 py-2'>
-                  <span className='text-sm font-medium'>{post.title}</span>
-                  <span className='text-sm font-bold text-muted-foreground'>
-                    {post.views.toLocaleString()}
-                  </span>
-                </div>
+              {mostViewedPosts.map((post, index) => (
+                <Link
+                  to={`/post/${post.post_id}`}
+                  key={index}
+                  className='hover:bg-primary/10 rounded-md'
+                >
+                  <div
+                    key={index}
+                    className='grid grid-cols-[1fr_auto] gap-4 items-center px-4 py-2'
+                  >
+                    <span className='text-sm font-medium'>{post.title}</span>
+                    <span className='text-sm font-bold text-muted-foreground'>
+                      {post.view_count.toLocaleString()}
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           </CardContent>

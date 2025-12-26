@@ -82,6 +82,52 @@ export type Database = {
           },
         ]
       }
+      post_stats: {
+        Row: {
+          category_id: number | null
+          daily_view_count: number
+          post_id: number | null
+          record_date: string
+          stat_id: number
+        }
+        Insert: {
+          category_id?: number | null
+          daily_view_count?: number
+          post_id?: number | null
+          record_date: string
+          stat_id?: never
+        }
+        Update: {
+          category_id?: number | null
+          daily_view_count?: number
+          post_id?: number | null
+          record_date?: string
+          stat_id?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_stats_category_id_categories_category_id_fk"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "post_stats_post_id_posts_post_id_fk"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "post_stats_post_id_posts_post_id_fk"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_with_excerpt"
+            referencedColumns: ["post_id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           category_id: number | null
@@ -182,6 +228,14 @@ export type Database = {
       }
     }
     Functions: {
+      get_categories_grouped_by_view_count: {
+        Args: never
+        Returns: {
+          category_name: string
+          tag_id: number
+          total_view_count: number
+        }[]
+      }
       get_latest_unique_events: {
         Args: never
         Returns: {
@@ -192,6 +246,19 @@ export type Database = {
           post_id: number
           post_title: string
         }[]
+      }
+      get_view_count_by_tag: {
+        Args: never
+        Returns: {
+          category_name: string
+          tag_id: number
+          view_count: number
+          year_month: string
+        }[]
+      }
+      increment_post_view: {
+        Args: { target_post_id: number }
+        Returns: undefined
       }
     }
     Enums: {

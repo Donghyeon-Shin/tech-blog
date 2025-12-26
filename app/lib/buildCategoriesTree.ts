@@ -1,9 +1,10 @@
-import type { Database } from '~/types/database';
 import type { FolderItemProps } from '~/types/folderItemProps';
+import type { getCategories } from '~/api/categories/categories-api';
+import type { getPostsByCategoryAndPage } from '~/api/posts/posts-api';
 
 export const buildCategoriesTree = (
-  categories: Database['public']['Tables']['categories']['Row'][],
-  posts: Database['public']['Views']['posts_with_excerpt']['Row'][],
+  categories: Awaited<ReturnType<typeof getCategories>>,
+  posts: Awaited<ReturnType<typeof getPostsByCategoryAndPage>>,
   parentId: number | null,
 ): FolderItemProps[] => {
   // A. 현재 레벨의 카테고리(폴더)들을 먼저 구성

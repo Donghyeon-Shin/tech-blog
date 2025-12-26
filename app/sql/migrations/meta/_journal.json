@@ -22,6 +22,20 @@
       "when": 1766741989325,
       "tag": "0002_remarkable_sumo",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1766756508003,
+      "tag": "0003_complete_black_crow",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1766758272553,
+      "tag": "0004_mysterious_speed_demon",
+      "breakpoints": true
     }
   ]
 }

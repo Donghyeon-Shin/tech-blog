@@ -14,7 +14,45 @@ export const getPostById = async (client: SupabaseClient<Database>, id: number) 
   if (error) {
     throw new Error(error.message);
   }
+  const { error: rpcError } = await client.rpc('increment_post_view', { target_post_id: id });
+
+  if (rpcError) {
+    throw new Error(rpcError.message);
+  }
+
   return data;
+};
+
+export const getAllPostsForOverview = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client
+    .from('posts')
+    .select('post_id, title, read_time, view_count')
+    .order('view_count', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};
+
+export const getOverviewStats = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client.rpc('get_overview_stats');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data[0];
+};
+
+export const getViewCountByTag = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client.rpc('get_view_count_by_tag');
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data || [];
 };
 
 const PAGE_SIZE = 5; // 한 페이지에 보여줄 글 개수

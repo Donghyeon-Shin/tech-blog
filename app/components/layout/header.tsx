@@ -15,12 +15,12 @@ import { Button } from '../ui/button';
 import { useEffect, useMemo, useState } from 'react';
 import Searchbar from './searchbar';
 import { Theme, useTheme } from 'remix-themes';
-import type { Database } from '~/types/database';
+import type { getCategories } from '~/api/categories/categories-api';
 
 export default function Header({
   categories,
 }: {
-  categories: Database['public']['Tables']['categories']['Row'][];
+  categories: Awaited<ReturnType<typeof getCategories>>;
 }) {
   const [searchBarOpen, setSearchBarOpen] = useState(false);
   const [theme, setTheme] = useTheme();
