@@ -46,6 +46,42 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          created_at: string
+          event_id: number
+          event_type: Database["public"]["Enums"]["event_types"]
+          post_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          event_id?: never
+          event_type: Database["public"]["Enums"]["event_types"]
+          post_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: never
+          event_type?: Database["public"]["Enums"]["event_types"]
+          post_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_post_id_posts_post_id_fk"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "events_post_id_posts_post_id_fk"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_with_excerpt"
+            referencedColumns: ["post_id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           category_id: number | null
@@ -149,7 +185,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      event_types: "create" | "update"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -276,6 +312,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      event_types: ["create", "update"],
+    },
   },
 } as const
