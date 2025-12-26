@@ -17,7 +17,7 @@ import LeftSidebar from './components/layout/leftSideBar';
 import { Toaster } from 'sonner';
 import client from './supa-client';
 import { getCategories } from './api/categories/categories-api';
-import { getPosts } from './api/posts/posts-api';
+import { getAllPostsForFiltering } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
 import type { FolderItemProps } from './types/folderItemProps';
 
@@ -48,10 +48,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const theme = getTheme();
 
   const categories = await getCategories(client);
-  const posts = await getPosts(client);
+  const posts = await getAllPostsForFiltering(client);
   const categoriesTree = buildCategoriesTree(categories, posts, null);
 
-  return { theme, categoriesTree };
+  return { theme, categoriesTree, categories, posts };
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -92,7 +92,12 @@ export default function App({ loaderData }: Route.ComponentProps) {
       <Header />
       <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
         <LeftSidebar categoriesTree={loaderData?.categoriesTree as FolderItemProps[]} />
-        <Outlet />
+        <Outlet
+          context={{
+            categories: loaderData?.categories,
+            posts: loaderData?.posts,
+          }}
+        />
       </div>
     </div>
   );

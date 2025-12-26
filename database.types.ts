@@ -98,6 +98,7 @@ export type Database = {
     Views: {
       posts_with_excerpt: {
         Row: {
+          category_id: number | null
           created_at: string | null
           excerpt: string | null
           post_id: number | null
@@ -107,6 +108,7 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          category_id?: number | null
           created_at?: string | null
           excerpt?: never
           post_id?: number | null
@@ -116,6 +118,7 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          category_id?: number | null
           created_at?: string | null
           excerpt?: never
           post_id?: number | null
@@ -125,6 +128,13 @@ export type Database = {
           view_count?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "posts_category_id_categories_category_id_fk"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["category_id"]
+          },
           {
             foreignKeyName: "posts_tag_categories_category_id_fk"
             columns: ["tag"]

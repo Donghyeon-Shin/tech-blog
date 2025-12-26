@@ -1,9 +1,9 @@
-import type { Database } from '~/supa-client';
+import type { Database } from '~/types/database';
 import type { FolderItemProps } from '~/types/folderItemProps';
 
 export const buildCategoriesTree = (
   categories: Database['public']['Tables']['categories']['Row'][],
-  posts: Database['public']['Tables']['posts']['Row'][],
+  posts: Database['public']['Views']['posts_with_excerpt']['Row'][],
   parentId: number | null,
 ): FolderItemProps[] => {
   // A. 현재 레벨의 카테고리(폴더)들을 먼저 구성

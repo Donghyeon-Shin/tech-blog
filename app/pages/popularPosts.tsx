@@ -1,18 +1,20 @@
-import { NavLink } from 'react-router';
-import { getTopLevelCategories } from '~/api/categories/categories-api';
-import { getPopularPosts } from '~/api/posts/posts-api';
+import { NavLink, useOutletContext } from 'react-router';
 import PopularPostCard from '~/components/ui/popularPostCard';
-import client from '~/supa-client';
-import type { Route } from './+types/popularPosts';
+import { type Database } from '~/types/database';
+import { markdownToText } from '~/lib/markdown-to-text';
+import { useMemo } from 'react';
 
-export const loader = async () => {
-  const posts = await getPopularPosts(client);
-  const categories = await getTopLevelCategories(client);
-  return { posts, categories };
-};
-
-export default function PopularPosts({ loaderData }: Route.ComponentProps) {
-  const { posts, categories } = loaderData;
+export default function PopularPosts() {
+  const { posts, categories } = useOutletContext<{
+    posts: Database['public']['Views']['posts_with_excerpt']['Row'][];
+    categories: Database['public']['Tables']['categories']['Row'][];
+  }>();
+  const { popularPosts, topLevelCategories } = useMemo(() => {
+    const sortedPosts = [...posts].sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+    const popularPosts = sortedPosts.slice(0, 5);
+    const topLevelCategories = categories.filter((c) => c.parent_id === null);
+    return { popularPosts, topLevelCategories };
+  }, [posts, categories]);
   return (
     <div className='flex flex-col gap-8 max-w-[1400px] md:ml-20'>
       <div className='flex flex-col gap-4'>
@@ -20,13 +22,13 @@ export default function PopularPosts({ loaderData }: Route.ComponentProps) {
         <p className='text-muted-foreground'>Most read articles on my blog</p>
       </div>
       <div className='flex flex-col gap-4'>
-        {posts.map((post, index) => (
+        {popularPosts.map((post, index) => (
           <PopularPostCard
             key={post.title}
             title={post.title}
-            description={post.content.slice(0, 100)}
+            description={markdownToText(post.excerpt || '', 300)}
             category={
-              categories?.find((c) => c.category_id === post.tag)?.name as
+              topLevelCategories?.find((c) => c.category_id === post.tag)?.name as string as
                 | 'Algorithm'
                 | 'Book'
                 | 'LangChain'
