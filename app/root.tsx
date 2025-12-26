@@ -21,7 +21,6 @@ import { getAllPostsForFiltering } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
 import type { FolderItemProps } from './types/folderItemProps';
 import { getEvents } from './api/events/events-api';
-import { markdownToText } from './lib/markdown-to-text';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -54,19 +53,14 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const posts = await getAllPostsForFiltering(client);
   const categoriesTree = buildCategoriesTree(categories, posts, null);
 
-  // 모든 posts의 excerpt를 markdownToText로 처리
-  const postsWithProcessedExcerpt = posts.map((post) => ({
-    ...post,
-    excerpt: markdownToText(post.excerpt || '', 300),
-  }));
-
   const events = await getEvents(client);
 
   return {
     theme,
     categoriesTree,
     topLevelCategories,
-    posts: postsWithProcessedExcerpt,
+    categories,
+    posts,
     events,
   };
 };
@@ -115,7 +109,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
         <Outlet
           context={{
             categories: loaderData?.topLevelCategories,
+            allCategories: loaderData?.categories,
             posts: loaderData?.posts,
+            categoriesTree: loaderData?.categoriesTree,
           }}
         />
       </div>

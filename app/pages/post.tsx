@@ -3,13 +3,15 @@ import HierarchyBar from '~/components/layout/hierarchyBar';
 import { Separator } from '~/components/ui/separator';
 import { format } from 'date-fns';
 import MarkdownrRender from '~/components/layout/markdownrRender';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import PostSidebar from '~/components/layout/postSideBar';
 import type { Route } from './+types/post';
 import type { ShouldRevalidateFunctionArgs } from 'react-router';
 import GitHubSlugger from 'github-slugger';
 import client from '~/supa-client';
 import { getPostById } from '~/api/posts/posts-api';
+import { useOutletContext } from 'react-router';
+import type { Database } from '~/types/database';
 
 export const loader = async ({ request: _request }: Route.LoaderArgs) => {
   const url = new URL(_request.url);
@@ -67,6 +69,34 @@ export default function Post({ loaderData }: Route.ComponentProps) {
   const formattedDate = format(dbData, 'MMM dd, yyyy');
   const minutesToRead = post.read_time; // TODO: 실제 읽는 시간 계산 분초로
 
+  const { allCategories } = useOutletContext<{
+    allCategories: Database['public']['Tables']['categories']['Row'][];
+  }>();
+
+  // 현재 post의 카테고리 경로 구성 (최상위부터 현재까지)
+  const categoryPath = useMemo(() => {
+    if (!post.category_id || !allCategories) return [];
+
+    const path: { category: string }[] = [];
+    const categoryMap = new Map(allCategories.map((c) => [c.category_id, c]));
+
+    // 현재 카테고리부터 시작해서 부모를 따라 올라가기
+    let currentCategoryId: number | null = post.category_id;
+
+    while (currentCategoryId !== null) {
+      const category = categoryMap.get(currentCategoryId);
+      if (!category) break;
+
+      path.unshift({ category: category.name }); // 앞에 추가하여 최상위가 먼저 오도록
+      currentCategoryId = category.parent_id;
+    }
+
+    // 마지막에 현재 post 제목 추가
+    path.push({ category: post.title });
+
+    return path;
+  }, [post.category_id, post.title, allCategories]);
+
   const [activeId, setActiveId] = useState<string>('');
 
   const isScrollingRef = useRef(false);
@@ -81,13 +111,7 @@ export default function Post({ loaderData }: Route.ComponentProps) {
   return (
     <div className='grid grid-cols-1 md:grid-cols-[1fr_280px] xl:grid-cols-[1fr_280px]'>
       <div className='flex flex-col gap-4 mx-3'>
-        <HierarchyBar
-          hierarchy={[
-            { category: 'Algorithm' },
-            { category: 'Array' },
-            { category: 'Binary Search' },
-          ]}
-        />
+        <HierarchyBar hierarchy={categoryPath} />
         <h1 className='text-6xl font-bold'>{post.title}</h1>
         <div className='flex items-center justify-end gap-5'>
           <div className='flex items-center gap-2 text-muted-foreground'>
