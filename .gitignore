@@ -2,6 +2,7 @@
 .env
 .cursor/
 /node_modules/
+/blog/uploads/
 
 # React Router
 /.react-router/
