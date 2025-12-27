@@ -1,12 +1,22 @@
 import 'dotenv/config';
 import path from 'path';
 import fs from 'fs-extra';
+import matter from 'gray-matter';
 import { adminClient } from '~/supa-client';
+
+const WORDS_PER_MINUTE = 200;
 
 async function processObsidian(filePath: string) {
   let fileContent = await fs.readFile(filePath, { encoding: 'utf-8' });
   const fileName = path.parse(filePath).name;
   const dir = path.dirname(filePath);
+
+  const processData = {
+    title: fileName,
+    category_id: 0,
+    read_time: Math.ceil(fileContent.split(' ').length / WORDS_PER_MINUTE),
+    tag_id: 0,
+  };
 
   const wikiLinkRegex = /\[\[(.*?)\.(png|jpg|jpeg|gif|pdf|mp4|mov|webm)]\]/gi;
   let match;
@@ -59,9 +69,11 @@ async function processObsidian(filePath: string) {
     }
   }
 
+  const finalFileContent = matter.stringify(fileContent, processData);
+
   const outputDir = './blog/output';
   await fs.ensureDir(outputDir);
-  await fs.writeFile(path.join(outputDir, `${fileName}.md`), fileContent, 'utf-8');
+  await fs.writeFile(path.join(outputDir, `${fileName}.md`), finalFileContent, 'utf-8');
 }
 
 const filePath = './blog/uploads';
