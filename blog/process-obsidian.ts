@@ -1,8 +1,23 @@
+import 'dotenv/config';
 import path from 'path';
 import fs from 'fs-extra';
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from '~/types/database';
+
+// admin client 생성
+const adminClient = createClient<Database>(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  },
+);
 
 async function processObsidian(filePath: string) {
-  const fileContent = await fs.readFile(filePath, { encoding: 'utf-8' });
+  let fileContent = await fs.readFile(filePath, { encoding: 'utf-8' });
   const fileName = path.parse(filePath).name;
   const dir = path.dirname(filePath);
 
@@ -11,8 +26,55 @@ async function processObsidian(filePath: string) {
   const matches = [];
 
   while ((match = wikiLinkRegex.exec(fileContent)) !== null) {
-    matches.push({ fileMatch: match[0], fileName: match[1] });
+    matches.push({ fileMatch: match[0], fileName: match[1], extension: match[2] });
   }
+
+  // console.log(matches);
+
+  for (const item of matches) {
+    const absolutePath = path.resolve(dir + '/resources', item.fileName + '.' + item.extension);
+
+    const fullFileName = item.fileName + '.' + item.extension;
+
+    if (await fs.pathExists(absolutePath)) {
+      const ext = path.extname(absolutePath).toLowerCase();
+      const uploadPath = `${fileName}/${fullFileName}`;
+
+      // MIME 타입 결정
+      let contentType = 'application/octet-stream';
+      if (['.png', '.jpg', '.jpeg', '.gif'].includes(ext)) contentType = `image/${ext.slice(1)}`;
+      if (['.mp4', '.webm'].includes(ext)) contentType = `video/${ext.slice(1)}`;
+      if (ext === '.pdf') contentType = 'application/pdf';
+
+      const fileBuffer = await fs.readFile(absolutePath);
+
+      const { error } = await adminClient.storage
+        .from('blog-uploads')
+        .upload(uploadPath, fileBuffer, { contentType, upsert: true });
+
+      if (error) {
+        console.error(`실패: ${item.fileName}`, error);
+        continue;
+      }
+
+      const {
+        data: { publicUrl },
+      } = adminClient.storage.from('blog-uploads').getPublicUrl(uploadPath);
+
+      // 3. 옵시디언 문법을 표준 마크다운 문법으로 변환
+      // 이미지/영상/PDF에 따라 형식을 다르게 할 수 있음
+      let replacement = `![${item.fileName}](${publicUrl})`;
+      if (ext === '.pdf') replacement = `[📄 PDF 보기](${publicUrl})`;
+      if (['.mp4', '.webm'].includes(ext)) replacement = `<video controls src="${publicUrl}" />`;
+
+      fileContent = fileContent.replace(item.fileMatch, replacement);
+      console.log(`✅ ${item.fileName} -> ${uploadPath} 완료`);
+    }
+  }
+
+  const outputDir = './blog/output';
+  await fs.ensureDir(outputDir);
+  await fs.writeFile(path.join(outputDir, `${fileName}.md`), fileContent, 'utf-8');
 }
 
 const filePath = './blog/uploads';
