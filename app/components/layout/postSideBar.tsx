@@ -32,7 +32,7 @@ export default function PostSidebar({
   useEffect(() => {
     // 마운트 상태 추적
     let isMounted = true;
-    
+
     // 스크롤 완료 감지를 위한 이벤트 리스너
     const handleScroll = () => {
       if (!isMounted || !isScrollingRef.current) return;
@@ -49,7 +49,7 @@ export default function PostSidebar({
       scrollCheckRef.current = requestAnimationFrame(() => {
         // 컴포넌트가 언마운트되었으면 실행하지 않음
         if (!isMounted) return;
-        
+
         const newScrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
         // 스크롤 위치가 변경되지 않았으면 스크롤 완료로 간주
@@ -57,7 +57,7 @@ export default function PostSidebar({
           scrollTimeoutRef.current = setTimeout(() => {
             // 컴포넌트가 언마운트되었으면 실행하지 않음
             if (!isMounted) return;
-            
+
             // 추가로 100ms 대기하여 완전히 멈췄는지 확인
             const finalScrollTop = window.pageYOffset || document.documentElement.scrollTop;
             if (Math.abs(finalScrollTop - lastScrollTopRef.current) < 1) {

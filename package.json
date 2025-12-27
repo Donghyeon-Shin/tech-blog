@@ -30,6 +30,7 @@
     "drizzle-orm": "^0.45.1",
     "fs-extra": "^11.3.3",
     "github-slugger": "^2.0.0",
+    "gray-matter": "^4.0.3",
     "isbot": "^5.1.31",
     "katex": "^0.16.27",
     "lucide-react": "^0.562.0",
