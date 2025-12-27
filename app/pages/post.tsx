@@ -8,7 +8,7 @@ import PostSidebar from '~/components/layout/postSideBar';
 import type { Route } from './+types/post';
 import type { ShouldRevalidateFunctionArgs } from 'react-router';
 import GitHubSlugger from 'github-slugger';
-import client from '~/supa-client';
+import { client } from '~/supa-client';
 import { getPostById } from '~/api/posts/posts-api';
 import { useOutletContext } from 'react-router';
 import { markdownToHtml } from '~/lib/markdown-to-html';

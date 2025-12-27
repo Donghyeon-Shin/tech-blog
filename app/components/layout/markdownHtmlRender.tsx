@@ -13,11 +13,14 @@ export default function MarkdownHtmlRender({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // 마운트 상태 추적
+    let isMounted = true;
+
     if (!containerRef.current) return;
 
     // 코드 블록에 복사 버튼 추가 함수
     const addCopyButtons = () => {
-      if (!containerRef.current) return;
+      if (!isMounted || !containerRef.current) return;
 
       const preElements = containerRef.current.querySelectorAll('pre:not(.has-copy-button)');
       preElements.forEach((preElement) => {
@@ -51,7 +54,7 @@ export default function MarkdownHtmlRender({
 
     // DOM이 준비될 때까지 대기
     const processElements = () => {
-      if (!containerRef.current) return;
+      if (!isMounted || !containerRef.current) return;
 
       // 헤더 스타일 적용
       const h1Elements = containerRef.current.querySelectorAll('h1');
@@ -176,6 +179,8 @@ export default function MarkdownHtmlRender({
 
     // 초기 실행
     const timeoutId = setTimeout(() => {
+      if (!isMounted) return;
+
       processElements();
       addCopyButtons();
 
@@ -190,17 +195,27 @@ export default function MarkdownHtmlRender({
     }, 200);
 
     return () => {
+      isMounted = false;
       clearTimeout(timeoutId);
       observer.disconnect();
     };
   }, [htmlContent]);
 
   useEffect(() => {
+    // 마운트 상태 추적
+    let isMounted = true;
+
     // 옵저버 설정
     let observer: IntersectionObserver | null = null;
     const timeoutId = setTimeout(() => {
+      // 컴포넌트가 언마운트되었으면 실행하지 않음
+      if (!isMounted || !containerRef.current) return;
+
       observer = new IntersectionObserver(
         (entries) => {
+          // 컴포넌트가 언마운트되었으면 실행하지 않음
+          if (!isMounted) return;
+
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               // 스크롤 중이 아닐 때만 activeId 업데이트
@@ -220,6 +235,7 @@ export default function MarkdownHtmlRender({
     }, 150);
 
     return () => {
+      isMounted = false;
       clearTimeout(timeoutId);
       if (observer) {
         observer.disconnect();

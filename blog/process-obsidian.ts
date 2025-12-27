@@ -1,20 +1,7 @@
 import 'dotenv/config';
 import path from 'path';
 import fs from 'fs-extra';
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '~/types/database';
-
-// admin client 생성
-const adminClient = createClient<Database>(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  },
-);
+import { adminClient } from '~/supa-client';
 
 async function processObsidian(filePath: string) {
   let fileContent = await fs.readFile(filePath, { encoding: 'utf-8' });

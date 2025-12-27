@@ -35,16 +35,6 @@ export const getAllPostsForOverview = async (client: SupabaseClient<Database>) =
   return data;
 };
 
-export const getOverviewStats = async (client: SupabaseClient<Database>) => {
-  const { data, error } = await client.rpc('get_overview_stats');
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data[0];
-};
-
 export const getViewCountByTag = async (client: SupabaseClient<Database>) => {
   const { data, error } = await client.rpc('get_view_count_by_tag');
 
