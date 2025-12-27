@@ -11,16 +11,43 @@ import { z } from 'zod';
 const PAGE_SIZE = 5; // 한 페이지에 보여줄 글 개수
 
 const paramsSchema = z.object({
-  categoryId: z.coerce.number().optional().default(-1),
-  page: z.coerce.number().optional().default(1),
+  category: z
+    .string()
+    .optional()
+    .default('all')
+    .transform((val) => {
+      if (val === 'all' || !val) return -1;
+      const num = parseInt(val, 10);
+      if (isNaN(num)) {
+        throw new z.ZodError([
+          {
+            code: 'custom',
+            path: ['category'],
+            message: 'Category must be "all" or a valid number',
+          },
+        ]);
+      }
+      return num;
+    }),
 });
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const { success, data } = paramsSchema.safeParse(params);
   if (!success) {
     throw new Response('Invalid params', { status: 400 });
   }
-  return data;
+
+  // 쿼리 파라미터에서 page 읽기 및 검증
+  const url = new URL(request.url);
+  const pageParam = url.searchParams.get('page');
+  const pageNum = pageParam ? parseInt(pageParam, 10) : 1;
+  // 이상한 값(음수, 0, NaN 등)이면 1로 처리
+  const page = pageNum > 0 && !isNaN(pageNum) ? pageNum : 1;
+
+  return {
+    categoryId: data.category,
+    page,
+  };
 };
 
 const navLinkVariants = cva('rounded-full border px-4 py-1', {
