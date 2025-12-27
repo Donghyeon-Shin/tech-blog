@@ -154,6 +154,54 @@ export default function MarkdownHtmlRender({
 
       // 코드 블록에 복사 버튼 추가
       addCopyButtons();
+
+      // SVG 이미지를 인라인으로 렌더링
+      const imgElements = containerRef.current.querySelectorAll('img:not([data-svg-processed])');
+      imgElements.forEach((img) => {
+        const src = img.getAttribute('src');
+        if (!src || !src.toLowerCase().endsWith('.svg')) {
+          // 일반 이미지 에러 처리
+          if (!img.hasAttribute('data-error-handled')) {
+            img.setAttribute('data-error-handled', 'true');
+            img.addEventListener('error', () => {
+              const imgElement = img as HTMLImageElement;
+              imgElement.style.display = 'none';
+            });
+          }
+          return;
+        }
+
+        // SVG 처리 시작
+        img.setAttribute('data-svg-processed', 'true');
+
+        fetch(src)
+          .then((response) => response.text())
+          .then((svgText) => {
+            // 마운트 상태와 img 존재 여부 재확인
+            if (!isMounted || !img.parentNode || !img.hasAttribute('data-svg-processed')) return;
+
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+            const svgElement = svgDoc.documentElement;
+
+            // 파싱 에러 체크
+            if (svgDoc.querySelector('parsererror')) return;
+
+            // 스타일 적용
+            svgElement.classList.add('max-w-full', 'h-auto', 'rounded-md', 'my-4');
+            const alt = img.getAttribute('alt');
+            if (alt) svgElement.setAttribute('aria-label', alt);
+
+            // SVG에도 처리 완료 표시
+            svgElement.setAttribute('data-svg-rendered', 'true');
+
+            // 교체
+            img.parentNode.replaceChild(svgElement, img);
+          })
+          .catch(() => {
+            // 실패하면 원본 img 그대로 사용 (data-svg-processed는 유지해서 재시도 방지)
+          });
+      });
     };
 
     // MutationObserver로 DOM 변경 감지하여 복사 버튼 추가
@@ -243,11 +291,11 @@ export default function MarkdownHtmlRender({
     };
   }, [htmlContent, setActiveId, isScrollingRef]);
 
-  return (
-    <div
-      ref={containerRef}
-      className='markdown-content flex flex-col gap-4'
-      dangerouslySetInnerHTML={{ __html: htmlContent }}
-    />
-  );
+  // htmlContent가 변경될 때만 HTML 업데이트
+  useEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.innerHTML = htmlContent;
+  }, [htmlContent]);
+
+  return <div ref={containerRef} className='markdown-content flex flex-col gap-4' />;
 }

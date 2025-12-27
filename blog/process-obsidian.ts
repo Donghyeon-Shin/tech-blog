@@ -18,7 +18,7 @@ async function processObsidian(filePath: string) {
     tag_id: 0,
   };
 
-  const wikiLinkRegex = /\[\[(.*?)\.(png|jpg|jpeg|gif|pdf|mp4|mov|webm)]\]/gi;
+  const wikiLinkRegex = /\[\[(.*?)\.(png|jpg|jpeg|gif|svg|pdf|mp4|mov|webm)]\]/gi;
   let match;
   const matches = [];
 
@@ -39,11 +39,24 @@ async function processObsidian(filePath: string) {
 
       // MIME 타입 결정
       let contentType = 'application/octet-stream';
-      if (['.png', '.jpg', '.jpeg', '.gif'].includes(ext)) contentType = `image/${ext.slice(1)}`;
-      if (['.mp4', '.webm'].includes(ext)) contentType = `video/${ext.slice(1)}`;
-      if (ext === '.pdf') contentType = 'application/pdf';
+      if (['.png', '.jpg', '.jpeg', '.gif'].includes(ext)) {
+        contentType = `image/${ext.slice(1)}`;
+      }
+      if (ext === '.svg') {
+        contentType = 'image/svg+xml';
+      }
+      if (['.mp4', '.webm'].includes(ext)) {
+        contentType = `video/${ext.slice(1)}`;
+      }
+      if (ext === '.pdf') {
+        contentType = 'application/pdf';
+      }
 
-      const fileBuffer = await fs.readFile(absolutePath);
+      // SVG는 텍스트 파일이므로 UTF-8로 읽어야 함
+      const fileBuffer =
+        ext === '.svg'
+          ? Buffer.from(await fs.readFile(absolutePath, 'utf-8'), 'utf-8')
+          : await fs.readFile(absolutePath);
 
       const { error } = await adminClient.storage
         .from('blog-uploads')

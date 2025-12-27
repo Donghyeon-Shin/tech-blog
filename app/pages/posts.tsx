@@ -7,14 +7,20 @@ import { useMemo } from 'react';
 import { markdownToText } from '~/lib/markdown-to-text';
 import type { getAllPostsForFiltering } from '~/api/posts/posts-api';
 import type { getCategories } from '~/api/categories/categories-api';
+import { z } from 'zod';
 const PAGE_SIZE = 5; // 한 페이지에 보여줄 글 개수
 
-export const loader = async ({ request }: Route.LoaderArgs) => {
-  const url = new URL(request.url);
-  const categoryId = parseInt(url.pathname.split('/')[2]) || -1;
-  const page = parseInt(url.searchParams.get('page') || '1') || 1;
+const paramsSchema = z.object({
+  categoryId: z.coerce.number().optional().default(-1),
+  page: z.coerce.number().optional().default(1),
+});
 
-  return { categoryId, page };
+export const loader = async ({ params }: Route.LoaderArgs) => {
+  const { success, data } = paramsSchema.safeParse(params);
+  if (!success) {
+    throw new Response('Invalid params', { status: 400 });
+  }
+  return data;
 };
 
 const navLinkVariants = cva('rounded-full border px-4 py-1', {

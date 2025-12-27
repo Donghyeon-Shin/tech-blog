@@ -62,8 +62,6 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const posts = await getAllPostsForFiltering(client);
   const categoriesTree = buildCategoriesTree(categories, posts, null);
 
-  console.log(posts);
-
   const events = await getEvents(client);
 
   return {

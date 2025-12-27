@@ -100,6 +100,28 @@ const components: Components = {
     );
   },
 
+  img: ({ node: _node, src, alt, ...props }) => {
+    // SVG 파일의 경우 type을 명시적으로 지정
+    const isSvg = src?.toLowerCase().endsWith('.svg');
+    return (
+      <img
+        src={src}
+        alt={alt}
+        loading='lazy'
+        className='max-w-full h-auto rounded-md my-4'
+        {...(isSvg && { type: 'image/svg+xml' })}
+        onError={(e) => {
+          // 이미지 로드 실패 시 에러 처리
+          // eslint-disable-next-line no-console
+          console.error('이미지 로드 실패:', src);
+          const target = e.target as HTMLImageElement;
+          target.style.display = 'none';
+        }}
+        {...props}
+      />
+    );
+  },
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pre: ({ node: _node, children, ...props }: any) => {
     let isFenced = false;

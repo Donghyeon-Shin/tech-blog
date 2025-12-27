@@ -11,9 +11,11 @@ export const getPosts = async (client: SupabaseClient<Database>) => {
 
 export const getPostById = async (client: SupabaseClient<Database>, id: number) => {
   const { data, error } = await client.from('posts').select('*').eq('post_id', id).single();
+
   if (error) {
     throw new Error(error.message);
   }
+
   const { error: rpcError } = await client.rpc('increment_post_view', { target_post_id: id });
 
   if (rpcError) {
