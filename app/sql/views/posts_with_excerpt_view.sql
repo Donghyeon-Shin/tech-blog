@@ -2,7 +2,7 @@ CREATE OR REPLACE VIEW posts_with_excerpt AS
 SELECT 
   post_id,
   title,
-  tag,
+  tag_id,
   category_id,
   created_at,
   read_time,

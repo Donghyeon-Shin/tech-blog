@@ -6,13 +6,19 @@ import { categoryColors } from '~/lib/category-config';
 import type { CategoryName } from '~/lib/category-config';
 
 function getPopularPostCategoryStyle(category: CategoryName) {
-  if (category === 'null') {
+  if (category === 'null' || !category) {
     return {
       className:
         'rounded-md border px-2 md:px-4 text-xs md:text-sm font-medium shrink-0 bg-transparent text-primary',
     };
   }
   const colors = categoryColors[category];
+  if (!colors) {
+    return {
+      className:
+        'rounded-md border px-2 md:px-4 text-xs md:text-sm font-medium shrink-0 bg-transparent text-primary',
+    };
+  }
   return {
     style: {
       backgroundColor: colors.bgColor,
@@ -34,7 +40,7 @@ export default function PopularPostCard({
 }: {
   title: string;
   description: string;
-  category: 'Algorithm' | 'Book' | 'LangChain' | 'React' | 'Research' | 'SQL' | 'Project';
+  category: CategoryName;
   date: Date;
   link: string;
   views: number;

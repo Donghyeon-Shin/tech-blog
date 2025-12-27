@@ -62,7 +62,7 @@ export const getPostsByCategoryAndPage = async (
     .range(from, to);
 
   if (categoryId !== -1) {
-    query = query.eq('tag', categoryId);
+    query = query.eq('tag_id', categoryId);
   }
 
   const { data, error } = await query;
@@ -81,7 +81,7 @@ export const getPostTotalPagesByCategoryAndPage = async (
   let query = client.from('posts').select('*', { count: 'exact', head: true });
 
   if (categoryId !== -1) {
-    query = query.eq('tag', categoryId);
+    query = query.eq('tag_id', categoryId);
   }
 
   const { count, error } = await query;

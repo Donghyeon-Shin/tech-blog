@@ -36,7 +36,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
   const { posts: filteredPosts, totalPages } = useMemo(() => {
     let result = posts;
     if (categoryId !== -1) {
-      result = posts.filter((p) => p.tag === categoryId);
+      result = posts.filter((p) => p.tag_id === categoryId);
     }
 
     const totalPages = Math.ceil(result.length / PAGE_SIZE);
@@ -91,7 +91,9 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
                 key={post.title}
                 title={post.title}
                 description={postWithExcerpt.processedExcerpt || post.excerpt || ''}
-                categoryName={categories?.find((c) => c.category_id === post.tag)?.name as string}
+                categoryName={
+                  (categories?.find((c) => c.category_id === post.tag_id)?.name as string) || 'null'
+                }
                 date={new Date(post.created_at)}
                 link={`/post/${post.post_id}`}
                 readTime={post.read_time}

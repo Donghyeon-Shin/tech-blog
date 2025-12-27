@@ -64,7 +64,7 @@ async function processObsidian(filePath: string) {
       if (ext === '.pdf') replacement = `[📄 PDF 보기](${publicUrl})`;
       if (['.mp4', '.webm'].includes(ext)) replacement = `<video controls src="${publicUrl}" />`;
 
-      fileContent = fileContent.replace(item.fileMatch, replacement);
+      fileContent = fileContent.replace(item.fileMatch, replacement).replace(/!!\[/g, '![');
       console.log(`✅ ${item.fileName} -> ${uploadPath} 완료`);
     }
   }

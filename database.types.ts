@@ -135,7 +135,7 @@ export type Database = {
           created_at: string
           post_id: number
           read_time: number
-          tag: number | null
+          tag_id: number | null
           title: string
           view_count: number
         }
@@ -145,7 +145,7 @@ export type Database = {
           created_at?: string
           post_id?: never
           read_time: number
-          tag?: number | null
+          tag_id?: number | null
           title: string
           view_count?: number
         }
@@ -155,7 +155,7 @@ export type Database = {
           created_at?: string
           post_id?: never
           read_time?: number
-          tag?: number | null
+          tag_id?: number | null
           title?: string
           view_count?: number
         }
@@ -168,8 +168,8 @@ export type Database = {
             referencedColumns: ["category_id"]
           },
           {
-            foreignKeyName: "posts_tag_categories_category_id_fk"
-            columns: ["tag"]
+            foreignKeyName: "posts_tag_id_categories_category_id_fk"
+            columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["category_id"]
@@ -185,7 +185,7 @@ export type Database = {
           excerpt: string | null
           post_id: number | null
           read_time: number | null
-          tag: number | null
+          tag_id: number | null
           title: string | null
           view_count: number | null
         }
@@ -195,7 +195,7 @@ export type Database = {
           excerpt?: never
           post_id?: number | null
           read_time?: number | null
-          tag?: number | null
+          tag_id?: number | null
           title?: string | null
           view_count?: number | null
         }
@@ -205,7 +205,7 @@ export type Database = {
           excerpt?: never
           post_id?: number | null
           read_time?: number | null
-          tag?: number | null
+          tag_id?: number | null
           title?: string | null
           view_count?: number | null
         }
@@ -218,8 +218,8 @@ export type Database = {
             referencedColumns: ["category_id"]
           },
           {
-            foreignKeyName: "posts_tag_categories_category_id_fk"
-            columns: ["tag"]
+            foreignKeyName: "posts_tag_id_categories_category_id_fk"
+            columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["category_id"]

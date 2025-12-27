@@ -11,7 +11,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:typegen": "npx supabase gen types typescript --project-id dqygovtpvlsoxwnnhepz > database.types.ts",
-    "blog:process": "tsx blog/process-obsidian.ts"
+    "blog:process": "tsx blog/process-obsidian.ts",
+    "blog:upload": "tsx blog/upload-post.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
