@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { markdownToText } from '~/lib/markdown-to-text';
 import type { getAllPostsForFiltering } from '~/api/posts/posts-api';
 import type { getCategories } from '~/api/categories/categories-api';
+import type { CategoryName } from '~/lib/category-config';
 
 export default function PopularPosts() {
   const { posts, categories } = useOutletContext<{
@@ -28,14 +29,8 @@ export default function PopularPosts() {
             title={post.title}
             description={markdownToText(post.excerpt || '', 300)}
             category={
-              categories.find((c) => c.category_id === post.tag)?.name as string as
-                | 'Algorithm'
-                | 'Book'
-                | 'LangChain'
-                | 'React'
-                | 'Research'
-                | 'SQL'
-                | 'Project'
+              (categories.find((c) => c.category_id === post.tag_id)?.name as CategoryName) ||
+              'null'
             }
             date={new Date(post.created_at)}
             link={`/post/${post.post_id}`}

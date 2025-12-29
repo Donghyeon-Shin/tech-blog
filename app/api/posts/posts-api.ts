@@ -11,9 +11,11 @@ export const getPosts = async (client: SupabaseClient<Database>) => {
 
 export const getPostById = async (client: SupabaseClient<Database>, id: number) => {
   const { data, error } = await client.from('posts').select('*').eq('post_id', id).single();
+
   if (error) {
     throw new Error(error.message);
   }
+
   const { error: rpcError } = await client.rpc('increment_post_view', { target_post_id: id });
 
   if (rpcError) {
@@ -33,16 +35,6 @@ export const getAllPostsForOverview = async (client: SupabaseClient<Database>) =
     throw new Error(error.message);
   }
   return data;
-};
-
-export const getOverviewStats = async (client: SupabaseClient<Database>) => {
-  const { data, error } = await client.rpc('get_overview_stats');
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data[0];
 };
 
 export const getViewCountByTag = async (client: SupabaseClient<Database>) => {
@@ -72,7 +64,7 @@ export const getPostsByCategoryAndPage = async (
     .range(from, to);
 
   if (categoryId !== -1) {
-    query = query.eq('tag', categoryId);
+    query = query.eq('tag_id', categoryId);
   }
 
   const { data, error } = await query;
@@ -91,7 +83,7 @@ export const getPostTotalPagesByCategoryAndPage = async (
   let query = client.from('posts').select('*', { count: 'exact', head: true });
 
   if (categoryId !== -1) {
-    query = query.eq('tag', categoryId);
+    query = query.eq('tag_id', categoryId);
   }
 
   const { count, error } = await query;

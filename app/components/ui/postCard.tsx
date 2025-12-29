@@ -5,10 +5,13 @@ import { categoryColors } from '~/lib/category-config';
 import type { CategoryName } from '~/lib/category-config';
 
 function getCategoryStyle(categoryName: CategoryName) {
-  if (categoryName === 'null') {
+  if (categoryName === 'null' || !categoryName) {
     return { className: 'bg-transparent text-primary' };
   }
   const colors = categoryColors[categoryName];
+  if (!colors) {
+    return { className: 'bg-transparent text-primary' };
+  }
   return {
     style: {
       backgroundColor: colors.bgColor,

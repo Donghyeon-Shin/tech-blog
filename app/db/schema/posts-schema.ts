@@ -14,13 +14,13 @@ export const posts = pgTable(
     ),
     view_count: bigint({ mode: 'number' }).notNull().default(0),
     read_time: integer().notNull(),
-    tag: bigint({ mode: 'number' }).references((): AnyPgColumn => categories.category_id, {
+    tag_id: bigint({ mode: 'number' }).references((): AnyPgColumn => categories.category_id, {
       onDelete: 'cascade',
     }),
     created_at: timestamp().notNull().defaultNow(),
   },
   (table) => [
     index('posts_tag_idx').on(table.category_id),
-    index('posts_category_idx').on(table.tag),
+    index('posts_category_idx').on(table.tag_id),
   ],
 );

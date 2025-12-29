@@ -8,16 +8,24 @@ import PostSidebar from '~/components/layout/postSideBar';
 import type { Route } from './+types/post';
 import type { ShouldRevalidateFunctionArgs } from 'react-router';
 import GitHubSlugger from 'github-slugger';
-import client from '~/supa-client';
+import { client } from '~/supa-client';
 import { getPostById } from '~/api/posts/posts-api';
 import { useOutletContext } from 'react-router';
 import { markdownToHtml } from '~/lib/markdown-to-html';
 import type { getCategories } from '~/api/categories/categories-api';
+import { z } from 'zod';
 
-export const loader = async ({ request: _request }: Route.LoaderArgs) => {
-  const url = new URL(_request.url);
-  const id = url.pathname.split('/')[2];
-  const post = await getPostById(client, parseInt(id));
+const paramsSchema = z.object({
+  id: z.coerce.number(),
+});
+
+export const loader = async ({ params }: Route.LoaderArgs) => {
+  const { success, data } = paramsSchema.safeParse(params);
+  if (!success) {
+    throw new Response('Invalid post ID', { status: 400 });
+  }
+
+  const post = await getPostById(client, data.id);
 
   const markdownContent = post.content;
 
@@ -53,10 +61,10 @@ export const loader = async ({ request: _request }: Route.LoaderArgs) => {
   return { toc, post, htmlContent };
 };
 
-export const shouldRevalidate = ({ currentUrl, nextUrl }: ShouldRevalidateFunctionArgs) => {
+export const shouldRevalidate = ({ currentParams, nextParams }: ShouldRevalidateFunctionArgs) => {
   // 동일한 post_id에 대한 요청인지 확인
-  const currentPostId = currentUrl.pathname.split('/')[2];
-  const nextPostId = nextUrl.pathname.split('/')[2];
+  const currentPostId = currentParams?.id;
+  const nextPostId = nextParams?.id;
 
   // 같은 게시글이면 캐시 재사용 (false 반환)
   if (currentPostId === nextPostId) {

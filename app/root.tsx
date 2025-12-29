@@ -16,7 +16,7 @@ import { themeSessionResolver } from './lib/theme-session.server';
 import { ThemeProvider, useTheme } from 'remix-themes';
 import LeftSidebar from './components/layout/leftSideBar';
 import { Toaster } from 'sonner';
-import client from './supa-client';
+import { client } from './supa-client';
 import { getCategories } from './api/categories/categories-api';
 import { getAllPostsForFiltering } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';

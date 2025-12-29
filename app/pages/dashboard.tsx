@@ -9,7 +9,7 @@ import {
   ChartTooltipContent,
 } from '~/components/ui/chart';
 import DashboardCard from '~/components/ui/dashboardCard';
-import client from '~/supa-client';
+import { client } from '~/supa-client';
 import { getAllPostsForOverview, getViewCountByTag } from '~/api/posts/posts-api';
 import type { Route } from './+types/dashboard';
 import { Link } from 'react-router';

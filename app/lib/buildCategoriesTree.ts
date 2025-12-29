@@ -1,10 +1,10 @@
 import type { FolderItemProps } from '~/types/folderItemProps';
 import type { getCategories } from '~/api/categories/categories-api';
-import type { getPostsByCategoryAndPage } from '~/api/posts/posts-api';
+import type { getAllPostsForFiltering } from '~/api/posts/posts-api';
 
 export const buildCategoriesTree = (
   categories: Awaited<ReturnType<typeof getCategories>>,
-  posts: Awaited<ReturnType<typeof getPostsByCategoryAndPage>>,
+  posts: Awaited<ReturnType<typeof getAllPostsForFiltering>>,
   parentId: number | null,
 ): FolderItemProps[] => {
   // A. 현재 레벨의 카테고리(폴더)들을 먼저 구성
