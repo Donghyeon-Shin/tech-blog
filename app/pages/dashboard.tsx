@@ -80,8 +80,11 @@ function transformViewCountByTagToChartData(
 }
 
 export const loader = async () => {
-  const posts = await getAllPostsForOverview(client);
-  const viewCountByTag = await getViewCountByTag(client);
+  const [posts, viewCountByTag, categoriesGroupedByViewCount] = await Promise.all([
+    getAllPostsForOverview(client),
+    getViewCountByTag(client),
+    getCategoriesGroupedByViewCount(client),
+  ]);
 
   const totalViews = posts.reduce((acc, post) => acc + post.view_count, 0);
   const averageReadTime = posts.reduce((acc, post) => acc + post.read_time, 0) / posts.length;
@@ -89,7 +92,6 @@ export const loader = async () => {
   const averageReadTimeMinutes = Math.floor(averageReadTime % 60);
   const totalPosts = posts.length;
 
-  const categoriesGroupedByViewCount = await getCategoriesGroupedByViewCount(client);
   const totalCategories = categoriesGroupedByViewCount.length;
   const mostViewedCategories = categoriesGroupedByViewCount
     .sort((a, b) => b.total_view_count - a.total_view_count)
