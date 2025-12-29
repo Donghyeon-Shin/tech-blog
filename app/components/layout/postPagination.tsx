@@ -71,7 +71,7 @@ export default function PostPagination({ totalPages }: { totalPages: number }) {
     } else {
       newSearchParams.set('page', pageNum.toString());
     }
-    setSearchParams(newSearchParams);
+    setSearchParams(newSearchParams, { preventScrollReset: true });
   };
 
   if (totalPages <= 1) {
@@ -89,6 +89,7 @@ export default function PostPagination({ totalPages }: { totalPages: number }) {
             <PaginationPrevious
               to={createPageUrl(page - 1)}
               onClick={(e) => handlePageClick(page - 1, e)}
+              prefetch='intent'
             />
           </PaginationItem>
         )}
@@ -123,6 +124,7 @@ export default function PostPagination({ totalPages }: { totalPages: number }) {
             <PaginationNext
               to={createPageUrl(page + 1)}
               onClick={(e) => handlePageClick(page + 1, e)}
+              prefetch='intent'
             />
           </PaginationItem>
         )}
