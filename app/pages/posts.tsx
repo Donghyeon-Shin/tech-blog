@@ -3,7 +3,6 @@ import type { Route } from './+types/posts';
 import { cva } from 'class-variance-authority';
 import PostCard from '~/components/ui/postCard';
 import PostPagination from '~/components/layout/postPagination';
-import { useMemo } from 'react';
 import { markdownToText } from '~/lib/markdown-to-text';
 import { getPostsByCategoryAndPage, getPostTotalPagesByCategory } from '~/api/posts/posts-api';
 import type { getTopLevelCategories } from '~/api/categories/categories-api';
@@ -37,23 +36,30 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     throw new Response('Invalid params', { status: 400 });
   }
 
-  const totalPages = await getPostTotalPagesByCategory(client, data.category);
-
   // 쿼리 파라미터에서 page 읽기 및 검증
   const url = new URL(request.url);
   const pageParam = url.searchParams.get('page');
   const pageNum = pageParam ? parseInt(pageParam, 10) : 1;
 
-  if (pageNum < 1 || pageNum > totalPages || isNaN(pageNum)) {
-    return redirect(`/posts/all?page=1`);
-  }
-  // 이상한 값(음수, 0, NaN 등)이면 1로 처리
-  const page = pageNum;
+  // 병렬 실행
+  const [totalPages, posts] = await Promise.all([
+    getPostTotalPagesByCategory(client, data.category),
+    getPostsByCategoryAndPage(client, data.category, pageNum),
+  ]);
 
-  const posts = await getPostsByCategoryAndPage(client, data.category, page);
+  // 페이지 범위를 벗어난 경우에만 리다이렉트
+  if (pageNum < 1 || (totalPages > 0 && pageNum > totalPages)) {
+    return redirect(`/posts/${params.category || 'all'}?page=1`);
+  }
+
+  const postsWithProcessedExcerpt = posts.map((post) => ({
+    ...post,
+    processedExcerpt: markdownToText(post.excerpt || '', 300),
+  }));
+
   return {
     totalPages,
-    posts,
+    postsWithProcessedExcerpt,
   };
 };
 
@@ -70,19 +76,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
   const { topLevelCategories } = useOutletContext<{
     topLevelCategories: Awaited<ReturnType<typeof getTopLevelCategories>>;
   }>();
-  const { posts, totalPages } = loaderData;
-
-  const { posts: filteredPosts } = useMemo(() => {
-    // markdownToText를 한 번만 계산
-    const postsWithProcessedExcerpt = posts.map((post) => ({
-      ...post,
-      processedExcerpt: markdownToText(post.excerpt || '', 300),
-    }));
-
-    return {
-      posts: postsWithProcessedExcerpt,
-    };
-  }, [posts]);
+  const { postsWithProcessedExcerpt, totalPages } = loaderData;
 
   return (
     <div className='flex flex-col min-h-[calc(100vh-4rem)] max-w-[1400px] md:ml-20'>
@@ -113,7 +107,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
         <div className='flex flex-col gap-4'>
-          {filteredPosts.map((post) => {
+          {postsWithProcessedExcerpt.map((post) => {
             const postWithExcerpt = post as typeof post & { processedExcerpt?: string };
             return (
               <PostCard
