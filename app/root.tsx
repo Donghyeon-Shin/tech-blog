@@ -57,12 +57,14 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const { getTheme } = await themeSessionResolver(request);
   const theme = getTheme();
 
-  const categories = await getCategories(client);
-  const topLevelCategories = categories.filter((c) => c.parent_id === null);
-  const posts = await getAllPostsForFiltering(client);
-  const categoriesTree = buildCategoriesTree(categories, posts, null);
+  const [categories, posts, events] = await Promise.all([
+    getCategories(client),
+    getAllPostsForFiltering(client),
+    getEvents(client),
+  ]);
 
-  const events = await getEvents(client);
+  const topLevelCategories = categories.filter((c) => c.parent_id === null);
+  const categoriesTree = buildCategoriesTree(categories, posts, null);
 
   return {
     theme,
