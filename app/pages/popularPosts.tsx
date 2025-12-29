@@ -1,4 +1,4 @@
-import { NavLink, useOutletContext } from 'react-router';
+import { NavLink, useOutletContext, type MetaFunction } from 'react-router';
 import PopularPostCard from '~/components/ui/popularPostCard';
 import { markdownToText } from '~/lib/markdown-to-text';
 import { getPopularPostsWithExcerpt } from '~/api/posts/posts-api';
@@ -6,6 +6,13 @@ import type { getTopLevelCategories } from '~/api/categories/categories-api';
 import type { CategoryName } from '~/lib/category-config';
 import { client } from '~/supa-client';
 import type { Route } from './+types/popularPosts';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Popular Posts | Dongle' },
+    { name: 'description', content: 'Popular posts page of Blog with most read articles' },
+  ];
+};
 
 export const loader = async () => {
   const popularPosts = await getPopularPostsWithExcerpt(client);

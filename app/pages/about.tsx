@@ -15,8 +15,15 @@ import { Button } from '~/components/ui/button';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/cjs/languages/prism/json';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import { Link } from 'react-router';
+import { Link, type MetaFunction } from 'react-router';
 import TechBadge from '~/components/ui/techBadge';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'About | Dongle' },
+    { name: 'description', content: 'About page of My portfolio' },
+  ];
+};
 
 SyntaxHighlighter.registerLanguage('json', json.default || json);
 

@@ -15,6 +15,13 @@ import { markdownToHtml } from '~/lib/markdown-to-html';
 import type { getCategories } from '~/api/categories/categories-api';
 import { z } from 'zod';
 
+export const meta: Route.MetaFunction = ({ loaderData }: Route.MetaArgs) => {
+  return [
+    { title: `${loaderData.post.title} | Dongle` },
+    { name: 'description', content: `Post page of Blog ${loaderData.post.title}` },
+  ];
+};
+
 const paramsSchema = z.object({
   id: z.coerce.number(),
 });

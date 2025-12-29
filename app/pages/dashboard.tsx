@@ -12,10 +12,17 @@ import DashboardCard from '~/components/ui/dashboardCard';
 import { client } from '~/supa-client';
 import { getAllPostsForOverview, getViewCountByTag } from '~/api/posts/posts-api';
 import type { Route } from './+types/dashboard';
-import { Link } from 'react-router';
+import { Link, type MetaFunction } from 'react-router';
 import { getCategoriesGroupedByViewCount } from '~/api/categories/categories-api';
 import { categoryColors } from '~/lib/category-config';
 import type { ChartConfig } from '~/components/ui/chart';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Dashboard | Dongle' },
+    { name: 'description', content: 'Dashboard page of Blog' },
+  ];
+};
 
 const chartConfig: ChartConfig = {
   algorithm: {
