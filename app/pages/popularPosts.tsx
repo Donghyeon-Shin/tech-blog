@@ -1,21 +1,23 @@
 import { NavLink, useOutletContext } from 'react-router';
 import PopularPostCard from '~/components/ui/popularPostCard';
-import { useMemo } from 'react';
 import { markdownToText } from '~/lib/markdown-to-text';
-import type { getAllPostsForFiltering } from '~/api/posts/posts-api';
-import type { getCategories } from '~/api/categories/categories-api';
+import { getPopularPostsWithExcerpt } from '~/api/posts/posts-api';
+import type { getTopLevelCategories } from '~/api/categories/categories-api';
 import type { CategoryName } from '~/lib/category-config';
+import { client } from '~/supa-client';
+import type { Route } from './+types/popularPosts';
 
-export default function PopularPosts() {
-  const { posts, categories } = useOutletContext<{
-    posts: Awaited<ReturnType<typeof getAllPostsForFiltering>>;
-    categories: Awaited<ReturnType<typeof getCategories>>;
+export const loader = async () => {
+  const popularPosts = await getPopularPostsWithExcerpt(client);
+  return { popularPosts };
+};
+
+export default function PopularPosts({ loaderData }: Route.ComponentProps) {
+  const { topLevelCategories } = useOutletContext<{
+    topLevelCategories: Awaited<ReturnType<typeof getTopLevelCategories>>;
   }>();
-  const { popularPosts } = useMemo(() => {
-    const sortedPosts = [...posts].sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
-    const popularPosts = sortedPosts.slice(0, 5);
-    return { popularPosts };
-  }, [posts]);
+  const { popularPosts } = loaderData;
+
   return (
     <div className='flex flex-col gap-8 max-w-[1400px] md:ml-20'>
       <div className='flex flex-col gap-4'>
@@ -29,8 +31,8 @@ export default function PopularPosts() {
             title={post.title}
             description={markdownToText(post.excerpt || '', 300)}
             category={
-              (categories.find((c) => c.category_id === post.tag_id)?.name as CategoryName) ||
-              'null'
+              (topLevelCategories?.find((c) => c.category_id === post.tag_id)
+                ?.name as CategoryName) || 'null'
             }
             date={new Date(post.created_at)}
             link={`/post/${post.post_id}`}

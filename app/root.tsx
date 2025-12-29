@@ -18,7 +18,7 @@ import LeftSidebar from './components/layout/leftSideBar';
 import { Toaster } from 'sonner';
 import { client } from './supa-client';
 import { getCategories } from './api/categories/categories-api';
-import { getAllPostsForFiltering } from './api/posts/posts-api';
+import { getAllPostsForBuildingCategoriesTree } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
 import type { FolderItemProps } from './types/folderItemProps';
 import { getEvents } from './api/events/events-api';
@@ -59,7 +59,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   const [categories, posts, events] = await Promise.all([
     getCategories(client),
-    getAllPostsForFiltering(client),
+    getAllPostsForBuildingCategoriesTree(client),
     getEvents(client),
   ]);
 
@@ -71,7 +71,6 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     categoriesTree,
     topLevelCategories,
     categories,
-    posts,
     events,
   };
 };
@@ -141,10 +140,8 @@ export default function App({ loaderData }: Route.ComponentProps) {
         />
         <Outlet
           context={{
-            categories: loaderData?.topLevelCategories,
+            topLevelCategories: loaderData?.topLevelCategories,
             allCategories: loaderData?.categories,
-            posts: loaderData?.posts,
-            categoriesTree: loaderData?.categoriesTree,
           }}
         />
       </div>

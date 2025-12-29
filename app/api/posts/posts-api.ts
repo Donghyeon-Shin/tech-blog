@@ -58,7 +58,7 @@ export const getPostsByCategoryAndPage = async (
   const to = from + PAGE_SIZE - 1;
 
   let query = client
-    .from('posts')
+    .from('posts_with_excerpt')
     .select('*')
     .order('created_at', { ascending: false })
     .range(from, to);
@@ -76,11 +76,24 @@ export const getPostsByCategoryAndPage = async (
   return data;
 };
 
-export const getPostTotalPagesByCategoryAndPage = async (
+export const getPopularPostsWithExcerpt = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client
+    .from('posts_with_excerpt')
+    .select('*')
+    .order('view_count', { ascending: false })
+    .limit(5);
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const getPostTotalPagesByCategory = async (
   client: SupabaseClient<Database>,
   categoryId: number,
 ) => {
-  let query = client.from('posts').select('*', { count: 'exact', head: true });
+  let query = client.from('posts_with_excerpt').select('*', { count: 'exact', head: true });
 
   if (categoryId !== -1) {
     query = query.eq('tag_id', categoryId);
@@ -107,12 +120,8 @@ export const getPopularPosts = async (client: SupabaseClient<Database>) => {
   return data;
 };
 
-// 클라이언트 사이드 필터링용: VIEW를 사용하여 excerpt만 가져옴 (content 전체 대신)
-export const getAllPostsForFiltering = async (client: SupabaseClient<Database>) => {
-  const { data, error } = await client
-    .from('posts_with_excerpt')
-    .select('*')
-    .order('created_at', { ascending: false });
+export const getAllPostsForBuildingCategoriesTree = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client.from('posts').select('post_id, title, category_id');
   if (error) {
     throw new Error(error.message);
   }
