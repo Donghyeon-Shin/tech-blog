@@ -1,14 +1,13 @@
-import { NavLink, useOutletContext } from 'react-router';
+import { NavLink, redirect, useOutletContext } from 'react-router';
 import type { Route } from './+types/posts';
 import { cva } from 'class-variance-authority';
 import PostCard from '~/components/ui/postCard';
 import PostPagination from '~/components/layout/postPagination';
-import { useMemo } from 'react';
 import { markdownToText } from '~/lib/markdown-to-text';
-import type { getAllPostsForFiltering } from '~/api/posts/posts-api';
-import type { getCategories } from '~/api/categories/categories-api';
+import { getPostsByCategoryAndPage, getPostTotalPagesByCategory } from '~/api/posts/posts-api';
+import type { getTopLevelCategories } from '~/api/categories/categories-api';
 import { z } from 'zod';
-const PAGE_SIZE = 5; // 한 페이지에 보여줄 글 개수
+import { client } from '~/supa-client';
 
 const paramsSchema = z.object({
   category: z
@@ -41,12 +40,26 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const url = new URL(request.url);
   const pageParam = url.searchParams.get('page');
   const pageNum = pageParam ? parseInt(pageParam, 10) : 1;
-  // 이상한 값(음수, 0, NaN 등)이면 1로 처리
-  const page = pageNum > 0 && !isNaN(pageNum) ? pageNum : 1;
+
+  // 병렬 실행
+  const [totalPages, posts] = await Promise.all([
+    getPostTotalPagesByCategory(client, data.category),
+    getPostsByCategoryAndPage(client, data.category, pageNum),
+  ]);
+
+  // 페이지 범위를 벗어난 경우에만 리다이렉트
+  if (pageNum < 1 || (totalPages > 0 && pageNum > totalPages)) {
+    return redirect(`/posts/${params.category || 'all'}?page=1`);
+  }
+
+  const postsWithProcessedExcerpt = posts.map((post) => ({
+    ...post,
+    processedExcerpt: markdownToText(post.excerpt || '', 300),
+  }));
 
   return {
-    categoryId: data.category,
-    page,
+    totalPages,
+    postsWithProcessedExcerpt,
   };
 };
 
@@ -60,33 +73,10 @@ const navLinkVariants = cva('rounded-full border px-4 py-1', {
 });
 
 export default function Posts({ loaderData }: Route.ComponentProps) {
-  const { categoryId, page } = loaderData;
-  const { posts, categories } = useOutletContext<{
-    posts: Awaited<ReturnType<typeof getAllPostsForFiltering>>;
-    categories: Awaited<ReturnType<typeof getCategories>>;
+  const { topLevelCategories } = useOutletContext<{
+    topLevelCategories: Awaited<ReturnType<typeof getTopLevelCategories>>;
   }>();
-
-  const { posts: filteredPosts, totalPages } = useMemo(() => {
-    let result = posts;
-    if (categoryId !== -1) {
-      result = posts.filter((p) => p.tag_id === categoryId);
-    }
-
-    const totalPages = Math.ceil(result.length / PAGE_SIZE);
-
-    const paginatedPosts = result.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-    // markdownToText를 한 번만 계산
-    const postsWithProcessedExcerpt = paginatedPosts.map((post) => ({
-      ...post,
-      processedExcerpt: markdownToText(post.excerpt || '', 300),
-    }));
-
-    return {
-      posts: postsWithProcessedExcerpt,
-      totalPages,
-    };
-  }, [posts, categoryId, page]);
+  const { postsWithProcessedExcerpt, totalPages } = loaderData;
 
   return (
     <div className='flex flex-col min-h-[calc(100vh-4rem)] max-w-[1400px] md:ml-20'>
@@ -105,7 +95,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
           >
             View All
           </NavLink>
-          {categories?.map((category) => (
+          {topLevelCategories?.map((category) => (
             <NavLink
               key={category.category_id}
               to={`/posts/${category.category_id}`}
@@ -117,7 +107,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
         <div className='flex flex-col gap-4'>
-          {filteredPosts.map((post) => {
+          {postsWithProcessedExcerpt.map((post) => {
             const postWithExcerpt = post as typeof post & { processedExcerpt?: string };
             return (
               <PostCard
@@ -125,7 +115,8 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
                 title={post.title}
                 description={postWithExcerpt.processedExcerpt || post.excerpt || ''}
                 categoryName={
-                  (categories?.find((c) => c.category_id === post.tag_id)?.name as string) || 'null'
+                  (topLevelCategories?.find((c) => c.category_id === post.tag_id)
+                    ?.name as string) || 'null'
                 }
                 date={new Date(post.created_at)}
                 link={`/post/${post.post_id}`}

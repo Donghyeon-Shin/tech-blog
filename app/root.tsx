@@ -18,7 +18,7 @@ import LeftSidebar from './components/layout/leftSideBar';
 import { Toaster } from 'sonner';
 import { client } from './supa-client';
 import { getCategories } from './api/categories/categories-api';
-import { getAllPostsForFiltering } from './api/posts/posts-api';
+import { getAllPostsForBuildingCategoriesTree } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
 import type { FolderItemProps } from './types/folderItemProps';
 import { getEvents } from './api/events/events-api';
@@ -50,6 +50,19 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export const shouldRevalidate = (
+  currentUrl: URL | undefined,
+  nextUrl: URL | undefined,
+  formMethod: string | undefined,
+  defaultShouldRevalidate: boolean,
+) => {
+  if (currentUrl?.pathname !== nextUrl?.pathname) {
+    return false;
+  }
+
+  return defaultShouldRevalidate;
+};
+
 export const loader = async ({ request }: Route.LoaderArgs) => {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !process.env.DATABASE_URL) {
     throw new Error('Missing environment variables');
@@ -57,19 +70,20 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const { getTheme } = await themeSessionResolver(request);
   const theme = getTheme();
 
-  const categories = await getCategories(client);
-  const topLevelCategories = categories.filter((c) => c.parent_id === null);
-  const posts = await getAllPostsForFiltering(client);
-  const categoriesTree = buildCategoriesTree(categories, posts, null);
+  const [categories, posts, events] = await Promise.all([
+    getCategories(client),
+    getAllPostsForBuildingCategoriesTree(client),
+    getEvents(client),
+  ]);
 
-  const events = await getEvents(client);
+  const topLevelCategories = categories.filter((c) => c.parent_id === null);
+  const categoriesTree = buildCategoriesTree(categories, posts, null);
 
   return {
     theme,
     categoriesTree,
     topLevelCategories,
     categories,
-    posts,
     events,
   };
 };
@@ -139,10 +153,8 @@ export default function App({ loaderData }: Route.ComponentProps) {
         />
         <Outlet
           context={{
-            categories: loaderData?.topLevelCategories,
+            topLevelCategories: loaderData?.topLevelCategories,
             allCategories: loaderData?.categories,
-            posts: loaderData?.posts,
-            categoriesTree: loaderData?.categoriesTree,
           }}
         />
       </div>
