@@ -1,5 +1,5 @@
 import { CodeXmlIcon, Command, MoonIcon, Search, SunIcon } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { GithubIcon } from '~/assets';
 import {
   NavigationMenu,
@@ -24,7 +24,7 @@ export default function Header({
 }) {
   const [searchBarOpen, setSearchBarOpen] = useState(false);
   const [theme, setTheme] = useTheme();
-
+  const location = useLocation();
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
@@ -113,7 +113,14 @@ export default function Header({
                       </NavigationMenuContent>
                     </>
                   ) : (
-                    <Link className={navigationMenuTriggerStyle()} to={menu.to ?? '/'}>
+                    <Link
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        location.pathname === menu.to &&
+                          'bg-accent text-accent-foreground font-medium',
+                      )}
+                      to={menu.to ?? '/'}
+                    >
                       {menu.title}
                     </Link>
                   )}
