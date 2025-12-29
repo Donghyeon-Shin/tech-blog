@@ -1,4 +1,4 @@
-import { NavLink, redirect, useOutletContext } from 'react-router';
+import { NavLink, redirect, useOutletContext, type MetaFunction } from 'react-router';
 import type { Route } from './+types/posts';
 import { cva } from 'class-variance-authority';
 import PostCard from '~/components/ui/postCard';
@@ -8,6 +8,13 @@ import { getPostsByCategoryAndPage, getPostTotalPagesByCategory } from '~/api/po
 import type { getTopLevelCategories } from '~/api/categories/categories-api';
 import { z } from 'zod';
 import { client } from '~/supa-client';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'All Posts | Dongle' },
+    { name: 'description', content: 'Posts page of Blog with all posts and categories' },
+  ];
+};
 
 const paramsSchema = z.object({
   category: z
