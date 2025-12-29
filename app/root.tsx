@@ -50,6 +50,19 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export const shouldRevalidate = (
+  currentUrl: URL | undefined,
+  nextUrl: URL | undefined,
+  formMethod: string | undefined,
+  defaultShouldRevalidate: boolean,
+) => {
+  if (currentUrl?.pathname !== nextUrl?.pathname) {
+    return false;
+  }
+
+  return defaultShouldRevalidate;
+};
+
 export const loader = async ({ request }: Route.LoaderArgs) => {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !process.env.DATABASE_URL) {
     throw new Error('Missing environment variables');
