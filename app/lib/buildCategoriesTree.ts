@@ -26,6 +26,7 @@ export const buildCategoriesTree = (
   // B. 현재 카테고리(parentId)에 바로 속해 있는 포스트(파일)들을 구성
   const postNodes: FolderItemProps[] = posts
     .filter((post) => post.category_id === parentId)
+    .sort((a, b) => a.title.localeCompare(b.title)) // 제목 순서대로 정렬
     .map((post) => ({
       name: post.title,
       isFolder: false, // 파일이므로 false
