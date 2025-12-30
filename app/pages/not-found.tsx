@@ -16,7 +16,7 @@ import PopularPostCard from '~/components/ui/popularPostCard';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Not Found | Dongle' },
+    { title: '404 Not Found | Dongle' },
     { name: 'description', content: 'Not found page of Dongle' },
   ];
 };
@@ -47,7 +47,7 @@ export default function NotFound({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className='flex flex-col items-center gap-8 px-8'>
+    <div className='flex flex-col items-center gap-8 px-8 max-w-[1400px] mx-auto'>
       <div className='relative mt-16'>
         <h1 className='text-[120px] md:text-[180px] font-black leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-primary/80 to-primary/10 select-none'>
           404
