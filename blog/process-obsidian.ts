@@ -80,7 +80,6 @@ async function processObsidian(filePath: string) {
       }
       if (['.mp4', '.webm', '.mov'].includes(ext)) {
         // 비디오는 HTML로 변환 (마크다운 파서가 HTML을 허용하도록 설정 필요)
-        // ! 없이 순수 HTML로 변환해야 함
         const videoType = ext === '.mp4' ? 'mp4' : ext === '.webm' ? 'webm' : 'quicktime';
         replacement = `<video controls class="w-full rounded-md my-4"><source src="${publicUrl}" type="video/${videoType}"></video>`;
       }

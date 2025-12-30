@@ -47,6 +47,22 @@ export default function MarkdownHtmlRender({
         if (!preElement.classList.contains('relative')) {
           preElement.classList.add('relative');
         }
+
+        // pre 요소에 overflow 처리 추가 (텍스트가 넘치지 않도록)
+        (preElement as HTMLElement).style.whiteSpace = 'pre-wrap';
+        (preElement as HTMLElement).style.wordBreak = 'break-word';
+        (preElement as HTMLElement).style.overflowWrap = 'break-word';
+        (preElement as HTMLElement).style.maxWidth = '100%';
+
+        // code 요소에도 동일한 스타일 적용
+        if (codeElement) {
+          (codeElement as HTMLElement).style.whiteSpace = 'pre-wrap';
+          (codeElement as HTMLElement).style.wordBreak = 'break-word';
+          (codeElement as HTMLElement).style.overflowWrap = 'break-word';
+          (codeElement as HTMLElement).style.display = 'block';
+          (codeElement as HTMLElement).style.maxWidth = '100%';
+        }
+
         preElement.appendChild(copyButton);
         preElement.classList.add('has-copy-button');
       });
@@ -120,7 +136,7 @@ export default function MarkdownHtmlRender({
       const pElements = containerRef.current.querySelectorAll('p');
       pElements.forEach((p) => {
         if (!p.classList.contains('styled')) {
-          p.className = 'whitespace-pre-wrap';
+          p.className = 'whitespace-pre-wrap break-words overflow-wrap-anywhere';
           p.classList.add('styled');
         }
       });
@@ -147,7 +163,7 @@ export default function MarkdownHtmlRender({
       inlineCodeElements.forEach((code) => {
         if (!code.classList.contains('styled')) {
           code.className =
-            'text-sm font-mono text-code-content-color bg-code-background p-1 rounded-md';
+            'text-sm font-mono text-code-content-color bg-code-background p-1 rounded-md break-words whitespace-pre-wrap';
           code.classList.add('styled');
         }
       });
