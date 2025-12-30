@@ -14,13 +14,11 @@ import './app.css';
 import Header from './components/layout/header';
 import { themeSessionResolver } from './lib/theme-session.server';
 import { ThemeProvider, useTheme } from 'remix-themes';
-import LeftSidebar from './components/layout/leftSideBar';
 import { Toaster } from 'sonner';
 import { client } from './supa-client';
 import { getCategories } from './api/categories/categories-api';
 import { getAllPostsForBuildingCategoriesTree } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
-import type { FolderItemProps } from './types/folderItemProps';
 import { getEvents } from './api/events/events-api';
 
 export const links: Route.LinksFunction = () => [
@@ -145,19 +143,8 @@ export function InnerLayout({ children }: { children: React.ReactNode }) {
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <div>
-      <Header categories={loaderData?.topLevelCategories} />
-      <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
-        <LeftSidebar
-          categoriesTree={loaderData?.categoriesTree as FolderItemProps[]}
-          events={loaderData?.events}
-        />
-        <Outlet
-          context={{
-            topLevelCategories: loaderData?.topLevelCategories,
-            allCategories: loaderData?.categories,
-          }}
-        />
-      </div>
+      <Header categories={loaderData.topLevelCategories} />
+      <Outlet context={{ loaderData }} />
     </div>
   );
 }
