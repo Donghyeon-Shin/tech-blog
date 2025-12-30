@@ -1,6 +1,6 @@
 import { ArrowRightIcon, Search } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, type MetaFunction } from 'react-router';
 import { toast } from 'sonner';
 import { Toaster } from 'sonner';
 import Searchbar from '~/components/layout/searchbar';
@@ -13,6 +13,13 @@ import { client } from '~/supa-client';
 import type { CategoryName } from '~/lib/category-config';
 import { markdownToText } from '~/lib/markdown-to-text';
 import PopularPostCard from '~/components/ui/popularPostCard';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Not Found | Dongle' },
+    { name: 'description', content: 'Not found page of Dongle' },
+  ];
+};
 
 export const loader = async () => {
   const popularPosts = await getPopularPostsWithExcerpt(client);
