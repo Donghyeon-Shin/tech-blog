@@ -190,7 +190,13 @@ export default function MarkdownHtmlRender({
         img.setAttribute('data-svg-processed', 'true');
 
         fetch(src)
-          .then((response) => response.text())
+          .then((response) => {
+            // 404나 다른 에러 응답 체크
+            if (!response.ok) {
+              throw new Error(`Failed to load SVG: ${response.status}`);
+            }
+            return response.text();
+          })
           .then((svgText) => {
             // 마운트 상태와 img 존재 여부 재확인
             if (!isMounted || !img.parentNode || !img.hasAttribute('data-svg-processed')) return;
@@ -215,6 +221,11 @@ export default function MarkdownHtmlRender({
           })
           .catch(() => {
             // 실패하면 원본 img 그대로 사용 (data-svg-processed는 유지해서 재시도 방지)
+            // 이미지가 없으면 숨김 처리
+            if (img.parentNode) {
+              const imgElement = img as HTMLImageElement;
+              imgElement.style.display = 'none';
+            }
           });
       });
     };
