@@ -6,8 +6,26 @@ import { Toaster } from 'sonner';
 import Searchbar from '~/components/layout/searchbar';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
+import type { Route } from './+types/not-found';
+import { getTopLevelCategories } from '~/api/categories/categories-api';
+import { getPopularPostsWithExcerpt } from '~/api/posts/posts-api';
+import { client } from '~/supa-client';
+import type { CategoryName } from '~/lib/category-config';
+import { markdownToText } from '~/lib/markdown-to-text';
+import PopularPostCard from '~/components/ui/popularPostCard';
 
-export default function NotFound() {
+export const loader = async () => {
+  const popularPosts = await getPopularPostsWithExcerpt(client);
+  const topLevelCategories = await getTopLevelCategories(client);
+  return { popularPosts, topLevelCategories };
+};
+
+export default function NotFound({ loaderData }: Route.ComponentProps) {
+  const { popularPosts, topLevelCategories } = (loaderData as unknown as {
+    popularPosts: Awaited<ReturnType<typeof getPopularPostsWithExcerpt>>;
+    topLevelCategories: Awaited<ReturnType<typeof getTopLevelCategories>>;
+  }) || { popularPosts: [], topLevelCategories: [] };
+
   const [searchBarOpen, setSearchBarOpen] = useState(false);
 
   const handleCopyEmail = async () => {
@@ -57,9 +75,9 @@ export default function NotFound() {
         </div>
       </div>
       <Separator />
-      <div className='w-full mt-4'>
+      <div className='w-full mt-4 flex flex-col gap-6'>
         <div className='flex flex-row gap-2 justify-between'>
-          <h2 className='text-xl md:text-2xl font-bold'>
+          <h2 className='text-base sm:text-xl md:text-2xl font-bold'>
             While you&apos;re here, check out these popular posts :
           </h2>
           <Link
@@ -69,6 +87,24 @@ export default function NotFound() {
             <span>View all posts</span>
             <ArrowRightIcon className='size-4' />
           </Link>
+        </div>
+        <div className='flex flex-col gap-4'>
+          {popularPosts.slice(0, 3).map((post, index) => (
+            <PopularPostCard
+              key={post.title}
+              title={post.title}
+              description={markdownToText(post.excerpt || '', 300)}
+              category={
+                (topLevelCategories?.find((c) => c.category_id === post.tag_id)
+                  ?.name as CategoryName) || 'null'
+              }
+              date={new Date(post.created_at)}
+              link={`/post/${post.post_id}`}
+              views={post.view_count}
+              readTime={post.read_time}
+              rank={index + 1}
+            />
+          ))}
         </div>
       </div>
       <Searchbar open={searchBarOpen} setOpen={setSearchBarOpen} />
