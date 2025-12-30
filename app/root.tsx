@@ -157,7 +157,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   if (isRouteErrorResponse(error)) {
     if (error.status === 404) {
-      return <Navigate to='/404' />;
+      return <Navigate to='/404' replace />;
     }
     message = 'Error';
     details = error.statusText || details;

@@ -73,12 +73,12 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 };
 
 export const shouldRevalidate = ({ currentParams, nextParams }: ShouldRevalidateFunctionArgs) => {
-  // 동일한 post_id에 대한 요청인지 확인
-  const currentPostId = currentParams?.id;
-  const nextPostId = nextParams?.id;
+  // 동일한 post title에 대한 요청인지 확인
+  const currentTitle = currentParams?.title;
+  const nextTitle = nextParams?.title;
 
   // 같은 게시글이면 캐시 재사용 (false 반환)
-  if (currentPostId === nextPostId) {
+  if (currentTitle === nextTitle) {
     return false;
   }
 
