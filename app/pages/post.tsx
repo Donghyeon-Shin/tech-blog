@@ -34,6 +34,10 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
   const post = await getPostByTitle(client, data.title);
 
+  if (!post) {
+    throw new Response('Post not found', { status: 404 });
+  }
+
   const markdownContent = post.content;
 
   // 서버 사이드에서 마크다운을 HTML로 변환

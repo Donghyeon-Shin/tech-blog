@@ -13,7 +13,7 @@ export const getPostByTitle = async (client: SupabaseClient<Database>, title: st
   const { data, error } = await client.from('posts').select('*').eq('title', title).single();
 
   if (error) {
-    throw new Error(error.message);
+    return null;
   }
 
   const { error: rpcError } = await client.rpc('increment_post_view', { target_title: title });
