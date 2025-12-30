@@ -13,4 +13,5 @@ export default [
       route('/theme', 'api/settings/set-theme.tsx'),
     ]),
   ]),
+  route('*', 'pages/not-found.tsx'),
 ] satisfies RouteConfig;
