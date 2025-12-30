@@ -9,14 +9,14 @@ export const getPosts = async (client: SupabaseClient<Database>) => {
   return data;
 };
 
-export const getPostById = async (client: SupabaseClient<Database>, id: number) => {
-  const { data, error } = await client.from('posts').select('*').eq('post_id', id).single();
+export const getPostByTitle = async (client: SupabaseClient<Database>, title: string) => {
+  const { data, error } = await client.from('posts').select('*').eq('title', title).single();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  const { error: rpcError } = await client.rpc('increment_post_view', { target_post_id: id });
+  const { error: rpcError } = await client.rpc('increment_post_view', { target_title: title });
 
   if (rpcError) {
     throw new Error(rpcError.message);

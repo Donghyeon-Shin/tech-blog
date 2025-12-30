@@ -9,7 +9,7 @@ import type { Route } from './+types/post';
 import type { ShouldRevalidateFunctionArgs } from 'react-router';
 import GitHubSlugger from 'github-slugger';
 import { client } from '~/supa-client';
-import { getPostById } from '~/api/posts/posts-api';
+import { getPostByTitle } from '~/api/posts/posts-api';
 import { useOutletContext } from 'react-router';
 import { markdownToHtml } from '~/lib/markdown-to-html';
 import type { getCategories } from '~/api/categories/categories-api';
@@ -23,7 +23,7 @@ export const meta: Route.MetaFunction = ({ loaderData }: Route.MetaArgs) => {
 };
 
 const paramsSchema = z.object({
-  id: z.coerce.number(),
+  title: z.string(),
 });
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
@@ -32,7 +32,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     throw new Response('Invalid post ID', { status: 400 });
   }
 
-  const post = await getPostById(client, data.id);
+  const post = await getPostByTitle(client, data.title);
 
   const markdownContent = post.content;
 
