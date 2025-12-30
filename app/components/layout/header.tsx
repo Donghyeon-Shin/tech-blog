@@ -132,7 +132,7 @@ export default function Header({
         <div className='flex items-center gap-2 mr-5'>
           <Button
             variant='outline'
-            className='hidden md:flex text-muted-foreground w-[200px] justify-start relative cursor-text'
+            className='text-muted-foreground w-[200px] justify-start relative cursor-text'
             onClick={() => setSearchBarOpen(true)}
           >
             <Search className='size-4 ' />
