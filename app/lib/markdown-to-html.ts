@@ -1,7 +1,6 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
-import remarkWikiLink from 'remark-wiki-link';
 import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
 import rehypeKatex from 'rehype-katex';
@@ -9,6 +8,7 @@ import rehypeSlug from 'rehype-slug';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
 import { rehypeAddClasses } from './rehype-add-classes';
+import remarkWikiLink from 'remark-wiki-link';
 
 /**
  * 서버 사이드에서 마크다운을 HTML로 변환
@@ -18,10 +18,20 @@ import { rehypeAddClasses } from './rehype-add-classes';
 export async function markdownToHtml(markdown: string): Promise<string> {
   const result = await unified()
     .use(remarkParse)
+    .use(remarkWikiLink, {
+      hrefTemplate: (permalink: string) => {
+        // 앵커가 포함된 경우 (#로 구분)
+        const [slug, anchor] = permalink.split('#');
+        const baseUrl = `/post/${slug}`;
+        return anchor ? `${baseUrl}#${anchor}` : baseUrl;
+      },
+      aliasDivider: '|',
+    })
     .use(remarkGfm)
-    .use(remarkWikiLink)
     .use(remarkMath)
-    .use(remarkRehype)
+    .use(remarkRehype, {
+      allowDangerousHtml: true,
+    })
     .use(rehypeKatex)
     .use(rehypeSlug)
     .use(rehypeHighlight)

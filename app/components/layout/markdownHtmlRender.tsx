@@ -152,6 +152,21 @@ export default function MarkdownHtmlRender({
         }
       });
 
+      // Wiki 링크 스타일 적용 (remark-wiki-link가 생성한 링크)
+      // /post/로 시작하는 내부 링크에 스타일 적용
+      const wikiLinks = containerRef.current.querySelectorAll('a[href^="/post/"]');
+      wikiLinks.forEach((link) => {
+        if (!link.classList.contains('wiki-link-styled')) {
+          link.classList.add(
+            'hover:text-primary/80',
+            'underline',
+            'underline-offset-4',
+            'transition-colors',
+            'wiki-link-styled',
+          );
+        }
+      });
+
       // 코드 블록에 복사 버튼 추가
       addCopyButtons();
 
