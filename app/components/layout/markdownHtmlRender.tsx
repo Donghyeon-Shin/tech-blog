@@ -167,6 +167,127 @@ export default function MarkdownHtmlRender({
         }
       });
 
+      // PDF 이미지 링크 처리 (PDF 뷰어로 변환)
+      // PDF 이미지 링크 처리 (PDF 뷰어로 변환) 부분 수정
+      const pdfImages = containerRef.current.querySelectorAll('img:not([data-pdf-processed])');
+      pdfImages.forEach((img) => {
+        const src = img.getAttribute('src');
+        if (!src || !src.toLowerCase().endsWith('.pdf')) return;
+
+        const alt = img.getAttribute('alt') || '';
+        if (!alt.includes('PDF') && !alt.includes('pdf')) return;
+
+        img.setAttribute('data-pdf-processed', 'true');
+
+        // 1. PDF 임베드 컨테이너 (종횡비 유지용 래퍼)
+        const pdfContainer = document.createElement('div');
+        // 고정 높이 대신 상대적 위치와 너비 설정
+        pdfContainer.className =
+          'relative w-full my-6 rounded-md overflow-hidden border border-border shadow-sm';
+        pdfContainer.setAttribute('data-pdf-container', 'true');
+
+        // A4 비율(1:1.414)을 유지하기 위한 트릭
+        pdfContainer.style.height = '0';
+        pdfContainer.style.paddingBottom = '141.4%'; // 가로 너비 대비 세로 비율
+
+        const pdfIframe = document.createElement('iframe');
+        pdfIframe.src = src;
+        // 2. iframe을 컨테이너에 꽉 채우기
+        pdfIframe.className = 'absolute top-0 left-0 w-full h-full border-0';
+        pdfIframe.setAttribute('title', alt || 'PDF 보기');
+        pdfIframe.setAttribute('loading', 'lazy');
+
+        pdfContainer.appendChild(pdfIframe);
+
+        // 3. 모바일에서 보기 힘들 수 있으므로 다운로드/새창 링크 추가 (선택 사항)
+        const downloadLink = document.createElement('a');
+        downloadLink.href = src;
+        downloadLink.target = '_blank';
+        downloadLink.className = 'block text-sm text-primary hover:underline mt-2 text-right';
+        downloadLink.innerText = '📄 새 창에서 PDF 열기 / 다운로드';
+
+        // 이미지를 컨테이너로 교체
+        const parent = img.parentNode;
+        if (parent) {
+          parent.replaceChild(pdfContainer, img);
+          // 컨테이너 다음에 다운로드 링크 삽입
+          parent.insertBefore(downloadLink, pdfContainer.nextSibling);
+        }
+      });
+
+      // !<video> 형식의 텍스트 노드를 비디오로 변환 (마크다운 파서가 처리하지 못한 경우)
+      const textNodes: Text[] = [];
+      const walker = document.createTreeWalker(containerRef.current, NodeFilter.SHOW_TEXT, null);
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.textContent?.includes('!<video')) {
+          textNodes.push(node as Text);
+        }
+      }
+
+      textNodes.forEach((textNode) => {
+        const text = textNode.textContent || '';
+        const videoMatch = text.match(/!<video[^>]*>.*?<\/video>/s);
+        if (!videoMatch) return;
+
+        const videoHtml = videoMatch[0].replace(/^!/, ''); // ! 제거
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = videoHtml;
+
+        const videoElement = tempDiv.querySelector('video');
+        if (videoElement) {
+          videoElement.className = 'w-full rounded-md my-4';
+          videoElement.setAttribute('data-video-styled', 'true');
+          if (!videoElement.hasAttribute('controls')) {
+            videoElement.setAttribute('controls', '');
+          }
+
+          // 텍스트 노드를 비디오로 교체
+          const parent = textNode.parentNode;
+          if (parent) {
+            const newText = text.replace(videoMatch[0], '');
+            if (newText.trim()) {
+              parent.insertBefore(document.createTextNode(newText), textNode);
+            }
+            parent.insertBefore(videoElement, textNode);
+            parent.removeChild(textNode);
+          }
+        }
+      });
+
+      // 비디오 태그 처리 및 스타일 적용
+      const videoElements = containerRef.current.querySelectorAll('video:not([data-video-styled])');
+      videoElements.forEach((video) => {
+        video.setAttribute('data-video-styled', 'true');
+        if (!video.hasAttribute('controls')) {
+          video.setAttribute('controls', '');
+        }
+        video.className = 'w-full rounded-md my-4';
+      });
+
+      // data-video-src 속성이 있는 요소를 비디오로 변환
+      const videoPlaceholders = containerRef.current.querySelectorAll('[data-video-src]');
+      videoPlaceholders.forEach((placeholder) => {
+        const src = placeholder.getAttribute('data-video-src');
+        if (!src) return;
+
+        const video = document.createElement('video');
+        video.src = src;
+        video.controls = true;
+        video.className = 'w-full rounded-md my-4';
+        video.setAttribute('data-video-styled', 'true');
+
+        const source = document.createElement('source');
+        source.src = src;
+        const ext = src.split('.').pop()?.toLowerCase();
+        if (ext === 'mp4') source.type = 'video/mp4';
+        else if (ext === 'webm') source.type = 'video/webm';
+        else if (ext === 'mov') source.type = 'video/quicktime';
+        video.appendChild(source);
+
+        placeholder.parentNode?.replaceChild(video, placeholder);
+      });
+
       // 코드 블록에 복사 버튼 추가
       addCopyButtons();
 
