@@ -85,11 +85,22 @@ const components: Components = {
     return <li className='mb-3 last:mb-0 leading-relaxed' {...props} />;
   },
 
-  a: ({ node: _node, href, children }) => {
+  a: ({ node: _node, href, children, ...props }) => {
     let to = href;
+    console.log('href', href, 'props', props, 'node', _node);
+
     if (href && !href.startsWith('http')) {
-      to = href.replace('#/page/', '/post/');
+      // remark-wiki-link가 생성하는 링크 처리
+      // [[title]] -> /page/title 또는 /page/title 형식
+      if (href.startsWith('/page/')) {
+        // /page/title -> /post/title
+        to = href.replace('/page/', '/post/');
+      } else if (href.includes('/page/')) {
+        // #/page/title -> /post/title
+        to = href.replace(/#?\/page\//, '/post/');
+      }
     }
+
     return (
       <Link
         className='text-secondary-foreground hover:text-muted-foreground transition-colors'
@@ -112,7 +123,6 @@ const components: Components = {
         {...(isSvg && { type: 'image/svg+xml' })}
         onError={(e) => {
           // 이미지 로드 실패 시 에러 처리
-          // eslint-disable-next-line no-console
           console.error('이미지 로드 실패:', src);
           const target = e.target as HTMLImageElement;
           target.style.display = 'none';
