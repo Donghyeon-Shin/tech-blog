@@ -222,6 +222,85 @@ export default function MarkdownHtmlRender({
         }
       });
 
+      // table 스타일 적용
+      const tableElements = containerRef.current.querySelectorAll('table');
+      tableElements.forEach((table) => {
+        if (!table.classList.contains('styled')) {
+          // 테이블을 감싸는 wrapper div 생성 (스크롤용)
+          const wrapper = document.createElement('div');
+          wrapper.className = 'overflow-x-auto my-4 custom-scrollbar';
+          wrapper.style.width = '100%';
+
+          // 테이블에 최소 너비 설정 (작은 화면에서 스크롤 가능하도록)
+          (table as HTMLElement).style.tableLayout = 'auto';
+          (table as HTMLElement).style.minWidth = '800px'; // 최소 너비 설정
+          (table as HTMLElement).style.width = 'auto';
+          table.className = 'border-collapse border border-border rounded-lg';
+          table.classList.add('styled');
+
+          // 부모 노드에 wrapper 삽입하고 테이블을 wrapper 안으로 이동
+          const parent = table.parentNode;
+          if (parent) {
+            parent.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+          }
+        }
+      });
+
+      // thead 스타일 적용
+      const tableheadElements = containerRef.current.querySelectorAll('thead');
+      tableheadElements.forEach((tablehead) => {
+        if (!tablehead.classList.contains('styled')) {
+          tablehead.className = 'bg-muted/30';
+          tablehead.classList.add('styled');
+        }
+      });
+
+      // th 스타일 적용
+      const thElements = containerRef.current.querySelectorAll('th');
+      thElements.forEach((th) => {
+        if (!th.classList.contains('styled')) {
+          (th as HTMLElement).className =
+            'px-4 py-2 text-left font-semibold bg-muted border-b border-muted';
+          th.classList.add('styled');
+        }
+      });
+
+      // td 스타일 적용
+      const tdElements = containerRef.current.querySelectorAll('td');
+      tdElements.forEach((td) => {
+        if (!td.classList.contains('styled')) {
+          const row = (td as HTMLElement).parentElement;
+          const rowIndex = Array.from(row?.parentElement?.children || []).indexOf(row as Element);
+
+          (td as HTMLElement).className =
+            'px-4 py-2 text-muted-foreground border-b border-zinc-800';
+          td.classList.add('styled');
+
+          // td 안의 이미지 크기 고정
+          const images = td.querySelectorAll('img');
+          images.forEach((img) => {
+            (img as HTMLElement).style.width = '100px';
+            (img as HTMLElement).style.height = '100px';
+            (img as HTMLElement).style.objectFit = 'cover';
+            (img as HTMLElement).classList.add('rounded');
+          });
+
+          // 짝수 행에 배경색 추가 (zebra striping)
+          if (rowIndex % 2 === 1) {
+            row?.classList.add('bg-muted');
+          }
+        }
+      });
+
+      // tbody tr 호버 효과
+      const trElements = containerRef.current.querySelectorAll('tbody tr');
+      trElements.forEach((tr) => {
+        if (!tr.classList.contains('styled')) {
+          (tr as HTMLElement).classList.add('hover:bg-primary/10', 'transition-colors', 'styled');
+        }
+      });
+
       // Wiki 링크 스타일 적용 (remark-wiki-link가 생성한 링크)
       // /post/로 시작하는 내부 링크에 스타일 적용
       const wikiLinks = containerRef.current.querySelectorAll('a[href^="/post/"]');
