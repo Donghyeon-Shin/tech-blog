@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import GitHubSlugger from 'github-slugger';
 
 export default function MarkdownHtmlRender({
   htmlContent,
@@ -32,7 +33,7 @@ export default function MarkdownHtmlRender({
         // 복사 버튼 추가
         const copyButton = document.createElement('button');
         copyButton.className =
-          'absolute top-2 right-2 z-50 p-2 hover:bg-accent rounded-md transition-colors bg-background/90 border border-border shadow-sm';
+          'absolute top-2 right-2 z-5 p-2 hover:bg-accent rounded-md transition-colors bg-background/90 border border-border shadow-sm';
         copyButton.setAttribute('type', 'button');
         copyButton.setAttribute('aria-label', '코드 복사');
         copyButton.innerHTML =
@@ -72,63 +73,61 @@ export default function MarkdownHtmlRender({
     const processElements = () => {
       if (!isMounted || !containerRef.current) return;
 
+      const slugger = new GitHubSlugger(); // 여기서도 동일한 slugger 인스턴스 사용
+      const headers = containerRef.current.querySelectorAll('h1, h2, h3, h4, h5');
+
+      // 헤더 스타일 설정 매핑
+      const headerStyles: Record<string, { className: string; hasSeparator?: boolean }> = {
+        H1: {
+          className: 'text-3xl scroll-mt-24 font-extrabold tracking-tight my-5',
+          hasSeparator: true,
+        },
+        H2: {
+          className: 'text-2xl scroll-mt-20 font-bold mb-2 mt-12',
+          hasSeparator: true,
+        },
+        H3: {
+          className: 'text-xl scroll-mt-20 font-semibold mt-3',
+          hasSeparator: false,
+        },
+        H4: {
+          className: 'text-lg scroll-mt-20 font-medium mt-4',
+          hasSeparator: false,
+        },
+        H5: {
+          className: 'text-base scroll-mt-20 font-semibold mb-4 mt-8',
+          hasSeparator: false,
+        },
+      };
+
       // 헤더 스타일 적용
-      const h1Elements = containerRef.current.querySelectorAll('h1');
-      h1Elements.forEach((h1) => {
-        if (!h1.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h1.className = 'text-3xl scroll-mt-24 font-extrabold tracking-tight mb-10 mt-6';
-          h1.classList.add('styled');
-          h1.parentNode?.insertBefore(wrapper, h1);
-          wrapper.appendChild(h1);
-        }
-      });
+      headers.forEach((header) => {
+        if (!header.classList.contains('styled')) {
+          // ID 설정
+          if (!header.id) {
+            header.id = slugger.slug(header.textContent || '');
+          }
 
-      const h2Elements = containerRef.current.querySelectorAll('h2');
-      h2Elements.forEach((h2) => {
-        if (!h2.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h2.className = 'text-2xl scroll-mt-20 font-bold mb-6 mt-12';
-          h2.classList.add('styled');
-          h2.parentNode?.insertBefore(wrapper, h2);
-          wrapper.appendChild(h2);
-          // Separator 추가
-          const separator = document.createElement('div');
-          separator.className = 'bg-slate-200/60 h-px my-2';
-          wrapper.appendChild(separator);
-        }
-      });
+          const tagName = header.tagName;
+          const style = headerStyles[tagName];
 
-      const h3Elements = containerRef.current.querySelectorAll('h3');
-      h3Elements.forEach((h3) => {
-        if (!h3.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h3.className = 'text-xl scroll-mt-20 font-semibold mb-4 mt-8';
-          h3.classList.add('styled');
-          h3.parentNode?.insertBefore(wrapper, h3);
-          wrapper.appendChild(h3);
-        }
-      });
+          if (style) {
+            const wrapper = document.createElement('div');
+            header.className = style.className;
+            header.classList.add('styled');
 
-      const h4Elements = containerRef.current.querySelectorAll('h4');
-      h4Elements.forEach((h4) => {
-        if (!h4.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h4.className = 'text-lg scroll-mt-20 font-semibold mb-4 mt-8';
-          h4.classList.add('styled');
-          h4.parentNode?.insertBefore(wrapper, h4);
-          wrapper.appendChild(h4);
-        }
-      });
-
-      const h5Elements = containerRef.current.querySelectorAll('h5');
-      h5Elements.forEach((h5) => {
-        if (!h5.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h5.className = 'text-base scroll-mt-20 font-semibold mb-4 mt-8';
-          h5.classList.add('styled');
-          h5.parentNode?.insertBefore(wrapper, h5);
-          wrapper.appendChild(h5);
+            // Separator 추가 (h1, h2만)
+            if (style.hasSeparator) {
+              const separator = document.createElement('div');
+              separator.className = 'bg-slate-200/20 h-px my-2 w-50%';
+              header.parentNode?.insertBefore(wrapper, header);
+              wrapper.appendChild(header);
+              wrapper.appendChild(separator);
+            } else {
+              header.parentNode?.insertBefore(wrapper, header);
+              wrapper.appendChild(header);
+            }
+          }
         }
       });
 

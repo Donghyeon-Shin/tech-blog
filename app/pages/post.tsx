@@ -1,6 +1,5 @@
 import { Calendar, Clock } from 'lucide-react';
 import HierarchyBar from '~/components/layout/hierarchyBar';
-import { Separator } from '~/components/ui/separator';
 import { format } from 'date-fns';
 import MarkdownHtmlRender from '~/components/layout/markdownHtmlRender';
 import { useMemo, useRef, useState } from 'react';
@@ -64,7 +63,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     })
     .map((line: string) => {
       const level = line.split('#').length - 1;
-      const text = line.replace(/#/g, '').trim();
+      const text = line.replace(/^#+\s?/, '').trim();
       const id = slugger.slug(text);
       return { level, text, id };
     });
@@ -146,7 +145,6 @@ export default function Post({ loaderData }: Route.ComponentProps) {
             <span className='text-sm font-medium'>{minutesToRead} min read</span>
           </div>
         </div>
-        <Separator />
         {/* 본문 내용 렌더링 */}
         <MarkdownHtmlRender
           htmlContent={htmlContent}
