@@ -7,6 +7,6 @@ AS $$
 BEGIN
     UPDATE public.posts
     SET view_count = view_count + 1
-    WHERE title = target_title;
+    WHERE LOWER(title) = LOWER(target_title);
 END;
 $$;

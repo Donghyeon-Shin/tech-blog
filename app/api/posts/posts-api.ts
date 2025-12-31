@@ -10,7 +10,8 @@ export const getPosts = async (client: SupabaseClient<Database>) => {
 };
 
 export const getPostByTitle = async (client: SupabaseClient<Database>, title: string) => {
-  const { data, error } = await client.from('posts').select('*').eq('title', title).single();
+  // 대소문자 구분 없이 비교
+  const { data, error } = await client.from('posts').select('*').ilike('title', title).single();
 
   if (error) {
     return null;

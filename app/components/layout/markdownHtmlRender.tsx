@@ -87,7 +87,7 @@ export default function MarkdownHtmlRender({
           hasSeparator: true,
         },
         H3: {
-          className: 'text-xl scroll-mt-20 font-semibold mt-3',
+          className: 'text-xl scroll-mt-20 font-semibold mb-2 mt-8',
           hasSeparator: false,
         },
         H4: {
@@ -164,6 +164,15 @@ export default function MarkdownHtmlRender({
           code.className =
             'text-sm font-mono text-code-content-color bg-code-background p-1 rounded-md break-words whitespace-pre-wrap';
           code.classList.add('styled');
+        }
+      });
+
+      // a 태그 스타일 적용
+      const aElements = containerRef.current.querySelectorAll('a');
+      aElements.forEach((a) => {
+        if (!a.classList.contains('styled')) {
+          a.className = 'hover:text-primary/80 underline underline-offset-4 transition-colors';
+          a.classList.add('styled');
         }
       });
 
