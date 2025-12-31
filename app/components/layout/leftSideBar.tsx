@@ -74,8 +74,7 @@ export default function LeftSidebar({
                         .map((event) => (
                           <div className='flex flex-col gap-2' key={event.event_id}>
                             <Link
-                              to={`/post/${event.post_id}`}
-                              key={event.event_id}
+                              to={`/post/${event.post_title}`}
                               className='flex flex-col gap-1 hover:bg-primary/10 rounded-md p-2'
                             >
                               <span className='font-medium text-xs'>{event.post_title}</span>
@@ -105,8 +104,7 @@ export default function LeftSidebar({
                         .map((event) => (
                           <div className='flex flex-col gap-2' key={event.event_id}>
                             <Link
-                              to={`/post/${event.post_id}`}
-                              key={event.event_id}
+                              to={`/post/${event.post_title}`}
                               className='flex flex-col gap-1 hover:bg-primary/10 rounded-md p-2'
                             >
                               <span className='font-medium text-xs'>{event.post_title}</span>

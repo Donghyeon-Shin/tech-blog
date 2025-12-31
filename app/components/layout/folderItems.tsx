@@ -24,8 +24,7 @@ export default function FolderItem({ item, level = 0 }: { item: FolderItemProps;
   if (!item.isFolder) {
     return (
       <NavLink
-        to={`/post/${item.id}`}
-        prefetch='intent'
+        to={`/post/${item.name}`}
         className={({ isActive }) => navLinkVariants({ isActive })}
         style={{ paddingLeft: contentLeft }}
       >

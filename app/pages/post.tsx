@@ -1,6 +1,5 @@
 import { Calendar, Clock } from 'lucide-react';
 import HierarchyBar from '~/components/layout/hierarchyBar';
-import { Separator } from '~/components/ui/separator';
 import { format } from 'date-fns';
 import MarkdownHtmlRender from '~/components/layout/markdownHtmlRender';
 import { useMemo, useRef, useState } from 'react';
@@ -9,7 +8,7 @@ import type { Route } from './+types/post';
 import type { ShouldRevalidateFunctionArgs } from 'react-router';
 import GitHubSlugger from 'github-slugger';
 import { client } from '~/supa-client';
-import { getPostById } from '~/api/posts/posts-api';
+import { getPostByTitle } from '~/api/posts/posts-api';
 import { useOutletContext } from 'react-router';
 import { markdownToHtml } from '~/lib/markdown-to-html';
 import type { getCategories } from '~/api/categories/categories-api';
@@ -23,7 +22,7 @@ export const meta: Route.MetaFunction = ({ loaderData }: Route.MetaArgs) => {
 };
 
 const paramsSchema = z.object({
-  id: z.coerce.number(),
+  title: z.string(),
 });
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
@@ -32,7 +31,11 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     throw new Response('Invalid post ID', { status: 400 });
   }
 
-  const post = await getPostById(client, data.id);
+  const post = await getPostByTitle(client, data.title);
+
+  if (!post) {
+    throw new Response('Post not found', { status: 404 });
+  }
 
   const markdownContent = post.content;
 
@@ -60,7 +63,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     })
     .map((line: string) => {
       const level = line.split('#').length - 1;
-      const text = line.replace(/#/g, '').trim();
+      const text = line.replace(/^#+\s?/, '').trim();
       const id = slugger.slug(text);
       return { level, text, id };
     });
@@ -69,12 +72,12 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 };
 
 export const shouldRevalidate = ({ currentParams, nextParams }: ShouldRevalidateFunctionArgs) => {
-  // 동일한 post_id에 대한 요청인지 확인
-  const currentPostId = currentParams?.id;
-  const nextPostId = nextParams?.id;
+  // 동일한 post title에 대한 요청인지 확인
+  const currentTitle = currentParams?.title;
+  const nextTitle = nextParams?.title;
 
   // 같은 게시글이면 캐시 재사용 (false 반환)
-  if (currentPostId === nextPostId) {
+  if (currentTitle === nextTitle) {
     return false;
   }
 
@@ -142,7 +145,6 @@ export default function Post({ loaderData }: Route.ComponentProps) {
             <span className='text-sm font-medium'>{minutesToRead} min read</span>
           </div>
         </div>
-        <Separator />
         {/* 본문 내용 렌더링 */}
         <MarkdownHtmlRender
           htmlContent={htmlContent}

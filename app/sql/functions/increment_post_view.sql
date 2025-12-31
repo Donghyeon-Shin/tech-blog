@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.increment_post_view(target_post_id bigint)
+CREATE OR REPLACE FUNCTION public.increment_post_view(target_title text)
 RETURNS void
 LANGUAGE plpgsql
 SECURITY definer
@@ -7,6 +7,6 @@ AS $$
 BEGIN
     UPDATE public.posts
     SET view_count = view_count + 1
-    WHERE post_id = target_post_id;
+    WHERE LOWER(title) = LOWER(target_title);
 END;
 $$;

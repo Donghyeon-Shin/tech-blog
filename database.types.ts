@@ -257,7 +257,7 @@ export type Database = {
         }[]
       }
       increment_post_view: {
-        Args: { target_post_id: number }
+        Args: { target_title: string }
         Returns: undefined
       }
     }

@@ -33,7 +33,6 @@ export default function PopularPostCard({
   description,
   category,
   date,
-  link,
   views,
   readTime,
   rank,
@@ -42,7 +41,6 @@ export default function PopularPostCard({
   description: string;
   category: CategoryName;
   date: Date;
-  link: string;
   views: number;
   readTime: number;
   rank: number;
@@ -51,7 +49,7 @@ export default function PopularPostCard({
 
   return (
     <Link
-      to={link}
+      to={`/post/${title}`}
       className='border rounded-lg p-8 flex flex-col gap-4 hover:bg-primary/10 relative'
     >
       <div className='absolute bottom-3 right-5 lg:top-5'>

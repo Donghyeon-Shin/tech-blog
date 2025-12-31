@@ -118,7 +118,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
             const postWithExcerpt = post as typeof post & { processedExcerpt?: string };
             return (
               <PostCard
-                key={post.title}
+                key={post.post_id}
                 title={post.title}
                 description={postWithExcerpt.processedExcerpt || post.excerpt || ''}
                 categoryName={
@@ -126,7 +126,6 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
                     ?.name as string) || 'null'
                 }
                 date={new Date(post.created_at)}
-                link={`/post/${post.post_id}`}
                 readTime={post.read_time}
               />
             );

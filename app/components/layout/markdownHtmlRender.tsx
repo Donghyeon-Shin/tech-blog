@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import GitHubSlugger from 'github-slugger';
 
 export default function MarkdownHtmlRender({
   htmlContent,
@@ -32,7 +33,7 @@ export default function MarkdownHtmlRender({
         // 복사 버튼 추가
         const copyButton = document.createElement('button');
         copyButton.className =
-          'absolute top-2 right-2 z-50 p-2 hover:bg-accent rounded-md transition-colors bg-background/90 border border-border shadow-sm';
+          'absolute top-2 right-2 z-5 p-2 hover:bg-accent rounded-md transition-colors bg-background/90 border border-border shadow-sm';
         copyButton.setAttribute('type', 'button');
         copyButton.setAttribute('aria-label', '코드 복사');
         copyButton.innerHTML =
@@ -47,6 +48,22 @@ export default function MarkdownHtmlRender({
         if (!preElement.classList.contains('relative')) {
           preElement.classList.add('relative');
         }
+
+        // pre 요소에 overflow 처리 추가 (텍스트가 넘치지 않도록)
+        (preElement as HTMLElement).style.whiteSpace = 'pre-wrap';
+        (preElement as HTMLElement).style.wordBreak = 'break-word';
+        (preElement as HTMLElement).style.overflowWrap = 'break-word';
+        (preElement as HTMLElement).style.maxWidth = '100%';
+
+        // code 요소에도 동일한 스타일 적용
+        if (codeElement) {
+          (codeElement as HTMLElement).style.whiteSpace = 'pre-wrap';
+          (codeElement as HTMLElement).style.wordBreak = 'break-word';
+          (codeElement as HTMLElement).style.overflowWrap = 'break-word';
+          (codeElement as HTMLElement).style.display = 'block';
+          (codeElement as HTMLElement).style.maxWidth = '100%';
+        }
+
         preElement.appendChild(copyButton);
         preElement.classList.add('has-copy-button');
       });
@@ -56,63 +73,61 @@ export default function MarkdownHtmlRender({
     const processElements = () => {
       if (!isMounted || !containerRef.current) return;
 
+      const slugger = new GitHubSlugger(); // 여기서도 동일한 slugger 인스턴스 사용
+      const headers = containerRef.current.querySelectorAll('h1, h2, h3, h4, h5');
+
+      // 헤더 스타일 설정 매핑
+      const headerStyles: Record<string, { className: string; hasSeparator?: boolean }> = {
+        H1: {
+          className: 'text-3xl scroll-mt-24 font-extrabold tracking-tight my-5',
+          hasSeparator: true,
+        },
+        H2: {
+          className: 'text-2xl scroll-mt-20 font-bold mb-2 mt-12',
+          hasSeparator: true,
+        },
+        H3: {
+          className: 'text-xl scroll-mt-20 font-semibold mb-2 mt-8',
+          hasSeparator: false,
+        },
+        H4: {
+          className: 'text-lg scroll-mt-20 font-medium mt-4',
+          hasSeparator: false,
+        },
+        H5: {
+          className: 'text-base scroll-mt-20 font-semibold mb-4 mt-8',
+          hasSeparator: false,
+        },
+      };
+
       // 헤더 스타일 적용
-      const h1Elements = containerRef.current.querySelectorAll('h1');
-      h1Elements.forEach((h1) => {
-        if (!h1.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h1.className = 'text-3xl scroll-mt-24 font-extrabold tracking-tight mb-10 mt-6';
-          h1.classList.add('styled');
-          h1.parentNode?.insertBefore(wrapper, h1);
-          wrapper.appendChild(h1);
-        }
-      });
+      headers.forEach((header) => {
+        if (!header.classList.contains('styled')) {
+          // ID 설정
+          if (!header.id) {
+            header.id = slugger.slug(header.textContent || '');
+          }
 
-      const h2Elements = containerRef.current.querySelectorAll('h2');
-      h2Elements.forEach((h2) => {
-        if (!h2.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h2.className = 'text-2xl scroll-mt-20 font-bold mb-6 mt-12';
-          h2.classList.add('styled');
-          h2.parentNode?.insertBefore(wrapper, h2);
-          wrapper.appendChild(h2);
-          // Separator 추가
-          const separator = document.createElement('div');
-          separator.className = 'bg-slate-200/60 h-px my-2';
-          wrapper.appendChild(separator);
-        }
-      });
+          const tagName = header.tagName;
+          const style = headerStyles[tagName];
 
-      const h3Elements = containerRef.current.querySelectorAll('h3');
-      h3Elements.forEach((h3) => {
-        if (!h3.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h3.className = 'text-xl scroll-mt-20 font-semibold mb-4 mt-8';
-          h3.classList.add('styled');
-          h3.parentNode?.insertBefore(wrapper, h3);
-          wrapper.appendChild(h3);
-        }
-      });
+          if (style) {
+            const wrapper = document.createElement('div');
+            header.className = style.className;
+            header.classList.add('styled');
 
-      const h4Elements = containerRef.current.querySelectorAll('h4');
-      h4Elements.forEach((h4) => {
-        if (!h4.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h4.className = 'text-lg scroll-mt-20 font-semibold mb-4 mt-8';
-          h4.classList.add('styled');
-          h4.parentNode?.insertBefore(wrapper, h4);
-          wrapper.appendChild(h4);
-        }
-      });
-
-      const h5Elements = containerRef.current.querySelectorAll('h5');
-      h5Elements.forEach((h5) => {
-        if (!h5.classList.contains('styled')) {
-          const wrapper = document.createElement('div');
-          h5.className = 'text-base scroll-mt-20 font-semibold mb-4 mt-8';
-          h5.classList.add('styled');
-          h5.parentNode?.insertBefore(wrapper, h5);
-          wrapper.appendChild(h5);
+            // Separator 추가 (h1, h2만)
+            if (style.hasSeparator) {
+              const separator = document.createElement('div');
+              separator.className = 'bg-slate-200/20 h-px my-2 w-50%';
+              header.parentNode?.insertBefore(wrapper, header);
+              wrapper.appendChild(header);
+              wrapper.appendChild(separator);
+            } else {
+              header.parentNode?.insertBefore(wrapper, header);
+              wrapper.appendChild(header);
+            }
+          }
         }
       });
 
@@ -120,17 +135,25 @@ export default function MarkdownHtmlRender({
       const pElements = containerRef.current.querySelectorAll('p');
       pElements.forEach((p) => {
         if (!p.classList.contains('styled')) {
-          p.className = 'whitespace-pre-wrap';
+          p.className = 'whitespace-pre-wrap break-words overflow-wrap-anywhere';
           p.classList.add('styled');
         }
       });
 
-      // ul, li 스타일 적용
+      // ul, ol, li 스타일 적용
       const ulElements = containerRef.current.querySelectorAll('ul');
       ulElements.forEach((ul) => {
         if (!ul.classList.contains('styled')) {
           ul.className = 'list-disc ml-6 mb-2';
           ul.classList.add('styled');
+        }
+      });
+
+      const olElements = containerRef.current.querySelectorAll('ol');
+      olElements.forEach((ol) => {
+        if (!ol.classList.contains('styled')) {
+          ol.className = 'list-decimal ml-6 mb-2';
+          ol.classList.add('styled');
         }
       });
 
@@ -140,6 +163,35 @@ export default function MarkdownHtmlRender({
           li.className = 'mb-3 last:mb-0 leading-relaxed';
           li.classList.add('styled');
         }
+
+        // 중첩된 리스트 처리
+        const nestedList = li.querySelector('ul, ol');
+        if (nestedList) {
+          // 부모 li에 margin-bottom 추가
+          li.classList.add('mb-4', 'relative');
+
+          // 중첩된 리스트에 스타일 추가
+          (nestedList as HTMLElement).classList.add(
+            'mt-3',
+            'ml-6',
+            'mb-2',
+            'space-y-2',
+            'pl-4',
+            'relative',
+          );
+
+          // 세로선만 별도 div로 추가 (리스트 내용은 그대로 두고 세로선만 이동)
+          const lineDiv = document.createElement('div');
+          lineDiv.className = 'absolute top-0 bottom-0 w-0.5 bg-zinc-600 pointer-events-none';
+          lineDiv.style.left = '-2.5rem';
+          nestedList.insertBefore(lineDiv, nestedList.firstChild);
+
+          // 중첩된 리스트의 각 항목에 패딩 추가
+          const nestedItems = nestedList.querySelectorAll('li');
+          nestedItems.forEach((nestedItem) => {
+            (nestedItem as HTMLElement).classList.add('pl-2');
+          });
+        }
       });
 
       // 인라인 코드 스타일 적용
@@ -147,9 +199,241 @@ export default function MarkdownHtmlRender({
       inlineCodeElements.forEach((code) => {
         if (!code.classList.contains('styled')) {
           code.className =
-            'text-sm font-mono text-code-content-color bg-code-background p-1 rounded-md';
+            'text-sm font-mono text-code-content-color bg-code-background p-1 rounded-md break-words whitespace-pre-wrap';
           code.classList.add('styled');
         }
+      });
+
+      // a 태그 스타일 적용
+      const aElements = containerRef.current.querySelectorAll('a');
+      aElements.forEach((a) => {
+        if (!a.classList.contains('styled')) {
+          a.className = 'hover:text-primary/80 underline underline-offset-4 transition-colors';
+          a.classList.add('styled');
+        }
+      });
+
+      // 인용구(>) 스타일 적용
+      const quoteElements = containerRef.current.querySelectorAll('blockquote');
+      quoteElements.forEach((quote) => {
+        if (!quote.classList.contains('styled')) {
+          quote.className = 'border-l-4 border-primary/50 bg-muted/30 p-4 my-4 italic rounded-r-md';
+          quote.classList.add('styled');
+        }
+      });
+
+      // table 스타일 적용
+      const tableElements = containerRef.current.querySelectorAll('table');
+      tableElements.forEach((table) => {
+        if (!table.classList.contains('styled')) {
+          // 테이블을 감싸는 wrapper div 생성 (스크롤용)
+          const wrapper = document.createElement('div');
+          wrapper.className = 'overflow-x-auto my-4 custom-scrollbar';
+          wrapper.style.width = '100%';
+
+          // 테이블에 최소 너비 설정 (작은 화면에서 스크롤 가능하도록)
+          (table as HTMLElement).style.tableLayout = 'auto';
+          (table as HTMLElement).style.minWidth = '800px'; // 최소 너비 설정
+          (table as HTMLElement).style.width = 'auto';
+          table.className = 'border-collapse border border-border rounded-lg';
+          table.classList.add('styled');
+
+          // 부모 노드에 wrapper 삽입하고 테이블을 wrapper 안으로 이동
+          const parent = table.parentNode;
+          if (parent) {
+            parent.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+          }
+        }
+      });
+
+      // thead 스타일 적용
+      const tableheadElements = containerRef.current.querySelectorAll('thead');
+      tableheadElements.forEach((tablehead) => {
+        if (!tablehead.classList.contains('styled')) {
+          tablehead.className = 'bg-muted/30';
+          tablehead.classList.add('styled');
+        }
+      });
+
+      // th 스타일 적용
+      const thElements = containerRef.current.querySelectorAll('th');
+      thElements.forEach((th) => {
+        if (!th.classList.contains('styled')) {
+          (th as HTMLElement).className =
+            'px-4 py-2 text-left font-semibold bg-muted border-b border-muted';
+          th.classList.add('styled');
+        }
+      });
+
+      // td 스타일 적용
+      const tdElements = containerRef.current.querySelectorAll('td');
+      tdElements.forEach((td) => {
+        if (!td.classList.contains('styled')) {
+          const row = (td as HTMLElement).parentElement;
+          const rowIndex = Array.from(row?.parentElement?.children || []).indexOf(row as Element);
+
+          (td as HTMLElement).className =
+            'px-4 py-2 text-muted-foreground border-b border-zinc-800';
+          td.classList.add('styled');
+
+          // td 안의 이미지 크기 고정
+          const images = td.querySelectorAll('img');
+          images.forEach((img) => {
+            (img as HTMLElement).style.width = '100px';
+            (img as HTMLElement).style.height = '100px';
+            (img as HTMLElement).style.objectFit = 'cover';
+            (img as HTMLElement).classList.add('rounded');
+          });
+
+          // 짝수 행에 배경색 추가 (zebra striping)
+          if (rowIndex % 2 === 1) {
+            row?.classList.add('bg-muted');
+          }
+        }
+      });
+
+      // tbody tr 호버 효과
+      const trElements = containerRef.current.querySelectorAll('tbody tr');
+      trElements.forEach((tr) => {
+        if (!tr.classList.contains('styled')) {
+          (tr as HTMLElement).classList.add('hover:bg-primary/10', 'transition-colors', 'styled');
+        }
+      });
+
+      // Wiki 링크 스타일 적용 (remark-wiki-link가 생성한 링크)
+      // /post/로 시작하는 내부 링크에 스타일 적용
+      const wikiLinks = containerRef.current.querySelectorAll('a[href^="/post/"]');
+      wikiLinks.forEach((link) => {
+        if (!link.classList.contains('wiki-link-styled')) {
+          link.classList.add(
+            'hover:text-primary/80',
+            'underline',
+            'underline-offset-4',
+            'transition-colors',
+            'wiki-link-styled',
+          );
+        }
+      });
+
+      // PDF 이미지 링크 처리 (PDF 뷰어로 변환)
+      const pdfImages = containerRef.current.querySelectorAll('img:not([data-pdf-processed])');
+      pdfImages.forEach((img) => {
+        const src = img.getAttribute('src');
+        if (!src || !src.toLowerCase().endsWith('.pdf')) return;
+
+        const alt = img.getAttribute('alt') || '';
+        if (!alt.includes('PDF') && !alt.includes('pdf')) return;
+
+        img.setAttribute('data-pdf-processed', 'true');
+
+        // 1. PDF 임베드 컨테이너 (종횡비 유지용 래퍼)
+        const pdfContainer = document.createElement('div');
+        // 고정 높이 대신 상대적 위치와 너비 설정
+        pdfContainer.className =
+          'relative w-full my-6 rounded-md overflow-hidden border border-border shadow-sm';
+        pdfContainer.setAttribute('data-pdf-container', 'true');
+
+        // A4 비율(1:1.414)을 유지하기 위한 트릭
+        pdfContainer.style.height = '0';
+        pdfContainer.style.paddingBottom = '141.4%'; // 가로 너비 대비 세로 비율
+
+        const pdfIframe = document.createElement('iframe');
+        pdfIframe.src = src;
+        // 2. iframe을 컨테이너에 꽉 채우기
+        pdfIframe.className = 'absolute top-0 left-0 w-full h-full border-0';
+        pdfIframe.setAttribute('title', alt || 'PDF 보기');
+        pdfIframe.setAttribute('loading', 'lazy');
+
+        pdfContainer.appendChild(pdfIframe);
+
+        // 3. 모바일에서 보기 힘들 수 있으므로 다운로드/새창 링크 추가 (선택 사항)
+        const downloadLink = document.createElement('a');
+        downloadLink.href = src;
+        downloadLink.target = '_blank';
+        downloadLink.className = 'block text-sm text-primary hover:underline mt-2 text-right';
+        downloadLink.innerText = '📄 새 창에서 PDF 열기 / 다운로드';
+
+        // 이미지를 컨테이너로 교체
+        const parent = img.parentNode;
+        if (parent) {
+          parent.replaceChild(pdfContainer, img);
+          // 컨테이너 다음에 다운로드 링크 삽입
+          parent.insertBefore(downloadLink, pdfContainer.nextSibling);
+        }
+      });
+
+      // !<video> 형식의 텍스트 노드를 비디오로 변환 (마크다운 파서가 처리하지 못한 경우)
+      const textNodes: Text[] = [];
+      const walker = document.createTreeWalker(containerRef.current, NodeFilter.SHOW_TEXT, null);
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.textContent?.includes('!<video')) {
+          textNodes.push(node as Text);
+        }
+      }
+
+      textNodes.forEach((textNode) => {
+        const text = textNode.textContent || '';
+        const videoMatch = text.match(/!<video[^>]*>.*?<\/video>/s);
+        if (!videoMatch) return;
+
+        const videoHtml = videoMatch[0].replace(/^!/, ''); // ! 제거
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = videoHtml;
+
+        const videoElement = tempDiv.querySelector('video');
+        if (videoElement) {
+          videoElement.className = 'w-full rounded-md my-4';
+          videoElement.setAttribute('data-video-styled', 'true');
+          if (!videoElement.hasAttribute('controls')) {
+            videoElement.setAttribute('controls', '');
+          }
+
+          // 텍스트 노드를 비디오로 교체
+          const parent = textNode.parentNode;
+          if (parent) {
+            const newText = text.replace(videoMatch[0], '');
+            if (newText.trim()) {
+              parent.insertBefore(document.createTextNode(newText), textNode);
+            }
+            parent.insertBefore(videoElement, textNode);
+            parent.removeChild(textNode);
+          }
+        }
+      });
+
+      // 비디오 태그 처리 및 스타일 적용
+      const videoElements = containerRef.current.querySelectorAll('video:not([data-video-styled])');
+      videoElements.forEach((video) => {
+        video.setAttribute('data-video-styled', 'true');
+        if (!video.hasAttribute('controls')) {
+          video.setAttribute('controls', '');
+        }
+        video.className = 'w-full rounded-md my-4';
+      });
+
+      // data-video-src 속성이 있는 요소를 비디오로 변환
+      const videoPlaceholders = containerRef.current.querySelectorAll('[data-video-src]');
+      videoPlaceholders.forEach((placeholder) => {
+        const src = placeholder.getAttribute('data-video-src');
+        if (!src) return;
+
+        const video = document.createElement('video');
+        video.src = src;
+        video.controls = true;
+        video.className = 'w-full rounded-md my-4';
+        video.setAttribute('data-video-styled', 'true');
+
+        const source = document.createElement('source');
+        source.src = src;
+        const ext = src.split('.').pop()?.toLowerCase();
+        if (ext === 'mp4') source.type = 'video/mp4';
+        else if (ext === 'webm') source.type = 'video/webm';
+        else if (ext === 'mov') source.type = 'video/quicktime';
+        video.appendChild(source);
+
+        placeholder.parentNode?.replaceChild(video, placeholder);
       });
 
       // 코드 블록에 복사 버튼 추가
@@ -175,7 +459,13 @@ export default function MarkdownHtmlRender({
         img.setAttribute('data-svg-processed', 'true');
 
         fetch(src)
-          .then((response) => response.text())
+          .then((response) => {
+            // 404나 다른 에러 응답 체크
+            if (!response.ok) {
+              throw new Error(`Failed to load SVG: ${response.status}`);
+            }
+            return response.text();
+          })
           .then((svgText) => {
             // 마운트 상태와 img 존재 여부 재확인
             if (!isMounted || !img.parentNode || !img.hasAttribute('data-svg-processed')) return;
@@ -200,6 +490,11 @@ export default function MarkdownHtmlRender({
           })
           .catch(() => {
             // 실패하면 원본 img 그대로 사용 (data-svg-processed는 유지해서 재시도 방지)
+            // 이미지가 없으면 숨김 처리
+            if (img.parentNode) {
+              const imgElement = img as HTMLImageElement;
+              imgElement.style.display = 'none';
+            }
           });
       });
     };

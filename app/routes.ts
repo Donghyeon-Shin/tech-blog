@@ -5,7 +5,7 @@ export default [
     index('pages/index.tsx'),
     ...prefix('posts', [route('/:category', 'pages/posts.tsx')]),
     route('/popular', 'pages/popularPosts.tsx'),
-    route('/post/:id', 'pages/post.tsx'),
+    route('/post/:title', 'pages/post.tsx'),
     route('/about', 'pages/about.tsx'),
     route('/dashboard', 'pages/dashboard.tsx'),
   ]),

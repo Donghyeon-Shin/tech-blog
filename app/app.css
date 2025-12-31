@@ -145,4 +145,9 @@
   .hljs {
     background: transparent !important;
   }
+
+  /* 리스트 불릿 포인트 색상 변경 */
+  .markdown-content ul li::marker {
+    color: var(--color-gray-500);
+  }
 }

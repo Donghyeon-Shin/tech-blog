@@ -34,7 +34,7 @@ export default function PopularPosts({ loaderData }: Route.ComponentProps) {
       <div className='flex flex-col gap-4'>
         {popularPosts.map((post, index) => (
           <PopularPostCard
-            key={post.title}
+            key={post.post_id}
             title={post.title}
             description={markdownToText(post.excerpt || '', 300)}
             category={
@@ -42,7 +42,6 @@ export default function PopularPosts({ loaderData }: Route.ComponentProps) {
                 ?.name as CategoryName) || 'null'
             }
             date={new Date(post.created_at)}
-            link={`/post/${post.post_id}`}
             views={post.view_count}
             readTime={post.read_time}
             rank={index + 1}

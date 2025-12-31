@@ -9,14 +9,15 @@ export const getPosts = async (client: SupabaseClient<Database>) => {
   return data;
 };
 
-export const getPostById = async (client: SupabaseClient<Database>, id: number) => {
-  const { data, error } = await client.from('posts').select('*').eq('post_id', id).single();
+export const getPostByTitle = async (client: SupabaseClient<Database>, title: string) => {
+  // 대소문자 구분 없이 비교
+  const { data, error } = await client.from('posts').select('*').ilike('title', title).single();
 
   if (error) {
-    throw new Error(error.message);
+    return null;
   }
 
-  const { error: rpcError } = await client.rpc('increment_post_view', { target_post_id: id });
+  const { error: rpcError } = await client.rpc('increment_post_view', { target_title: title });
 
   if (rpcError) {
     throw new Error(rpcError.message);

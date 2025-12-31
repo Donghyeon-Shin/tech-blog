@@ -106,7 +106,6 @@ export default function NotFound({ loaderData }: Route.ComponentProps) {
                   ?.name as CategoryName) || 'null'
               }
               date={new Date(post.created_at)}
-              link={`/post/${post.post_id}`}
               views={post.view_count}
               readTime={post.read_time}
               rank={index + 1}

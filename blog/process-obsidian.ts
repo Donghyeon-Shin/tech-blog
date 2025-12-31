@@ -74,8 +74,15 @@ async function processObsidian(filePath: string) {
       // 3. 옵시디언 문법을 표준 마크다운 문법으로 변환
       // 이미지/영상/PDF에 따라 형식을 다르게 할 수 있음
       let replacement = `![${item.fileName}](${publicUrl})`;
-      if (ext === '.pdf') replacement = `[📄 PDF 보기](${publicUrl})`;
-      if (['.mp4', '.webm'].includes(ext)) replacement = `<video controls src="${publicUrl}" />`;
+      if (ext === '.pdf') {
+        // PDF는 이미지 링크 형식으로 변환 (나중에 렌더링 시 PDF 뷰어로 변환)
+        replacement = `![📄 PDF 보기](${publicUrl})`;
+      }
+      if (['.mp4', '.webm', '.mov'].includes(ext)) {
+        // 비디오는 HTML로 변환 (마크다운 파서가 HTML을 허용하도록 설정 필요)
+        const videoType = ext === '.mp4' ? 'mp4' : ext === '.webm' ? 'webm' : ext === '.mov';
+        replacement = `<video controls class="w-full rounded-md my-4"><source src="${publicUrl}" type="video/${videoType}"></video>`;
+      }
 
       fileContent = fileContent.replace(item.fileMatch, replacement).replace(/!!\[/g, '![');
       console.log(`✅ ${item.fileName} -> ${uploadPath} 완료`);
