@@ -13,7 +13,7 @@ BEGIN
       ORDER BY events.post_id, events.created_at DESC
     ) e
     JOIN public.posts_with_excerpt p ON e.post_id = p.post_id
-    ORDER BY e.event_type DESC, e.created_at DESC
+    ORDER BY e.created_at DESC, e.event_type DESC
     LIMIT 3;
 END;
 $$;

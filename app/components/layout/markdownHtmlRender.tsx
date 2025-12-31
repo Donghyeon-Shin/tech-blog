@@ -140,7 +140,7 @@ export default function MarkdownHtmlRender({
         }
       });
 
-      // ul, li 스타일 적용
+      // ul, ol, li 스타일 적용
       const ulElements = containerRef.current.querySelectorAll('ul');
       ulElements.forEach((ul) => {
         if (!ul.classList.contains('styled')) {
@@ -149,11 +149,48 @@ export default function MarkdownHtmlRender({
         }
       });
 
+      const olElements = containerRef.current.querySelectorAll('ol');
+      olElements.forEach((ol) => {
+        if (!ol.classList.contains('styled')) {
+          ol.className = 'list-decimal ml-6 mb-2';
+          ol.classList.add('styled');
+        }
+      });
+
       const liElements = containerRef.current.querySelectorAll('li');
       liElements.forEach((li) => {
         if (!li.classList.contains('styled')) {
           li.className = 'mb-3 last:mb-0 leading-relaxed';
           li.classList.add('styled');
+        }
+
+        // 중첩된 리스트 처리
+        const nestedList = li.querySelector('ul, ol');
+        if (nestedList) {
+          // 부모 li에 margin-bottom 추가
+          li.classList.add('mb-4', 'relative');
+
+          // 중첩된 리스트에 스타일 추가
+          (nestedList as HTMLElement).classList.add(
+            'mt-3',
+            'ml-6',
+            'mb-2',
+            'space-y-2',
+            'pl-4',
+            'relative',
+          );
+
+          // 세로선만 별도 div로 추가 (리스트 내용은 그대로 두고 세로선만 이동)
+          const lineDiv = document.createElement('div');
+          lineDiv.className = 'absolute top-0 bottom-0 w-0.5 bg-zinc-600 pointer-events-none';
+          lineDiv.style.left = '-2.5rem';
+          nestedList.insertBefore(lineDiv, nestedList.firstChild);
+
+          // 중첩된 리스트의 각 항목에 패딩 추가
+          const nestedItems = nestedList.querySelectorAll('li');
+          nestedItems.forEach((nestedItem) => {
+            (nestedItem as HTMLElement).classList.add('pl-2');
+          });
         }
       });
 
