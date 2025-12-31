@@ -236,6 +236,15 @@ export type Database = {
           total_view_count: number
         }[]
       }
+      get_daily_view_count_by_category: {
+        Args: { target_date: string }
+        Returns: {
+          category_name: string
+          daily_view_count: number
+          record_date: string
+          tag_id: number
+        }[]
+      }
       get_latest_unique_events: {
         Args: never
         Returns: {
@@ -245,6 +254,15 @@ export type Database = {
           post_excerpt: string
           post_id: number
           post_title: string
+        }[]
+      }
+      get_monthly_view_count_by_category: {
+        Args: { year_month: string }
+        Returns: {
+          category_name: string
+          record_date: string
+          tag_id: number
+          total_view_count: number
         }[]
       }
       get_view_count_by_tag: {

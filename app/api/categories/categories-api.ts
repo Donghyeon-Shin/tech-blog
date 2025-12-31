@@ -17,6 +17,26 @@ export const getTopLevelCategories = async (client: SupabaseClient<Database>) =>
   return data;
 };
 
+export const getMonthlyViewCountByCategory = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client.rpc('get_monthly_view_count_by_category', {
+    year_month: new Date().toISOString().split('T')[0],
+  });
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};
+
+export const getDailyViewCountByCategory = async (client: SupabaseClient<Database>) => {
+  const { data, error } = await client.rpc('get_daily_view_count_by_category', {
+    target_date: new Date().toISOString().split('T')[0],
+  });
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};
+
 export const getCategoriesGroupedByViewCount = async (client: SupabaseClient<Database>) => {
   const { data, error } = await client.rpc('get_categories_grouped_by_view_count');
   if (error) {

@@ -1,4 +1,11 @@
-import { ClockIcon, EyeIcon, ReceiptTextIcon, ShapesIcon } from 'lucide-react';
+import {
+  Check,
+  ClockIcon,
+  EyeIcon,
+  MoreHorizontal,
+  ReceiptTextIcon,
+  ShapesIcon,
+} from 'lucide-react';
 import { CartesianGrid, Line, LineChart, XAxis } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import {
@@ -10,12 +17,21 @@ import {
 } from '~/components/ui/chart';
 import DashboardCard from '~/components/ui/dashboardCard';
 import { client } from '~/supa-client';
-import { getAllPostsForOverview, getViewCountByTag } from '~/api/posts/posts-api';
+import { getAllPostsForOverview } from '~/api/posts/posts-api';
 import type { Route } from './+types/dashboard';
 import { Link, type MetaFunction } from 'react-router';
-import { getCategoriesGroupedByViewCount } from '~/api/categories/categories-api';
+import {
+  getCategoriesGroupedByViewCount,
+  getDailyViewCountByCategory,
+  getMonthlyViewCountByCategory,
+} from '~/api/categories/categories-api';
 import { categoryColors } from '~/lib/category-config';
 import type { ChartConfig } from '~/components/ui/chart';
+import { Button } from '~/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import { useState } from 'react';
+import { Command, CommandItem, CommandGroup, CommandList } from '~/components/ui/command';
+import { cn } from '~/lib/utils';
 
 export const meta: MetaFunction = () => {
   return [
@@ -55,41 +71,62 @@ const chartConfig: ChartConfig = {
   },
 } satisfies ChartConfig;
 
+const timePeriods = [
+  {
+    label: 'daily',
+    value: 'daily',
+  },
+  {
+    label: 'monthly',
+    value: 'monthly',
+  },
+];
+
 function transformViewCountByTagToChartData(
-  viewCountByTag: Awaited<ReturnType<typeof getViewCountByTag>>,
+  viewCountByTag:
+    | Awaited<ReturnType<typeof getMonthlyViewCountByCategory>>
+    | Awaited<ReturnType<typeof getDailyViewCountByCategory>>,
 ) {
   // 모든 카테고리 키 목록
   const allCategoryKeys = Object.keys(chartConfig);
 
   // month별로 그룹화
-  const groupedByMonth = viewCountByTag.reduce(
+  const groupedByTimePeriod = viewCountByTag.reduce(
     (acc, tag) => {
-      const month = tag.year_month as string;
+      const timePeriod = tag.record_date as string;
       const categoryKey = tag.category_name.toLowerCase();
-      if (!acc[month]) {
-        acc[month] = { month };
+      if (!acc[timePeriod]) {
+        acc[timePeriod] = { timePeriod };
         // 모든 카테고리를 0으로 초기화
         allCategoryKeys.forEach((key) => {
-          acc[month][key] = 0;
+          acc[timePeriod][key] = 0;
         });
       }
       if (allCategoryKeys.includes(categoryKey)) {
-        acc[month][categoryKey] = (acc[month][categoryKey] as number) + Number(tag.view_count);
+        acc[timePeriod][categoryKey] =
+          (acc[timePeriod][categoryKey] as number) +
+          Number('total_view_count' in tag ? tag.total_view_count : tag.daily_view_count);
       }
       return acc;
     },
     {} as Record<string, Record<string, number | string>>,
   );
 
-  return Object.values(groupedByMonth).sort((a, b) =>
-    (a.month as string).localeCompare(b.month as string),
+  return Object.values(groupedByTimePeriod).sort((a, b) =>
+    (a.timePeriod as string).localeCompare(b.timePeriod as string),
   );
 }
 
 export const loader = async () => {
-  const [posts, viewCountByTag, categoriesGroupedByViewCount] = await Promise.all([
+  const [
+    posts,
+    monthlyViewCountByCategory,
+    dailyViewCountByCategory,
+    categoriesGroupedByViewCount,
+  ] = await Promise.all([
     getAllPostsForOverview(client),
-    getViewCountByTag(client),
+    getMonthlyViewCountByCategory(client),
+    getDailyViewCountByCategory(client),
     getCategoriesGroupedByViewCount(client),
   ]);
 
@@ -119,10 +156,11 @@ export const loader = async () => {
     averageReadTimeMinutes: averageReadTimeMinutesInt,
     averageReadTimeSeconds,
     totalPosts,
-    viewCountByTag,
     mostViewedPosts,
     totalCategories,
     mostViewedCategories,
+    monthlyViewCountByCategory,
+    dailyViewCountByCategory,
   };
 };
 
@@ -132,11 +170,15 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     averageReadTimeMinutes,
     averageReadTimeSeconds,
     totalPosts,
-    viewCountByTag,
+    monthlyViewCountByCategory,
+    dailyViewCountByCategory,
     mostViewedPosts,
     totalCategories,
     mostViewedCategories,
   } = loaderData;
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('daily');
 
   return (
     <div className='flex flex-col gap-6 max-w-[1400px] md:ml-20'>
@@ -166,14 +208,53 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         />
       </div>
       <Card className='w-full bg-primary/10 border-primary/20'>
-        <CardHeader>
+        <CardHeader className='relative'>
           <CardTitle>Category Views Trend</CardTitle>
           <CardDescription>Aggregated view trends for each blog category over time</CardDescription>
+          <div className='absolute top-0 right-10'>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button variant='ghost' role='combobox' aria-expanded={open}>
+                  <MoreHorizontal className='size-5' />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className='w-[200px] p-0'>
+                <Command>
+                  <CommandList>
+                    <CommandGroup>
+                      {timePeriods.map((timePeriod) => (
+                        <CommandItem
+                          key={timePeriod.value}
+                          value={timePeriod.value}
+                          onSelect={(currentValue) => {
+                            setValue(currentValue === value ? 'daily' : currentValue);
+                            setOpen(false);
+                          }}
+                        >
+                          <span className='text-sm font-medium capitalize'>{timePeriod.label}</span>
+                          <Check
+                            className={cn(
+                              'ml-auto',
+                              value === timePeriod.value ? 'opacity-100' : 'opacity-0',
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
           <CardContent>
             <ChartContainer config={chartConfig}>
               <LineChart
                 accessibilityLayer
-                data={transformViewCountByTagToChartData(viewCountByTag)}
+                data={
+                  value === 'monthly'
+                    ? transformViewCountByTagToChartData(monthlyViewCountByCategory)
+                    : transformViewCountByTagToChartData(dailyViewCountByCategory)
+                }
                 margin={{
                   left: 12,
                   right: 12,
@@ -182,7 +263,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
               >
                 <CartesianGrid vertical={false} />
                 <XAxis
-                  dataKey='month'
+                  dataKey='timePeriod'
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}

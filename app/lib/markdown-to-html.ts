@@ -16,6 +16,9 @@ import remarkWikiLink from 'remark-wiki-link';
  * @returns HTML 문자열
  */
 export async function markdownToHtml(markdown: string): Promise<string> {
+  // Zero-width space 문자 제거 (KaTeX 경고 방지)
+  const cleanedMarkdown = markdown.replace(/\u200B/g, '');
+
   const result = await unified()
     .use(remarkParse)
     .use(remarkWikiLink, {
@@ -32,12 +35,15 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(remarkRehype, {
       allowDangerousHtml: true,
     })
-    .use(rehypeKatex)
+    .use(rehypeKatex, {
+      throwOnError: false,
+      strict: false,
+    })
     .use(rehypeSlug)
     .use(rehypeHighlight)
     .use(rehypeAddClasses) // rehypeHighlight 이후에 실행하여 클래스 병합
     .use(rehypeStringify)
-    .process(markdown);
+    .process(cleanedMarkdown);
 
   return String(result);
 }
