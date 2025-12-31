@@ -228,12 +228,13 @@ export type Database = {
       }
     }
     Functions: {
-      get_categories_grouped_by_view_count: {
-        Args: never
+      get_daily_categories_grouped_by_view_count: {
+        Args: { target_date: string }
         Returns: {
           category_name: string
+          daily_view_count: number
+          record_date: string
           tag_id: number
-          total_view_count: number
         }[]
       }
       get_latest_unique_events: {
@@ -245,6 +246,15 @@ export type Database = {
           post_excerpt: string
           post_id: number
           post_title: string
+        }[]
+      }
+      get_monthly_categories_grouped_by_view_count: {
+        Args: { year_month: string }
+        Returns: {
+          category_name: string
+          tag_id: number
+          total_view_count: number
+          year_month: string
         }[]
       }
       get_view_count_by_tag: {
