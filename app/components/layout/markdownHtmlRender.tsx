@@ -176,6 +176,15 @@ export default function MarkdownHtmlRender({
         }
       });
 
+      // 인용구(>) 스타일 적용
+      const quoteElements = containerRef.current.querySelectorAll('blockquote');
+      quoteElements.forEach((quote) => {
+        if (!quote.classList.contains('styled')) {
+          quote.className = 'border-l-4 border-primary/50 bg-muted/30 p-4 my-4 italic rounded-r-md';
+          quote.classList.add('styled');
+        }
+      });
+
       // Wiki 링크 스타일 적용 (remark-wiki-link가 생성한 링크)
       // /post/로 시작하는 내부 링크에 스타일 적용
       const wikiLinks = containerRef.current.querySelectorAll('a[href^="/post/"]');
@@ -192,7 +201,6 @@ export default function MarkdownHtmlRender({
       });
 
       // PDF 이미지 링크 처리 (PDF 뷰어로 변환)
-      // PDF 이미지 링크 처리 (PDF 뷰어로 변환) 부분 수정
       const pdfImages = containerRef.current.querySelectorAll('img:not([data-pdf-processed])');
       pdfImages.forEach((img) => {
         const src = img.getAttribute('src');

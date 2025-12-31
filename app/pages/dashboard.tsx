@@ -94,9 +94,13 @@ export const loader = async () => {
   ]);
 
   const totalViews = posts.reduce((acc, post) => acc + post.view_count, 0);
-  const averageReadTime = posts.reduce((acc, post) => acc + post.read_time, 0) / posts.length;
-  const averageReadTimeHours = Math.floor(averageReadTime / 60);
-  const averageReadTimeMinutes = Math.floor(averageReadTime % 60);
+
+  const averageReadTimeMinutes =
+    posts.reduce((acc, post) => acc + post.read_time, 0) / posts.length;
+  const averageReadTimeMinutesInt = Math.floor(averageReadTimeMinutes);
+  const averageReadTimeSeconds = Math.floor(
+    (averageReadTimeMinutes - averageReadTimeMinutesInt) * 60,
+  );
   const totalPosts = posts.length;
 
   const totalCategories = categoriesGroupedByViewCount.length;
@@ -112,8 +116,8 @@ export const loader = async () => {
 
   return {
     totalViews,
-    averageReadTimeHours,
-    averageReadTimeMinutes,
+    averageReadTimeMinutes: averageReadTimeMinutesInt,
+    averageReadTimeSeconds,
     totalPosts,
     viewCountByTag,
     mostViewedPosts,
@@ -125,8 +129,8 @@ export const loader = async () => {
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const {
     totalViews,
-    averageReadTimeHours,
     averageReadTimeMinutes,
+    averageReadTimeSeconds,
     totalPosts,
     viewCountByTag,
     mostViewedPosts,
@@ -145,7 +149,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         />
         <DashboardCard
           title='Avg. Read Time'
-          value={`${averageReadTimeHours}h ${averageReadTimeMinutes}m`}
+          value={`${averageReadTimeMinutes}m ${averageReadTimeSeconds}sec`}
           icon={<ClockIcon className='size-9 text-[#f95e27] bg-[#f95e27]/10 rounded-md p-2' />}
         />
         <DashboardCard
