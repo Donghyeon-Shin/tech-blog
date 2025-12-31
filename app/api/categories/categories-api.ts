@@ -17,7 +17,7 @@ export const getTopLevelCategories = async (client: SupabaseClient<Database>) =>
   return data;
 };
 
-export const getCategoriesGroupedByViewCount = async (client: SupabaseClient<Database>) => {
+export const getMonthlyCategoriesGroupedByViewCount = async (client: SupabaseClient<Database>) => {
   const { data, error } = await client.rpc('get_categories_grouped_by_view_count');
   if (error) {
     throw new Error(error.message);

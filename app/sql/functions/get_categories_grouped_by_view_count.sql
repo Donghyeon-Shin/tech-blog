@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.get_categories_grouped_by_view_count()
+CREATE OR REPLACE FUNCTION public.get_monthly_categories_grouped_by_view_count()
 RETURNS TABLE(tag_id bigint, category_name text, total_view_count bigint)
 LANGUAGE sql
 SECURITY definer

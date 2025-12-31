@@ -1,4 +1,11 @@
-import { ClockIcon, EyeIcon, ReceiptTextIcon, ShapesIcon } from 'lucide-react';
+import {
+  Check,
+  ClockIcon,
+  EyeIcon,
+  MoreHorizontal,
+  ReceiptTextIcon,
+  ShapesIcon,
+} from 'lucide-react';
 import { CartesianGrid, Line, LineChart, XAxis } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import {
@@ -13,9 +20,14 @@ import { client } from '~/supa-client';
 import { getAllPostsForOverview, getViewCountByTag } from '~/api/posts/posts-api';
 import type { Route } from './+types/dashboard';
 import { Link, type MetaFunction } from 'react-router';
-import { getCategoriesGroupedByViewCount } from '~/api/categories/categories-api';
+import { getMonthlyCategoriesGroupedByViewCount } from '~/api/categories/categories-api';
 import { categoryColors } from '~/lib/category-config';
 import type { ChartConfig } from '~/components/ui/chart';
+import { Button } from '~/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import { useState } from 'react';
+import { Command, CommandItem, CommandGroup, CommandList } from '~/components/ui/command';
+import { cn } from '~/lib/utils';
 
 export const meta: MetaFunction = () => {
   return [
@@ -55,6 +67,17 @@ const chartConfig: ChartConfig = {
   },
 } satisfies ChartConfig;
 
+const timePeriods = [
+  {
+    label: 'daily',
+    value: 'daily',
+  },
+  {
+    label: 'monthly',
+    value: 'monthly',
+  },
+];
+
 function transformViewCountByTagToChartData(
   viewCountByTag: Awaited<ReturnType<typeof getViewCountByTag>>,
 ) {
@@ -90,7 +113,7 @@ export const loader = async () => {
   const [posts, viewCountByTag, categoriesGroupedByViewCount] = await Promise.all([
     getAllPostsForOverview(client),
     getViewCountByTag(client),
-    getCategoriesGroupedByViewCount(client),
+    getMonthlyCategoriesGroupedByViewCount(client),
   ]);
 
   const totalViews = posts.reduce((acc, post) => acc + post.view_count, 0);
@@ -138,6 +161,9 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     mostViewedCategories,
   } = loaderData;
 
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('daily');
+
   return (
     <div className='flex flex-col gap-6 max-w-[1400px] md:ml-20'>
       <h1 className='text-4xl font-bold'>Overview</h1>
@@ -166,9 +192,50 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         />
       </div>
       <Card className='w-full bg-primary/10 border-primary/20'>
-        <CardHeader>
+        <CardHeader className='relative'>
           <CardTitle>Category Views Trend</CardTitle>
           <CardDescription>Aggregated view trends for each blog category over time</CardDescription>
+
+          <div className='absolute top-0 right-10'>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button variant='ghost' role='combobox' aria-expanded={open}>
+                  <MoreHorizontal className='size-5' />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className='w-[200px] p-0'>
+                <Command>
+                  <CommandList>
+                    <CommandGroup>
+                      {timePeriods.map((timePeriod) => (
+                        <CommandItem
+                          key={timePeriod.value}
+                          value={timePeriod.value}
+                          onSelect={(currentValue) => {
+                            setValue(currentValue === value ? 'daily' : currentValue);
+                            setOpen(false);
+                          }}
+                        >
+                          <span className='text-sm font-medium capitalize'>{timePeriod.label}</span>
+                          <Check
+                            className={cn(
+                              'ml-auto',
+                              value === timePeriod.value ? 'opacity-100' : 'opacity-0',
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+          {/* <div className='flex flex-col gap-2'>
+            {categoriesGroupedByViewCount.map((category) => (
+              <div key={category.category_name}>{category.category_name}</div>
+            ))}
+          </div> */}
           <CardContent>
             <ChartContainer config={chartConfig}>
               <LineChart
