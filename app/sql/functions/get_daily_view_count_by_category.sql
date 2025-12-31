@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.get_daily_categories_grouped_by_view_count(target_date date)
+CREATE OR REPLACE FUNCTION public.get_daily_view_count_by_category(target_date date)
 RETURNS TABLE(tag_id bigint, category_name text, record_date date, daily_view_count bigint)
 LANGUAGE sql
 SECURITY definer

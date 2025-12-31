@@ -1,5 +1,5 @@
-CREATE OR REPLACE FUNCTION public.get_monthly_categories_grouped_by_view_count(year_month text)
-RETURNS TABLE(tag_id bigint, category_name text, year_month text, total_view_count bigint)
+CREATE OR REPLACE FUNCTION public.get_monthly_view_count_by_category(year_month text)
+RETURNS TABLE(tag_id bigint, category_name text, record_date text, total_view_count bigint)
 LANGUAGE sql
 SECURITY definer
 SET search_path = ''

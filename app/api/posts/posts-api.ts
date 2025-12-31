@@ -38,16 +38,6 @@ export const getAllPostsForOverview = async (client: SupabaseClient<Database>) =
   return data;
 };
 
-export const getViewCountByTag = async (client: SupabaseClient<Database>) => {
-  const { data, error } = await client.rpc('get_view_count_by_tag');
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data || [];
-};
-
 const PAGE_SIZE = 5; // 한 페이지에 보여줄 글 개수
 
 export const getPostsByCategoryAndPage = async (
