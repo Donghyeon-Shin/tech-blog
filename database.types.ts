@@ -278,6 +278,16 @@ export type Database = {
         Args: { target_title: string }
         Returns: undefined
       }
+      search_posts_with_context: {
+        Args: { search_term: string }
+        Returns: {
+          context_snippet: string
+          found_in_title: boolean
+          post_id: number
+          rank: number
+          title: string
+        }[]
+      }
     }
     Enums: {
       event_types: "create" | "update"

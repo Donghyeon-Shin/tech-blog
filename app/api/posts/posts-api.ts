@@ -118,3 +118,13 @@ export const getAllPostsForBuildingCategoriesTree = async (client: SupabaseClien
   }
   return data;
 };
+
+export const searchPosts = async (client: SupabaseClient<Database>, searchTerm: string) => {
+  const { data, error } = await client.rpc('search_posts_with_context', {
+    search_term: searchTerm,
+  });
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+};

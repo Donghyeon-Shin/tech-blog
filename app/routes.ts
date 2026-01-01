@@ -14,6 +14,7 @@ export default [
     ...prefix('settings', [
       route('/theme', 'api/settings/set-theme.tsx'),
     ]),
+    route('/search/:searchTerm', 'api/search/search.tsx'),
   ]),
   route('*', 'pages/not-found.tsx'),
 ] satisfies RouteConfig;
