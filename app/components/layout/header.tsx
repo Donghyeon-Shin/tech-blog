@@ -16,15 +16,19 @@ import { useEffect, useMemo, useState } from 'react';
 import Searchbar from './searchbar';
 import { Theme, useTheme } from 'remix-themes';
 import type { getCategories } from '~/api/categories/categories-api';
+import type { getAllPostsForBuildingCategoriesTree } from '~/api/posts/posts-api';
 
 export default function Header({
   categories,
+  posts,
 }: {
   categories: Awaited<ReturnType<typeof getCategories>>;
+  posts: Awaited<ReturnType<typeof getAllPostsForBuildingCategoriesTree>>;
 }) {
   const [searchBarOpen, setSearchBarOpen] = useState(false);
   const [theme, setTheme] = useTheme();
   const location = useLocation();
+
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
@@ -154,7 +158,7 @@ export default function Header({
           </Link>
         </div>
       </div>
-      <Searchbar open={searchBarOpen} setOpen={setSearchBarOpen} />
+      <Searchbar open={searchBarOpen} setOpen={setSearchBarOpen} posts={posts} />
       <div
         aria-hidden='true'
         className='absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 w-[35%]'

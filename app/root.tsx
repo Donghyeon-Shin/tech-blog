@@ -83,6 +83,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     categoriesTree,
     topLevelCategories,
     categories,
+    posts,
     events,
   };
 };
@@ -144,7 +145,7 @@ export function InnerLayout({ children }: { children: React.ReactNode }) {
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <div>
-      <Header categories={loaderData.topLevelCategories} />
+      <Header categories={loaderData.topLevelCategories} posts={loaderData.posts} />
       <Outlet context={{ loaderData }} />
     </div>
   );

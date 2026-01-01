@@ -1,4 +1,8 @@
-CREATE OR REPLACE VIEW posts_with_excerpt AS
+DROP VIEW IF EXISTS posts_with_excerpt;
+
+CREATE OR REPLACE VIEW posts_with_excerpt 
+WITH (security_invoker = true)
+AS
 SELECT 
   post_id,
   title,
