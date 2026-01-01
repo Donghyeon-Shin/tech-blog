@@ -370,7 +370,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
               {/* 테이블 데이터 */}
               {mostViewedPosts.map((post, index) => (
                 <Link
-                  to={`/post/${post.post_id}`}
+                  to={`/post/${post.title}`}
                   key={index}
                   className='hover:bg-primary/10 rounded-md'
                 >
