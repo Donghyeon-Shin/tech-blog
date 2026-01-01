@@ -8,7 +8,10 @@ import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import type { Route } from './+types/not-found';
 import { getTopLevelCategories } from '~/api/categories/categories-api';
-import { getPopularPostsWithExcerpt } from '~/api/posts/posts-api';
+import {
+  getPopularPostsWithExcerpt,
+  getAllPostsForBuildingCategoriesTree,
+} from '~/api/posts/posts-api';
 import { client } from '~/supa-client';
 import type { CategoryName } from '~/lib/category-config';
 import { markdownToText } from '~/lib/markdown-to-text';
@@ -24,14 +27,16 @@ export const meta: MetaFunction = () => {
 export const loader = async () => {
   const popularPosts = await getPopularPostsWithExcerpt(client);
   const topLevelCategories = await getTopLevelCategories(client);
-  return { popularPosts, topLevelCategories };
+  const posts = await getAllPostsForBuildingCategoriesTree(client);
+  return { popularPosts, topLevelCategories, posts };
 };
 
 export default function NotFound({ loaderData }: Route.ComponentProps) {
-  const { popularPosts, topLevelCategories } = (loaderData as unknown as {
+  const { popularPosts, topLevelCategories, posts } = (loaderData as unknown as {
     popularPosts: Awaited<ReturnType<typeof getPopularPostsWithExcerpt>>;
     topLevelCategories: Awaited<ReturnType<typeof getTopLevelCategories>>;
-  }) || { popularPosts: [], topLevelCategories: [] };
+    posts: Awaited<ReturnType<typeof getAllPostsForBuildingCategoriesTree>>;
+  }) || { popularPosts: [], topLevelCategories: [], posts: [] };
 
   const [searchBarOpen, setSearchBarOpen] = useState(false);
 
@@ -113,7 +118,7 @@ export default function NotFound({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
       </div>
-      <Searchbar open={searchBarOpen} setOpen={setSearchBarOpen} />
+      <Searchbar open={searchBarOpen} setOpen={setSearchBarOpen} posts={posts} />
       <Toaster position='top-center' />
     </div>
   );
