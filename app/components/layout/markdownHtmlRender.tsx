@@ -119,7 +119,7 @@ export default function MarkdownHtmlRender({
             // Separator 추가 (h1, h2만)
             if (style.hasSeparator) {
               const separator = document.createElement('div');
-              separator.className = 'bg-slate-200/20 h-px my-2 w-50%';
+              separator.className = 'bg-border h-px my-2 w-50%';
               header.parentNode?.insertBefore(wrapper, header);
               wrapper.appendChild(header);
               wrapper.appendChild(separator);
