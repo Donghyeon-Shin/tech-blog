@@ -48,7 +48,7 @@ function CommandDialog({
         <DialogDescription>{description}</DialogDescription>
       </DialogHeader>
       <DialogContent
-        className={cn('overflow-hidden p-0', className)}
+        className={cn('overflow-hidden p-0 top-[10%] translate-y-0 max-h-[80vh]', className)}
         showCloseButton={showCloseButton}
       >
         <Command
@@ -85,7 +85,10 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
   return (
     <CommandPrimitive.List
       data-slot='command-list'
-      className={cn('max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto', className)}
+      className={cn(
+        'max-h-[calc(80vh-80px)] scroll-py-1 overflow-x-hidden overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+        className,
+      )}
       {...props}
     />
   );

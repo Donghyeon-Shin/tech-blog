@@ -9,6 +9,7 @@ import {
 } from '../ui/command';
 import { Link, useFetcher } from 'react-router';
 import { useEffect, useState } from 'react';
+import { File, FileTerminal } from 'lucide-react';
 
 export default function Searchbar({
   open,
@@ -54,7 +55,12 @@ export default function Searchbar({
     : [];
 
   return (
-    <CommandDialog open={open} onOpenChange={handleOpenChange} shouldFilter={false}>
+    <CommandDialog
+      open={open}
+      onOpenChange={handleOpenChange}
+      shouldFilter={false}
+      className='md:min-w-[800px]'
+    >
       <CommandInput
         value={searchTerm}
         onValueChange={setSearchTerm}
@@ -70,11 +76,48 @@ export default function Searchbar({
             )}
             {fetcher.state !== 'loading' && searchResults.length > 0 && (
               <CommandGroup heading='Documents'>
-                {searchResults.map((post) => (
-                  <CommandItem key={post.post_id}>
-                    <Link to={`/post/${post.title}`}>{post.title}</Link>
-                  </CommandItem>
-                ))}
+                {searchResults.map((post) =>
+                  post.found_in_title ? (
+                    // 제목에 키워드가 포함되었으면 제목만 표시
+                    <Link
+                      to={`/post/${post.title}`}
+                      key={post.post_id}
+                      onClick={() => handleOpenChange(false)}
+                      className='**:cursor-pointer'
+                    >
+                      <CommandItem>
+                        <FileTerminal className='size-4' />
+                        {post.title}
+                      </CommandItem>
+                    </Link>
+                  ) : (
+                    // 제목에 키워드가 포함되지 않았으면 본문 내용 중 일부를 표시
+                    <Link
+                      to={`/post/${post.title}`}
+                      key={post.post_id}
+                      onClick={() => handleOpenChange(false)}
+                      className='**:cursor-pointer'
+                    >
+                      <CommandItem>
+                        <div className='bg-primary/10 border border-primary/20 rounded-md p-2 text-muted-foreground flex flex-col gap-2'>
+                          <div className='flex flex-row gap-2 items-center'>
+                            <File className='size-4 text-foreground' />
+                            <div className='text-foreground text-sm font-medium'>{post.title}</div>
+                          </div>
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: post.context_snippet.replace(
+                                /<b>/g,
+                                '<b class="text-white/80 bg-primary/20 rounded-sm p-1">',
+                              ),
+                            }}
+                            className='line-clamp-3'
+                          />
+                        </div>
+                      </CommandItem>
+                    </Link>
+                  ),
+                )}
               </CommandGroup>
             )}
           </>
@@ -82,9 +125,17 @@ export default function Searchbar({
           // 기본 포스트 목록 표시
           <CommandGroup heading='Documents'>
             {filteredPosts.map((post) => (
-              <CommandItem key={post.post_id}>
-                <Link to={`/post/${post.title}`}>{post.title}</Link>
-              </CommandItem>
+              <Link
+                to={`/post/${post.title}`}
+                key={post.post_id}
+                onClick={() => handleOpenChange(false)}
+                className='**:cursor-pointer'
+              >
+                <CommandItem>
+                  <FileTerminal className='size-4' />
+                  {post.title}
+                </CommandItem>
+              </Link>
             ))}
           </CommandGroup>
         )}
