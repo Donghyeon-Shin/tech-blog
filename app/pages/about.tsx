@@ -75,7 +75,7 @@ export default function About() {
         <div className='flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
           <div className='flex flex-col sm:flex-row gap-4 w-full md:w-auto'>
             <Avatar className='size-40 border-3 border-muted-foreground shrink-0'>
-              <AvatarImage src='https://github.com/Donghyeon-Shin.png' />
+              <AvatarImage src='https://dqygovtpvlsoxwnnhepz.supabase.co/storage/v1/object/public/blog-uploads/Profile/Profile.png' />
               <AvatarFallback>DH</AvatarFallback>
             </Avatar>
             <div className='flex flex-col gap-4 min-w-0 justify-center'>
