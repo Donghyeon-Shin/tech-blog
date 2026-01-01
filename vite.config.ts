@@ -6,4 +6,8 @@ import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   plugins: [tailwindcss(), svgr(), reactRouter(), tsconfigPaths()],
+  ssr: {
+    // 에러를 일으키는 패키지를 노드 외부 모듈에서 제외하고 번들링에 포함시킵니다.
+    noExternal: ['react-syntax-highlighter', 'refractor'],
+  },
 });
