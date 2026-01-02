@@ -20,6 +20,18 @@ import TechBadge from '~/components/ui/techBadge';
 import { useRef } from 'react';
 import html2canvas from 'html2canvas-pro';
 import { jsPDF } from 'jspdf';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogFooter,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogTrigger,
+  AlertDialogTitle,
+  AlertDialogPortal,
+} from '~/components/ui/alert-dialog';
 
 export const meta: MetaFunction = () => {
   return [
@@ -92,16 +104,30 @@ export default function About() {
             </div>
           </div>
           <div className='flex-col gap-4 mx-4 hidden lg:flex'>
-            <Button
-              variant='outline'
-              size='lg'
-              className='px-6 py-4 text-lg'
-              ref={buttonRef}
-              onClick={handlePrint}
-            >
-              <DownloadIcon className='size-4' />
-              Resume
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild ref={buttonRef}>
+                <Button
+                  variant='outline'
+                  size='lg'
+                  className='px-6 py-4 text-lg flex flex-row items-center gap-2'
+                >
+                  <DownloadIcon className='size-4' />
+                  <span className='text-lg'>Resume</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Download Resume</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Would you like to download the latest version of my resume in PDF format?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Not Now</AlertDialogCancel>
+                  <AlertDialogAction onClick={handlePrint}>Download</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <div className='flex flex-row gap-2'>
               <MapPin className='size-4' />
               <p className='text-muted-foreground text-sm'>Seongnam, South Korea</p>
