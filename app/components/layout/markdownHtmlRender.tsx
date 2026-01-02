@@ -13,61 +13,61 @@ export default function MarkdownHtmlRender({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // 코드 블록에 복사 버튼 추가 함수
+  const addCopyButtons = () => {
+    if (!containerRef.current) return;
+
+    const preElements = containerRef.current.querySelectorAll('pre:not(.has-copy-button)');
+    preElements.forEach((preElement) => {
+      const codeElement = preElement.querySelector('code');
+      if (!codeElement) return;
+
+      const code = codeElement.textContent || '';
+
+      // 복사 버튼 추가
+      const copyButton = document.createElement('button');
+      copyButton.className =
+        'absolute top-2 right-2 z-5 p-2 hover:bg-accent rounded-md transition-colors bg-background/90 border border-border shadow-sm';
+      copyButton.setAttribute('type', 'button');
+      copyButton.setAttribute('aria-label', '코드 복사');
+      copyButton.innerHTML =
+        '<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>';
+      copyButton.onclick = (e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(code);
+        toast.success('코드가 복사되었습니다.');
+      };
+
+      // pre 요소에 relative 클래스가 없으면 추가
+      if (!preElement.classList.contains('relative')) {
+        preElement.classList.add('relative');
+      }
+
+      // pre 요소에 overflow 처리 추가 (텍스트가 넘치지 않도록)
+      (preElement as HTMLElement).style.whiteSpace = 'pre-wrap';
+      (preElement as HTMLElement).style.wordBreak = 'break-word';
+      (preElement as HTMLElement).style.overflowWrap = 'break-word';
+      (preElement as HTMLElement).style.maxWidth = '100%';
+
+      // code 요소에도 동일한 스타일 적용
+      if (codeElement) {
+        (codeElement as HTMLElement).style.whiteSpace = 'pre-wrap';
+        (codeElement as HTMLElement).style.wordBreak = 'break-word';
+        (codeElement as HTMLElement).style.overflowWrap = 'break-word';
+        (codeElement as HTMLElement).style.display = 'block';
+        (codeElement as HTMLElement).style.maxWidth = '100%';
+      }
+
+      preElement.appendChild(copyButton);
+      preElement.classList.add('has-copy-button');
+    });
+  };
+
   useEffect(() => {
     // 마운트 상태 추적
     let isMounted = true;
 
     if (!containerRef.current) return;
-
-    // 코드 블록에 복사 버튼 추가 함수
-    const addCopyButtons = () => {
-      if (!isMounted || !containerRef.current) return;
-
-      const preElements = containerRef.current.querySelectorAll('pre:not(.has-copy-button)');
-      preElements.forEach((preElement) => {
-        const codeElement = preElement.querySelector('code');
-        if (!codeElement) return;
-
-        const code = codeElement.textContent || '';
-
-        // 복사 버튼 추가
-        const copyButton = document.createElement('button');
-        copyButton.className =
-          'absolute top-2 right-2 z-5 p-2 hover:bg-accent rounded-md transition-colors bg-background/90 border border-border shadow-sm';
-        copyButton.setAttribute('type', 'button');
-        copyButton.setAttribute('aria-label', '코드 복사');
-        copyButton.innerHTML =
-          '<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>';
-        copyButton.onclick = (e) => {
-          e.stopPropagation();
-          navigator.clipboard.writeText(code);
-          toast.success('코드가 복사되었습니다.');
-        };
-
-        // pre 요소에 relative 클래스가 없으면 추가
-        if (!preElement.classList.contains('relative')) {
-          preElement.classList.add('relative');
-        }
-
-        // pre 요소에 overflow 처리 추가 (텍스트가 넘치지 않도록)
-        (preElement as HTMLElement).style.whiteSpace = 'pre-wrap';
-        (preElement as HTMLElement).style.wordBreak = 'break-word';
-        (preElement as HTMLElement).style.overflowWrap = 'break-word';
-        (preElement as HTMLElement).style.maxWidth = '100%';
-
-        // code 요소에도 동일한 스타일 적용
-        if (codeElement) {
-          (codeElement as HTMLElement).style.whiteSpace = 'pre-wrap';
-          (codeElement as HTMLElement).style.wordBreak = 'break-word';
-          (codeElement as HTMLElement).style.overflowWrap = 'break-word';
-          (codeElement as HTMLElement).style.display = 'block';
-          (codeElement as HTMLElement).style.maxWidth = '100%';
-        }
-
-        preElement.appendChild(copyButton);
-        preElement.classList.add('has-copy-button');
-      });
-    };
 
     // DOM이 준비될 때까지 대기
     const processElements = () => {
@@ -79,23 +79,23 @@ export default function MarkdownHtmlRender({
       // 헤더 스타일 설정 매핑
       const headerStyles: Record<string, { className: string; hasSeparator?: boolean }> = {
         H1: {
-          className: 'text-3xl scroll-mt-24 font-extrabold tracking-tight my-5',
+          className: 'text-2xl md:text-3xl scroll-mt-24 font-extrabold tracking-tight my-5',
           hasSeparator: true,
         },
         H2: {
-          className: 'text-2xl scroll-mt-20 font-bold mb-2 mt-12',
+          className: 'text-xl md:text-2xl scroll-mt-20 font-bold mb-2 mt-12',
           hasSeparator: true,
         },
         H3: {
-          className: 'text-xl scroll-mt-20 font-semibold mb-2 mt-8',
+          className: 'text-lg md:text-xl scroll-mt-20 font-semibold mb-2 mt-8',
           hasSeparator: false,
         },
         H4: {
-          className: 'text-lg scroll-mt-20 font-medium mt-4',
+          className: 'text-base md:text-lg scroll-mt-20 font-medium mt-4',
           hasSeparator: false,
         },
         H5: {
-          className: 'text-base scroll-mt-20 font-semibold mb-4 mt-8',
+          className: 'text-sm md:text-base scroll-mt-20 font-semibold mb-4 mt-8',
           hasSeparator: false,
         },
       };
@@ -135,7 +135,8 @@ export default function MarkdownHtmlRender({
       const pElements = containerRef.current.querySelectorAll('p');
       pElements.forEach((p) => {
         if (!p.classList.contains('styled')) {
-          p.className = 'whitespace-pre-wrap break-words overflow-wrap-anywhere';
+          p.className =
+            'text-sm md:text-base whitespace-pre-wrap break-words overflow-wrap-anywhere';
           p.classList.add('styled');
         }
       });
@@ -144,7 +145,7 @@ export default function MarkdownHtmlRender({
       const ulElements = containerRef.current.querySelectorAll('ul');
       ulElements.forEach((ul) => {
         if (!ul.classList.contains('styled')) {
-          ul.className = 'list-disc ml-6 mb-2';
+          ul.className = 'text-sm md:text-base list-disc ml-6 mb-2';
           ul.classList.add('styled');
         }
       });
@@ -152,7 +153,7 @@ export default function MarkdownHtmlRender({
       const olElements = containerRef.current.querySelectorAll('ol');
       olElements.forEach((ol) => {
         if (!ol.classList.contains('styled')) {
-          ol.className = 'list-decimal ml-6 mb-2';
+          ol.className = 'text-sm md:text-base list-decimal ml-6 mb-2';
           ol.classList.add('styled');
         }
       });
@@ -160,7 +161,7 @@ export default function MarkdownHtmlRender({
       const liElements = containerRef.current.querySelectorAll('li');
       liElements.forEach((li) => {
         if (!li.classList.contains('styled')) {
-          li.className = 'mb-3 last:mb-0 leading-relaxed';
+          li.className = 'text-sm md:text-base mb-3 last:mb-0 leading-relaxed';
           li.classList.add('styled');
         }
 
@@ -199,7 +200,7 @@ export default function MarkdownHtmlRender({
       inlineCodeElements.forEach((code) => {
         if (!code.classList.contains('styled')) {
           code.className =
-            'text-sm font-mono text-code-content-color bg-code-background p-1 rounded-md break-words whitespace-pre-wrap';
+            'text-xs md:text-sm font-mono text-code-content-color bg-code-background p-1 rounded-md break-words whitespace-pre-wrap';
           code.classList.add('styled');
         }
       });
@@ -208,7 +209,8 @@ export default function MarkdownHtmlRender({
       const aElements = containerRef.current.querySelectorAll('a');
       aElements.forEach((a) => {
         if (!a.classList.contains('styled')) {
-          a.className = 'hover:text-primary/80 underline underline-offset-4 transition-colors';
+          a.className =
+            'text-sm md:text-base hover:text-primary/80 underline underline-offset-4 transition-colors';
           a.classList.add('styled');
         }
       });
@@ -217,7 +219,8 @@ export default function MarkdownHtmlRender({
       const quoteElements = containerRef.current.querySelectorAll('blockquote');
       quoteElements.forEach((quote) => {
         if (!quote.classList.contains('styled')) {
-          quote.className = 'border-l-4 border-primary/50 bg-muted/30 p-4 my-4 italic rounded-r-md';
+          quote.className =
+            'text-sm md:text-base border-l-4 border-primary/50 bg-muted/30 p-4 my-4 italic rounded-r-md';
           quote.classList.add('styled');
         }
       });
@@ -233,9 +236,9 @@ export default function MarkdownHtmlRender({
 
           // 테이블에 최소 너비 설정 (작은 화면에서 스크롤 가능하도록)
           (table as HTMLElement).style.tableLayout = 'auto';
-          (table as HTMLElement).style.minWidth = '800px'; // 최소 너비 설정
           (table as HTMLElement).style.width = 'auto';
-          table.className = 'border-collapse border border-border rounded-lg';
+          table.className =
+            'border-collapse border border-border rounded-lg text-sm md:text-base sm:min-w-[800px]';
           table.classList.add('styled');
 
           // 부모 노드에 wrapper 삽입하고 테이블을 wrapper 안으로 이동
@@ -273,8 +276,7 @@ export default function MarkdownHtmlRender({
           const row = (td as HTMLElement).parentElement;
           const rowIndex = Array.from(row?.parentElement?.children || []).indexOf(row as Element);
 
-          (td as HTMLElement).className =
-            'px-4 py-2 text-muted-foreground border-b border-zinc-800';
+          (td as HTMLElement).className = 'px-4 py-2 text-muted-foreground';
           td.classList.add('styled');
 
           // td 안의 이미지 크기 고정
@@ -307,6 +309,7 @@ export default function MarkdownHtmlRender({
       wikiLinks.forEach((link) => {
         if (!link.classList.contains('wiki-link-styled')) {
           link.classList.add(
+            'text-sm md:text-base',
             'hover:text-primary/80',
             'underline',
             'underline-offset-4',
@@ -348,18 +351,25 @@ export default function MarkdownHtmlRender({
         pdfContainer.appendChild(pdfIframe);
 
         // 3. 모바일에서 보기 힘들 수 있으므로 다운로드/새창 링크 추가 (선택 사항)
-        const downloadLink = document.createElement('a');
-        downloadLink.href = src;
-        downloadLink.target = '_blank';
-        downloadLink.className = 'block text-sm text-primary hover:underline mt-2 text-right';
-        downloadLink.innerText = '📄 새 창에서 PDF 열기 / 다운로드';
+        const downloadButtonWrapper = document.createElement('div');
+        downloadButtonWrapper.className = 'flex justify-end';
+
+        const downloadButton = document.createElement('button');
+        downloadButton.className =
+          'text-xs md:text-sm bg-transparent text-accent-foreground hover:cursor-pointer hover:underline';
+        downloadButton.innerText = '새 창에서 PDF 열기';
+        downloadButton.onclick = () => {
+          window.open(src, '_blank');
+        };
+
+        downloadButtonWrapper.appendChild(downloadButton);
 
         // 이미지를 컨테이너로 교체
         const parent = img.parentNode;
         if (parent) {
           parent.replaceChild(pdfContainer, img);
-          // 컨테이너 다음에 다운로드 링크 삽입
-          parent.insertBefore(downloadLink, pdfContainer.nextSibling);
+          // 컨테이너 이전에 다운로드 버튼 wrapper 삽입
+          parent.insertBefore(downloadButtonWrapper, pdfContainer);
         }
       });
 
@@ -590,6 +600,15 @@ export default function MarkdownHtmlRender({
   useEffect(() => {
     if (!containerRef.current) return;
     containerRef.current.innerHTML = htmlContent;
+
+    // HTML 업데이트 후 복사 버튼 추가
+    const timeoutId = setTimeout(() => {
+      addCopyButtons();
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [htmlContent]);
 
   return <div ref={containerRef} className='markdown-content flex flex-col gap-4' />;

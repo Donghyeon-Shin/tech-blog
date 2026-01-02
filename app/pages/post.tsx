@@ -134,15 +134,15 @@ export default function Post({ loaderData }: Route.ComponentProps) {
     <div className='grid grid-cols-1 md:grid-cols-[1fr_280px] xl:grid-cols-[1fr_280px]'>
       <div className='flex flex-col gap-4 mx-3'>
         <HierarchyBar hierarchy={categoryPath} />
-        <h1 className='text-6xl font-bold'>{post.title}</h1>
-        <div className='flex items-center justify-end gap-5'>
+        <h1 className='text-3xl md:text-6xl font-bold'>{post.title}</h1>
+        <div className='flex items-center justify-end gap-5 text-xs md:text-sm'>
           <div className='flex items-center gap-2 text-muted-foreground'>
             <Calendar className='size-4' />
-            <span className='text-sm font-medium'>{formattedDate}</span>
+            <span className='font-medium'>{formattedDate}</span>
           </div>
           <div className='flex items-center gap-2 text-muted-foreground'>
             <Clock className='size-4' />
-            <span className='text-sm font-medium'>{minutesToRead} min read</span>
+            <span className='font-medium'>{minutesToRead} min read</span>
           </div>
         </div>
         {/* 본문 내용 렌더링 */}
