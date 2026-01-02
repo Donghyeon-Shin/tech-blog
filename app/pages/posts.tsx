@@ -21,27 +21,26 @@ const paramsSchema = z.object({
     .string()
     .optional()
     .default('all')
-    .transform((val) => {
-      if (val === 'all' || !val) return -1;
-      const num = parseInt(val, 10);
-      if (isNaN(num)) {
-        throw new z.ZodError([
-          {
-            code: 'custom',
-            path: ['category'],
-            message: 'Category must be "all" or a valid number',
-          },
-        ]);
-      }
-      return num;
-    }),
+    .refine(
+      (val) => {
+        if (val === 'all' || !val) return true;
+        const num = parseInt(val, 10);
+        return !isNaN(num);
+      },
+      {
+        message: 'Category must be "all" or a valid number',
+      },
+    ),
 });
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const { success, data } = paramsSchema.safeParse(params);
   if (!success) {
-    throw new Response('Invalid params', { status: 400 });
+    throw new Response('Invalid category parameter', { status: 404 });
   }
+
+  const categoryValue =
+    data.category === 'all' || !data.category ? -1 : parseInt(data.category, 10);
 
   // 쿼리 파라미터에서 page 읽기 및 검증
   const url = new URL(request.url);
@@ -50,9 +49,14 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   // 병렬 실행
   const [totalPages, posts] = await Promise.all([
-    getPostTotalPagesByCategory(client, data.category),
-    getPostsByCategoryAndPage(client, data.category, pageNum),
+    getPostTotalPagesByCategory(client, categoryValue),
+    getPostsByCategoryAndPage(client, categoryValue, pageNum),
   ]);
+
+  // 게시글이 없는 경우 404 에러 발생
+  if (posts.length === 0) {
+    throw new Response('No posts found', { status: 404 });
+  }
 
   // 페이지 범위를 벗어난 경우에만 리다이렉트
   if (pageNum < 1 || (totalPages > 0 && pageNum > totalPages)) {
@@ -70,7 +74,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   };
 };
 
-const navLinkVariants = cva('rounded-full border px-4 py-1', {
+const navLinkVariants = cva('rounded-full border px-4 py-1 text-sm md:text-base', {
   variants: {
     isActive: {
       true: 'bg-foreground font-medium text-background',
@@ -89,7 +93,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
     <div className='flex flex-col min-h-[calc(100vh-4rem)] max-w-[1400px] md:ml-20'>
       <div className='flex flex-col gap-8 flex-1'>
         <div className='flex flex-col gap-4'>
-          <h1 className='text-4xl font-bold'>All Posts</h1>
+          <h1 className='text-3xl md:text-4xl font-bold'>All Posts</h1>
           <p className='text-muted-foreground'>
             A collection of 42 articles on programming, technology and life.
           </p>

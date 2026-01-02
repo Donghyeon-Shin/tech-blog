@@ -150,4 +150,47 @@
   .markdown-content ul li::marker {
     color: var(--color-gray-500);
   }
+
+  /* KaTeX 수식 반응형 스타일 */
+  /* 인라인 수식 */
+  .katex:not(.katex-display) {
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    font-size: 0.85em !important;
+    display: inline-block;
+  }
+
+  @media (min-width: 640px) {
+    .katex:not(.katex-display) {
+      font-size: 1em !important;
+    }
+  }
+
+  /* 블록 수식 wrapper */
+  .katex-display-wrapper {
+    overflow-x: auto !important;
+    max-width: 100% !important;
+    margin: 1rem 0;
+  }
+
+  /* 블록 수식 */
+  .katex-display {
+    max-width: 100% !important;
+    font-size: 0.75em !important;
+    margin: 0 !important;
+  }
+
+  @media (min-width: 640px) {
+    .katex-display {
+      font-size: 1em !important;
+    }
+  }
+
+  /* KaTeX 내부 모든 요소에 반응형 적용 */
+  .katex *,
+  .katex-display * {
+    font-size: inherit !important;
+    max-width: 100% !important;
+  }
 }

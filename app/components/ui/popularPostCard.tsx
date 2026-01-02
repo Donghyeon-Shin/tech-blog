@@ -50,12 +50,12 @@ export default function PopularPostCard({
   return (
     <Link
       to={`/post/${title}`}
-      className='border rounded-lg p-8 flex flex-col gap-4 hover:bg-primary/10 relative'
+      className='border rounded-lg p-4 md:p-8 flex flex-col gap-4 hover:bg-primary/10 relative'
     >
       <div className='absolute bottom-3 right-5 lg:top-5'>
-        <div className='flex flex-row gap-5 items-center h-12 lg:h-16'>
-          <Separator orientation='vertical' className='h-12 lg:h-16' />
-          <div className='text-muted text-3xl lg:text-4xl font-extrabold tracking-wider'>
+        <div className='flex flex-row gap-5 items-center h-8 lg:h-16'>
+          <Separator orientation='vertical' className='h-8 lg:h-16' />
+          <div className='text-muted text-2xl lg:text-4xl font-extrabold tracking-wider'>
             {rank.toString().padStart(2, '0')}
           </div>
         </div>
@@ -72,8 +72,8 @@ export default function PopularPostCard({
         </div>
       </div>
       <div className='flex flex-col gap-2'>
-        <h2 className='text-2xl font-bold'>{title}</h2>
-        <p className='text-muted-foreground text-sm line-clamp-2'>{description}</p>
+        <h2 className='text-xl md:text-2xl font-bold'>{title}</h2>
+        <p className='text-muted-foreground text-xs md:text-sm line-clamp-2'>{description}</p>
       </div>
       <div className='flex flex-row gap-2 items-center'>
         <EyeIcon className='size-4 text-muted-foreground ' />

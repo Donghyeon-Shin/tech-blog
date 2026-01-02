@@ -85,7 +85,7 @@ export default function PostPagination({ totalPages }: { totalPages: number }) {
       <PaginationContent>
         {/* 이전 버튼 */}
         {page > 1 && (
-          <PaginationItem>
+          <PaginationItem className='hidden md:block'>
             <PaginationPrevious
               to={createPageUrl(page - 1)}
               onClick={(e) => handlePageClick(page - 1, e)}
@@ -98,7 +98,7 @@ export default function PostPagination({ totalPages }: { totalPages: number }) {
         {pageNumbers.map((pageNum, index) => {
           if (pageNum === 'ellipsis') {
             return (
-              <PaginationItem key={`ellipsis-${index}`}>
+              <PaginationItem key={`ellipsis-${index}`} className='hidden md:block'>
                 <PaginationEllipsis />
               </PaginationItem>
             );
@@ -120,7 +120,7 @@ export default function PostPagination({ totalPages }: { totalPages: number }) {
 
         {/* 다음 버튼 */}
         {page < totalPages && (
-          <PaginationItem>
+          <PaginationItem className='hidden md:block'>
             <PaginationNext
               to={createPageUrl(page + 1)}
               onClick={(e) => handlePageClick(page + 1, e)}
