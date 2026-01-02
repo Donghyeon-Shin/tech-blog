@@ -28,7 +28,7 @@ export default function PopularPosts({ loaderData }: Route.ComponentProps) {
   return (
     <div className='flex flex-col gap-8 max-w-[1400px] md:ml-20'>
       <div className='flex flex-col gap-4'>
-        <h1 className='text-4xl font-bold'>Popular Posts</h1>
+        <h1 className='text-3xl md:text-4xl font-bold'>Popular Posts</h1>
         <p className='text-muted-foreground'>Most read articles on my blog</p>
       </div>
       <div className='flex flex-col gap-4'>

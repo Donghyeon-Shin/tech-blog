@@ -74,7 +74,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   };
 };
 
-const navLinkVariants = cva('rounded-full border px-4 py-1', {
+const navLinkVariants = cva('rounded-full border px-4 py-1 text-sm md:text-base', {
   variants: {
     isActive: {
       true: 'bg-foreground font-medium text-background',
@@ -93,7 +93,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
     <div className='flex flex-col min-h-[calc(100vh-4rem)] max-w-[1400px] md:ml-20'>
       <div className='flex flex-col gap-8 flex-1'>
         <div className='flex flex-col gap-4'>
-          <h1 className='text-4xl font-bold'>All Posts</h1>
+          <h1 className='text-3xl md:text-4xl font-bold'>All Posts</h1>
           <p className='text-muted-foreground'>
             A collection of 42 articles on programming, technology and life.
           </p>
