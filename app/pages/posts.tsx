@@ -21,27 +21,26 @@ const paramsSchema = z.object({
     .string()
     .optional()
     .default('all')
-    .transform((val) => {
-      if (val === 'all' || !val) return -1;
-      const num = parseInt(val, 10);
-      if (isNaN(num)) {
-        throw new z.ZodError([
-          {
-            code: 'custom',
-            path: ['category'],
-            message: 'Category must be "all" or a valid number',
-          },
-        ]);
-      }
-      return num;
-    }),
+    .refine(
+      (val) => {
+        if (val === 'all' || !val) return true;
+        const num = parseInt(val, 10);
+        return !isNaN(num);
+      },
+      {
+        message: 'Category must be "all" or a valid number',
+      },
+    ),
 });
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const { success, data } = paramsSchema.safeParse(params);
   if (!success) {
-    throw new Response('Invalid params', { status: 400 });
+    throw new Response('Invalid category parameter', { status: 404 });
   }
+
+  const categoryValue =
+    data.category === 'all' || !data.category ? -1 : parseInt(data.category, 10);
 
   // 쿼리 파라미터에서 page 읽기 및 검증
   const url = new URL(request.url);
@@ -50,9 +49,14 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   // 병렬 실행
   const [totalPages, posts] = await Promise.all([
-    getPostTotalPagesByCategory(client, data.category),
-    getPostsByCategoryAndPage(client, data.category, pageNum),
+    getPostTotalPagesByCategory(client, categoryValue),
+    getPostsByCategoryAndPage(client, categoryValue, pageNum),
   ]);
+
+  // 게시글이 없는 경우 404 에러 발생
+  if (posts.length === 0) {
+    throw new Response('No posts found', { status: 404 });
+  }
 
   // 페이지 범위를 벗어난 경우에만 리다이렉트
   if (pageNum < 1 || (totalPages > 0 && pageNum > totalPages)) {
