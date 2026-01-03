@@ -2,14 +2,14 @@ import { Calendar, Clock } from 'lucide-react';
 import HierarchyBar from '~/components/layout/hierarchyBar';
 import { format } from 'date-fns';
 import MarkdownHtmlRender from '~/components/layout/markdownHtmlRender';
-import { useMemo, useRef, useState } from 'react';
+import { Suspense, useMemo, useRef, useState } from 'react';
 import PostSidebar from '~/components/layout/postSideBar';
 import type { Route } from './+types/post';
 import type { ShouldRevalidateFunctionArgs } from 'react-router';
 import GitHubSlugger from 'github-slugger';
 import { client } from '~/supa-client';
 import { getPostByTitle } from '~/api/posts/posts-api';
-import { useOutletContext } from 'react-router';
+import { Await, useOutletContext } from 'react-router';
 import { markdownToHtml } from '~/lib/markdown-to-html';
 import type { getCategories } from '~/api/categories/categories-api';
 import { z } from 'zod';
@@ -40,7 +40,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
   const markdownContent = post.content;
 
   // 서버 사이드에서 마크다운을 HTML로 변환
-  const htmlContent = await markdownToHtml(markdownContent);
+  const htmlContent = markdownToHtml(markdownContent);
 
   // 마크다운 텍스트에서 TOC 생성
   const slugger = new GitHubSlugger();
@@ -146,11 +146,17 @@ export default function Post({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
         {/* 본문 내용 렌더링 */}
-        <MarkdownHtmlRender
-          htmlContent={htmlContent}
-          setActiveId={handleObserverActiveId}
-          isScrollingRef={isScrollingRef}
-        />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Await resolve={htmlContent}>
+            {(htmlContent: string) => (
+              <MarkdownHtmlRender
+                htmlContent={htmlContent}
+                setActiveId={handleObserverActiveId}
+                isScrollingRef={isScrollingRef}
+              />
+            )}
+          </Await>
+        </Suspense>
       </div>
       <div className='sticky top-20 hidden md:block self-start'>
         <PostSidebar
