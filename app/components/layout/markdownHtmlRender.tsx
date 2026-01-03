@@ -24,10 +24,25 @@ export default function MarkdownHtmlRender({
 
       const code = codeElement.textContent || '';
 
+      // 이미 래퍼로 감싸져 있는지 확인
+      const parent = preElement.parentElement;
+      const isWrapped = parent?.classList.contains('code-block-wrapper');
+
+      // 래퍼가 없으면 생성
+      let wrapper: HTMLDivElement;
+      if (!isWrapped) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'code-block-wrapper relative my-4';
+        preElement.parentNode?.insertBefore(wrapper, preElement);
+        wrapper.appendChild(preElement);
+      } else {
+        wrapper = parent as HTMLDivElement;
+      }
+
       // 복사 버튼 추가
       const copyButton = document.createElement('button');
       copyButton.className =
-        'absolute top-2 right-2 z-5 p-2 hover:bg-accent rounded-md transition-colors bg-background/90 border border-border shadow-sm';
+        'absolute top-2 right-2 z-10 p-2 hover:bg-accent rounded-md transition-colors bg-background/90 border border-border shadow-sm';
       copyButton.setAttribute('type', 'button');
       copyButton.setAttribute('aria-label', '코드 복사');
       copyButton.innerHTML =
@@ -38,27 +53,24 @@ export default function MarkdownHtmlRender({
         toast.success('코드가 복사되었습니다.');
       };
 
-      // pre 요소에 relative 클래스가 없으면 추가
-      if (!preElement.classList.contains('relative')) {
-        preElement.classList.add('relative');
-      }
-
-      // pre 요소에 overflow 처리 추가 (텍스트가 넘치지 않도록)
-      (preElement as HTMLElement).style.whiteSpace = 'pre-wrap';
-      (preElement as HTMLElement).style.wordBreak = 'break-word';
-      (preElement as HTMLElement).style.overflowWrap = 'break-word';
+      // pre 요소에 스타일 적용 (반응형 스크롤 및 텍스트 크기)
+      preElement.classList.add('relative', 'overflow-x-auto', 'custom-scrollbar');
+      (preElement as HTMLElement).style.whiteSpace = 'pre';
       (preElement as HTMLElement).style.maxWidth = '100%';
 
-      // code 요소에도 동일한 스타일 적용
+      // code 요소 스타일 적용
       if (codeElement) {
-        (codeElement as HTMLElement).style.whiteSpace = 'pre-wrap';
-        (codeElement as HTMLElement).style.wordBreak = 'break-word';
-        (codeElement as HTMLElement).style.overflowWrap = 'break-word';
+        (codeElement as HTMLElement).style.whiteSpace = 'pre';
         (codeElement as HTMLElement).style.display = 'block';
-        (codeElement as HTMLElement).style.maxWidth = '100%';
+        codeElement.classList.add('text-sm', 'md:text-base'); // Code 블록 반응형
       }
 
-      preElement.appendChild(copyButton);
+      // 래퍼에 복사 버튼 추가 (이미 있으면 추가하지 않음)
+      if (!wrapper.querySelector('.code-copy-button')) {
+        copyButton.classList.add('code-copy-button');
+        wrapper.appendChild(copyButton);
+      }
+
       preElement.classList.add('has-copy-button');
     });
   };
