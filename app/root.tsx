@@ -23,6 +23,8 @@ import { getAllPostsForBuildingCategoriesTree } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
 import { getEvents } from './api/events/events-api';
 import { cn } from './lib/utils';
+import nProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -148,8 +150,16 @@ export default function App({ loaderData }: Route.ComponentProps) {
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
 
+  useEffect(() => {
+    if (isLoading) {
+      nProgress.start();
+    } else {
+      nProgress.done();
+    }
+  }, [isLoading]);
+
   return (
-    <div className={cn(isLoading && 'transition-opacity animate-pulse')}>
+    <div className={cn(isLoading && 'opacity-70 pointer-events-none cursor-wait')}>
       <Header categories={loaderData.topLevelCategories} posts={loaderData.posts} />
       <Outlet context={{ loaderData }} />
     </div>
