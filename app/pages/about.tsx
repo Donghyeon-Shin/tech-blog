@@ -30,7 +30,6 @@ import {
   AlertDialogContent,
   AlertDialogTrigger,
   AlertDialogTitle,
-  AlertDialogPortal,
 } from '~/components/ui/alert-dialog';
 
 export const meta: MetaFunction = () => {
