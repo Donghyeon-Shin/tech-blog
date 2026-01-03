@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigation,
   useRouteLoaderData,
 } from 'react-router';
 import { useEffect } from 'react';
@@ -21,6 +22,7 @@ import { getCategories } from './api/categories/categories-api';
 import { getAllPostsForBuildingCategoriesTree } from './api/posts/posts-api';
 import { buildCategoriesTree } from './lib/buildCategoriesTree';
 import { getEvents } from './api/events/events-api';
+import { cn } from './lib/utils';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -143,8 +145,11 @@ export function InnerLayout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
+  const navigation = useNavigation();
+  const isLoading = navigation.state === 'loading';
+
   return (
-    <div>
+    <div className={cn(isLoading && 'transition-opacity animate-pulse')}>
       <Header categories={loaderData.topLevelCategories} posts={loaderData.posts} />
       <Outlet context={{ loaderData }} />
     </div>
