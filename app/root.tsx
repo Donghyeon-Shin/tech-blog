@@ -149,7 +149,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
   const isLoading = navigation.state === 'loading';
 
   return (
-    <div className={cn(isLoading && 'transition-opacity animate-pulse')}>
+    <div className={cn(isLoading && 'opacity-70 pointer-events-none cursor-wait')}>
       <Header categories={loaderData.topLevelCategories} posts={loaderData.posts} />
       <Outlet context={{ loaderData }} />
     </div>
