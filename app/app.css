@@ -193,4 +193,14 @@
     font-size: inherit !important;
     max-width: 100% !important;
   }
+
+  /* 우측 상단 스피너 숨기기 */
+  #nprogress .spinner {
+    display: none !important;
+  }
+
+  /* nProgress 페그(peek) 스타일 */
+  #nprogress .peg {
+    box-shadow: 0 0 10px var(--color-primary), 0 0 5px var(--color-primary) !important;
+  }
 }
