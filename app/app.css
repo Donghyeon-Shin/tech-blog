@@ -171,14 +171,14 @@
   .katex-display-wrapper {
     overflow-x: auto !important;
     max-width: 100% !important;
-    margin: 1rem 0;
+    margin: 2rem 0 !important;
   }
 
-  /* 블록 수식 */
+  /* 블록 수식 (wrapper가 없는 경우를 대비해 직접 margin 추가) */
   .katex-display {
     max-width: 100% !important;
     font-size: 0.75em !important;
-    margin: 0 !important;
+    margin: 2rem 0 !important;
   }
 
   @media (min-width: 640px) {
