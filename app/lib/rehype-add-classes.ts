@@ -28,7 +28,7 @@ export const rehypeAddClasses: Plugin<[], Root> = () => {
       } else if (node.tagName === 'h3') {
         node.properties = {
           ...node.properties,
-          className: ['text-xl', 'scroll-mt-20', 'font-semibold', 'mb-4', 'mt-8'],
+          className: ['text-xl', 'scroll-mt-20', 'font-semibold', 'mb-4', 'mt-8', 'text-cyan-200'],
         };
       } else if (node.tagName === 'h4') {
         node.properties = {

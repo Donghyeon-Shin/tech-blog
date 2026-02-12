@@ -99,7 +99,7 @@ export default function MarkdownHtmlRender({
           hasSeparator: true,
         },
         H3: {
-          className: 'text-lg md:text-xl scroll-mt-20 font-semibold mb-2 mt-8',
+          className: 'text-lg md:text-xl scroll-mt-20 font-semibold mb-2 mt-8 text-cyan-200',
           hasSeparator: false,
         },
         H4: {
