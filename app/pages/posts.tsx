@@ -90,7 +90,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
   const { postsWithProcessedExcerpt, totalPages } = loaderData;
 
   return (
-    <div className='flex flex-col min-h-[calc(100vh-4rem)] max-w-[1400px] md:ml-20'>
+    <div className='flex flex-col min-h-[calc(100vh-4rem)] max-w-[1400px] xl:ml-20'>
       <div className='flex flex-col gap-8 flex-1'>
         <div className='flex flex-col gap-4'>
           <h1 className='text-3xl md:text-4xl font-bold'>All Posts</h1>

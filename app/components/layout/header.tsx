@@ -80,7 +80,7 @@ export default function Header({
 
   return (
     <div className='sticky top-0 z-50 w-full border-b border-border-dark bg-background backdrop-blur'>
-      <div className='h-16 flex justify-between items-center pl-5 md:pl-20'>
+      <div className='h-16 flex justify-between items-center pl-5 xl:pl-20'>
         <div className='flex items-center gap-4'>
           <div className='flex items-center gap-2'>
             <Link to='/' className='flex flex-row items-center gap-2'>

@@ -8,7 +8,7 @@ export default function LeftSidebarLayout() {
     loaderData: Route.ComponentProps['loaderData'];
   }>();
   return (
-    <div className='mx-auto xl:mx-20 grid grid-cols-1 md:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
+    <div className='mx-auto xl:mx-20 grid grid-cols-1 xl:grid-cols-[280px_1fr] gap-8 px-6 py-8'>
       <LeftSidebar
         categoriesTree={loaderData.categoriesTree as FolderItemProps[]}
         events={loaderData.events}
