@@ -29,7 +29,7 @@ export default function LeftSidebar({
   const isPostsActive = location.pathname.startsWith('/posts');
 
   return (
-    <div className='hidden md:block'>
+    <div className='hidden xl:block'>
       <div className='flex flex-col gap-10 justify-center'>
         <div className='flex flex-col gap-4'>
           <h1 className='text-sm font-medium text-muted-foreground/50'>DISCOVER</h1>

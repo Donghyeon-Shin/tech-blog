@@ -9,6 +9,14 @@ export const getPosts = async (client: SupabaseClient<Database>) => {
   return data;
 };
 
+export const getPostsCount = async (client: SupabaseClient<Database>) => {
+  const { count, error } = await client.from('posts').select('*', { count: 'exact', head: true });
+  if (error) {
+    throw new Error(error.message);
+  }
+  return count;
+};
+
 export const getPostByTitle = async (client: SupabaseClient<Database>, title: string) => {
   // 대소문자 구분 없이 비교
   const { data, error } = await client.from('posts').select('*').ilike('title', title).single();

@@ -131,7 +131,7 @@ export default function Post({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className='grid grid-cols-1 md:grid-cols-[1fr_280px] xl:grid-cols-[1fr_280px]'>
+    <div className='grid grid-cols-1 xl:grid-cols-[1fr_280px]'>
       <div className='flex flex-col gap-4 mx-3'>
         <HierarchyBar hierarchy={categoryPath} />
         <h1 className='text-3xl md:text-6xl font-bold'>{post.title}</h1>
@@ -158,7 +158,7 @@ export default function Post({ loaderData }: Route.ComponentProps) {
           </Await>
         </Suspense>
       </div>
-      <div className='sticky top-20 hidden md:block self-start'>
+      <div className='sticky top-20 hidden xl:block self-start'>
         <PostSidebar
           activeId={activeId}
           setActiveId={setActiveId}
