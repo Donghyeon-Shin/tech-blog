@@ -4,7 +4,11 @@ import { cva } from 'class-variance-authority';
 import PostCard from '~/components/ui/postCard';
 import PostPagination from '~/components/layout/postPagination';
 import { markdownToText } from '~/lib/markdown-to-text';
-import { getPostsByCategoryAndPage, getPostTotalPagesByCategory } from '~/api/posts/posts-api';
+import {
+  getPostsByCategoryAndPage,
+  getPostsCount,
+  getPostTotalPagesByCategory,
+} from '~/api/posts/posts-api';
 import type { getTopLevelCategories } from '~/api/categories/categories-api';
 import { z } from 'zod';
 import { client } from '~/supa-client';
@@ -48,9 +52,10 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const pageNum = pageParam ? parseInt(pageParam, 10) : 1;
 
   // 병렬 실행
-  const [totalPages, posts] = await Promise.all([
+  const [totalPages, posts, totalPosts] = await Promise.all([
     getPostTotalPagesByCategory(client, categoryValue),
     getPostsByCategoryAndPage(client, categoryValue, pageNum),
+    getPostsCount(client),
   ]);
 
   // 게시글이 없는 경우 404 에러 발생
@@ -71,6 +76,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   return {
     totalPages,
     postsWithProcessedExcerpt,
+    totalPosts,
   };
 };
 
@@ -87,7 +93,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
   const { topLevelCategories } = useOutletContext<{
     topLevelCategories: Awaited<ReturnType<typeof getTopLevelCategories>>;
   }>();
-  const { postsWithProcessedExcerpt, totalPages } = loaderData;
+  const { postsWithProcessedExcerpt, totalPages, totalPosts } = loaderData;
 
   return (
     <div className='flex flex-col min-h-[calc(100vh-4rem)] max-w-[1400px] xl:ml-20'>
@@ -95,7 +101,7 @@ export default function Posts({ loaderData }: Route.ComponentProps) {
         <div className='flex flex-col gap-4'>
           <h1 className='text-3xl md:text-4xl font-bold'>All Posts</h1>
           <p className='text-muted-foreground'>
-            A collection of 42 articles on programming, technology and life.
+            A collection of {totalPosts} articles on programming, technology and life.
           </p>
         </div>
         <div className='flex flex-row flex-wrap gap-2'>
