@@ -1,6 +1,7 @@
 import { type RouteConfig, index, layout, prefix, route } from '@react-router/dev/routes';
 
 export default [
+  route('/sitemap.xml', 'pages/sitemap-xml.tsx'),
   layout('components/layout/leftSidebarLayout.tsx', [
     index('pages/index.tsx'),
     ...prefix('posts', [route('/:category', 'pages/posts.tsx')]),
